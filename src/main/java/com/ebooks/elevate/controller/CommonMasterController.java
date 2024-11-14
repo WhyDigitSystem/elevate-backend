@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
 import com.ebooks.elevate.dto.CityDTO;
+import com.ebooks.elevate.dto.ClientDTO;
 import com.ebooks.elevate.dto.CompanyDTO;
 import com.ebooks.elevate.dto.CountryDTO;
 import com.ebooks.elevate.dto.CurrencyDTO;
@@ -895,6 +896,29 @@ public class CommonMasterController extends BaseController {
 		} else {
 			responseDTO = createServiceResponseError(responseObjectsMap, "screenNames information receive failed",
 					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	//CLIENT
+	
+	@PutMapping("/createUpdateClient")
+	public ResponseEntity<ResponseDTO> createUpdateClient(@RequestBody ClientDTO clientDTO) {
+		String methodName = "createUpdateClient()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> clientVO = commonMasterService.createUpdateClient(clientDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, clientVO.get("messages"));
+			responseObjectsMap.put("clientVO", clientVO.get("clientVO"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);

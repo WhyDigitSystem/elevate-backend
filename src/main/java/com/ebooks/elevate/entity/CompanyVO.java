@@ -10,6 +10,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.ebooks.elevate.dto.CreatedUpdatedDate;
+import com.ebooks.elevate.dto.Role;
 import com.fasterxml.jackson.annotation.JsonGetter;
 
 import lombok.AllArgsConstructor;
@@ -55,12 +56,8 @@ public class CompanyVO {
 	private String webSite;
 	@Column(name = "notes")
 	private String note;
-//	@Column(name = "userd")
-//	private String userId;
 	@Column(name = "active")
 	private boolean active;
-//	@Column(unique = true)
-//	private String dupchk;
 	@Column(name = "employeename")
 	private String employeeName;
 	@Column(name = "employeecode")
@@ -73,7 +70,7 @@ public class CompanyVO {
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
-	private int role;
+	private Role role;
 	private String ceo;
 	private String gst;
 

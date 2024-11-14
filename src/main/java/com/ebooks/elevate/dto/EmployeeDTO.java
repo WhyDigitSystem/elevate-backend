@@ -2,6 +2,8 @@ package com.ebooks.elevate.dto;
 
 import java.time.LocalDate;
 
+import javax.persistence.Column;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,4 +30,5 @@ public class EmployeeDTO {
 	private boolean cancel;
 	private String cancelRemark;
 	private boolean active;
+	private Role role;
 }

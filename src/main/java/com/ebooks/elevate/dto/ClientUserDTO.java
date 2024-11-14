@@ -1,23 +1,28 @@
 package com.ebooks.elevate.dto;
 
+import javax.persistence.Column;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class ClientDTO {
+@NoArgsConstructor 
+
+public class ClientUserDTO {
+
 	private Long id;
-	private String client;
-	private String clientCode;
-	private String clientType;
-	private String clientMail;
+	private String clientUser;
+	private String clientUserCode;
+	private String clintUserAdminName;
+	private String clientUserType;
+	private String clientUserMail;
 	private String phoneNo;
 	private String conntactPerson;
 	private String userName;
 	private String password;
-	private boolean active;
+	private boolean active; 
 	private boolean cancel;
 	private Long orgId;
 	private String createdBy;
@@ -25,3 +30,4 @@ public class ClientDTO {
 	private String clintAdminName;
 
 }
+
