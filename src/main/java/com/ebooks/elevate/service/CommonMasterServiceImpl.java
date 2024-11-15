@@ -170,13 +170,13 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		getCompanyVOFromCompanyDTO(companyVO, companyDTO);
 		companyRepo.save(companyVO);
 
-		EmployeeVO employeeVO = new EmployeeVO();
-		employeeVO.setEmployeeName(companyVO.getEmployeeName());
-		employeeVO.setEmployeeCode(companyVO.getEmployeeCode());
-		employeeVO.setRole(companyVO.getRole());
-		employeeVO.setActive(true);
-		employeeVO.setOrgId(companyVO.getId());
-		employeeRepo.save(employeeVO);
+//		EmployeeVO employeeVO = new EmployeeVO();
+//		employeeVO.setEmployeeName(companyVO.getEmployeeName());
+//		employeeVO.setEmployeeCode(companyVO.getEmployeeCode());
+//		employeeVO.setRole(companyVO.getRole());
+//		employeeVO.setActive(true);
+//		employeeVO.setOrgId(companyVO.getId());
+//		employeeRepo.save(employeeVO);
 
 		UserVO userVO = new UserVO();
 		userVO.setUserName(companyVO.getEmployeeCode());

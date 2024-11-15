@@ -101,16 +101,16 @@ public class ExcelFileUploadServiceImpl implements ExcelFileUploadService {
 
                         // Create FirstDataVO and add to list for batch saving
                         FirstDataVO dataVO = new FirstDataVO();
-                        dataVO.setDate(date);
+                        dataVO.setDocDate(date);
                         dataVO.setAccountNumber(accountNumber);
-                        dataVO.setAccountName(accountName);
+                        dataVO.setAccountName(accountName.toUpperCase());
                         dataVO.setDescription(description);
-                        dataVO.setCategory(category);
+                        dataVO.setCategory(category.toUpperCase());
                         dataVO.setDebit(debit);
                         dataVO.setCredit(credit);
                         dataVO.setCurrency(currency.toUpperCase());
                         dataVO.setBalance(balance);
-                        dataVO.setTransactionType(transactionType);
+                        dataVO.setTransactionType(transactionType.toUpperCase());
                         dataVO.setCreatedBy(createdBy);
                         dataVO.setUpdatedBy(createdBy);
 
@@ -266,15 +266,16 @@ public class ExcelFileUploadServiceImpl implements ExcelFileUploadService {
 
 	private FirstDataVO getFirstDataVOFromFirstDataDTO(FirstDataVO firstDataVO, @Valid FirstDataDTO firstDataDTO) {
 		
+		firstDataVO.setDocDate(firstDataDTO.getDocDate());
 	    firstDataVO.setAccountNumber(firstDataDTO.getAccountNumber());
-	    firstDataVO.setAccountName(firstDataDTO.getAccountName());
+	    firstDataVO.setAccountName(firstDataDTO.getAccountName().toUpperCase());
 	    firstDataVO.setDescription(firstDataDTO.getDescription());
-	    firstDataVO.setCategory(firstDataDTO.getCategory());
+	    firstDataVO.setCategory(firstDataDTO.getCategory().toUpperCase());
 	    firstDataVO.setDebit(firstDataDTO.getDebit());
 	    firstDataVO.setCredit(firstDataDTO.getCredit());
 	    firstDataVO.setCurrency(firstDataDTO.getCurrency().toUpperCase());
 	    firstDataVO.setBalance(firstDataDTO.getBalance());
-	    firstDataVO.setTransactionType(firstDataDTO.getTransactionType());
+	    firstDataVO.setTransactionType(firstDataDTO.getTransactionType().toUpperCase());
 	    firstDataVO.setCreatedBy(firstDataDTO.getCreatedBy());
 	    
 	    return firstDataVO;
