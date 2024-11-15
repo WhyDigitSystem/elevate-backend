@@ -19,6 +19,7 @@ import com.ebooks.elevate.dto.RegionDTO;
 import com.ebooks.elevate.dto.ScreenNamesDTO;
 import com.ebooks.elevate.dto.StateDTO;
 import com.ebooks.elevate.entity.CityVO;
+import com.ebooks.elevate.entity.ClientVO;
 import com.ebooks.elevate.entity.CompanyVO;
 import com.ebooks.elevate.entity.CountryVO;
 import com.ebooks.elevate.entity.CurrencyVO;
@@ -130,5 +131,9 @@ public interface CommonMasterService {
 	//CLIENT
 
 	Map<String, Object> createUpdateClient(ClientDTO clientDTO) throws ApplicationException;
+
+	List<ClientVO> getAllClients(Long orgId);
+
+	Optional<ClientVO> getClientById(Long id);
 
 }

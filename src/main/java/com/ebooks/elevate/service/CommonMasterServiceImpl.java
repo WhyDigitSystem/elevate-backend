@@ -1162,6 +1162,13 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		clientVO=getClientVOFromClientDTO(clientVO,clientDTO);
 		clientRepo.save(clientVO);
 		
+		EmployeeVO employeeVO = new EmployeeVO();
+		employeeVO.setEmployeeName(clientVO.getUserName());
+		employeeVO.setEmployeeCode(clientVO.getClientCode());
+		employeeVO.setRole(clientVO.getRole());
+		employeeVO.setActive(true);
+		employeeVO.setOrgId(clientVO.getId());
+		employeeRepo.save(employeeVO);
 		
 		
 		UserVO userVO = new UserVO();
@@ -1224,6 +1231,18 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 
 	    return clientVO; // Return the populated ClientVO
 		
+	}
+
+	@Override
+	public List<ClientVO> getAllClients(Long orgId) {
+		
+		return clientRepo.findAllClientByorgId(orgId);
+	}
+
+	@Override
+	public Optional<ClientVO> getClientById(Long id) {
+		
+		return clientRepo.findById(id);
 	}
 
 }
