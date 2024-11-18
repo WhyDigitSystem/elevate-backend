@@ -101,7 +101,6 @@ public class ExcelFileUploadServiceImpl implements ExcelFileUploadService {
 
                         // Create FirstDataVO and add to list for batch saving
                         FirstDataVO dataVO = new FirstDataVO();
-                        dataVO.setDocDate(date);
                         dataVO.setAccountNumber(accountNumber);
                         dataVO.setAccountName(accountName.toUpperCase());
                         dataVO.setDescription(description);
@@ -266,7 +265,6 @@ public class ExcelFileUploadServiceImpl implements ExcelFileUploadService {
 
 	private FirstDataVO getFirstDataVOFromFirstDataDTO(FirstDataVO firstDataVO, @Valid FirstDataDTO firstDataDTO) {
 		
-		firstDataVO.setDocDate(firstDataDTO.getDocDate());
 	    firstDataVO.setAccountNumber(firstDataDTO.getAccountNumber());
 	    firstDataVO.setAccountName(firstDataDTO.getAccountName().toUpperCase());
 	    firstDataVO.setDescription(firstDataDTO.getDescription());
