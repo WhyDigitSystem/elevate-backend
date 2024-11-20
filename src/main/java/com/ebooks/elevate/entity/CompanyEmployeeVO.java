@@ -17,22 +17,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "eltcompany")
+@Table(name = "companyemployee")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EltCompanyVO {
-	
+public class CompanyEmployeeVO {
+
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "eltcompanygen")
-	@SequenceGenerator(name = "eltcompanygen", sequenceName = "eltcompanyseq", initialValue = 1000000001, allocationSize = 1)
-	@Column(name = "eltcompanyid")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "companyemployeegen")
+	@SequenceGenerator(name = "companyemployeegen", sequenceName = "companyemployeeseq", initialValue = 1000000001, allocationSize = 1)
+	@Column(name = "companyemployeeid")
 	private Long id;
 	
+	@Column(name = "employeecode")
+	private String employeeCode;
 	@Column(name = "companycode")
 	private String companyCode;
-	@Column(name = "companyname")
-	private String companyName;
+	@Column(name = "employeename")
+	private String employeeName;
 	@Column(name = "phone")
 	private String phone;
 	@Column(name = "email")
@@ -47,6 +49,8 @@ public class EltCompanyVO {
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
+	@Column(name = "orgid")
+	private Long orgId;
 
 	@JsonGetter("active")
 	public String getActive() {
@@ -63,4 +67,5 @@ public class EltCompanyVO {
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
 
 }
+
 
