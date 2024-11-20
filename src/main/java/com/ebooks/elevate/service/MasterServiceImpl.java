@@ -399,7 +399,7 @@ public class MasterServiceImpl implements MasterService {
 		employeeVO.setEmployeeCode(employeeDTO.getEmployeeCode());
 		employeeVO.setEmployeeName(employeeDTO.getEmployeeName());
 		employeeVO.setGender(employeeDTO.getGender());
-		employeeVO.setEmail(employeeDTO.getEmail());)
+		employeeVO.setEmail(employeeDTO.getEmail());
 		employeeVO.setDepartment(employeeDTO.getDepartment());
 		employeeVO.setDesignation(employeeDTO.getDesignation());
 		employeeVO.setDateOfBirth(employeeDTO.getDateOfBirth());

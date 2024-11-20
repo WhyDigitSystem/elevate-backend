@@ -38,8 +38,9 @@ public class SecurityConfig {
 						"/api/auth/getRefreshToken", "/api/auth/**", "/api/commonmaster/**", "/api/master/**",
 						"/api/user/**", "/images/**", "/api/transaction/**", "/api/GlobalParam/**",
 						"/api/arreceivable/**", "/api/transaction/**", "/api/GlobalParam/**", "/api/payable/**",
-						"/api/documentType/**", "/api/taxInvoice/**", "/api/arapAdjustments/**","/api/companycontroller/**",
-						"/api/costdebitnote/**", "/api/costInvoice/**","/api/irnCreditNote/**","/api/excelfileupload/**")
+						"/api/documentType/**", "/api/taxInvoice/**", "/api/arapAdjustments/**",
+						"/api/companycontroller/**", "/api/costdebitnote/**", "/api/costInvoice/**",
+						"/api/irnCreditNote/**", "/api/excelfileupload/**")
 
 				.permitAll().antMatchers("/api/**").hasAnyRole("USER", "GUEST_USER").anyRequest().authenticated();
 		http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
