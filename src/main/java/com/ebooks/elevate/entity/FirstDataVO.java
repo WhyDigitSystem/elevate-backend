@@ -32,7 +32,8 @@ public class FirstDataVO {
 	@Column(name = "firstdataid")
 	private Long id;
 
-	private LocalDate Date=LocalDate.now();
+	@Column(name ="docdate")
+	private LocalDate docDate;
 	@Column(name ="accountnumber")
 	private Long accountNumber;
 	@Column(name ="accountname")

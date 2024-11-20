@@ -219,16 +219,16 @@ public class AuthController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/getResponsibilityForRolesByOrgId")
-	public ResponseEntity<ResponseDTO> getResponsibilityForRolesByOrgId(@RequestParam Long orgId) {
-		String methodName = "getResponsibilityForRolesByOrgId()";
+	@GetMapping("/getResponsibility")
+	public ResponseEntity<ResponseDTO> getResponsibilityForRoles() {
+		String methodName = "getResponsibilityForRoles()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> responsibilityVO = new ArrayList<>();
 		try {
-			responsibilityVO = authService.getResponsibilityForRolesByOrgId(orgId);
+			responsibilityVO = authService.getResponsibilityForRolesByOrgId();
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -266,8 +266,8 @@ public class AuthController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/allRolesByOrgId")
-	public ResponseEntity<ResponseDTO> getAllRolesByOrgId(@RequestParam Long orgId) {
+	@GetMapping("/allRoles")
+	public ResponseEntity<ResponseDTO> getAllRoles() {
 		String methodName = "getAllScreenNames()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -275,7 +275,7 @@ public class AuthController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<RolesVO> rolesVO = new ArrayList<>();
 		try {
-			rolesVO = authService.getAllRoles(orgId);
+			rolesVO = authService.getAllRoles();
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -293,16 +293,16 @@ public class AuthController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/allActiveRolesByOrgId")
-	public ResponseEntity<ResponseDTO> getAllActiveRolesByOrgId(@RequestParam Long orgId) {
-		String methodName = "getAllActiveRolesByOrgId()";
+	@GetMapping("/allActiveRoles")
+	public ResponseEntity<ResponseDTO> getAllActiveRoles() {
+		String methodName = "getAllActiveRoles()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
 		List<RolesVO> rolesVO = new ArrayList<>();
 		try {
-			rolesVO = authService.getAllActiveRoles(orgId);
+			rolesVO = authService.getAllActiveRoles();
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -348,16 +348,16 @@ public class AuthController extends BaseController {
 	}
 	
 	
-	@GetMapping("/allActiveResponsibilityByOrgId")
-	public ResponseEntity<ResponseDTO> getAllActiveResponsibilityByOrgId(@RequestParam Long orgId) {
-		String methodName = "getAllActiveResponsibilityByOrgId()";
+	@GetMapping("/allActiveResponsibility")
+	public ResponseEntity<ResponseDTO> getAllActiveResponsibility() {
+		String methodName = "getAllActiveResponsibility()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
 		List<ResponsibilityVO> resposResponsibilityVO = new ArrayList<>();
 		try {
-			resposResponsibilityVO = authService.getAllActiveResponsibility(orgId);
+			resposResponsibilityVO = authService.getAllActiveResponsibility();
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -375,16 +375,16 @@ public class AuthController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/allResponsibilityByOrgId")
-	public ResponseEntity<ResponseDTO> getAllResponsibilityByOrgId(@RequestParam Long orgId) {
-		String methodName = "getAllResponsibilityByOrgId()";
+	@GetMapping("/allResponsibility")
+	public ResponseEntity<ResponseDTO> getAllResponsibility() {
+		String methodName = "getAllResponsibility()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
 		List<ResponsibilityVO> responsibilityVO = new ArrayList<>();
 		try {
-			responsibilityVO = authService.getAllResponsibility(orgId);
+			responsibilityVO = authService.getAllResponsibility();
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);

@@ -14,7 +14,7 @@ public class ClientDTO {
 	private String clientType;
 	private String clientMail;
 	private String phoneNo;
-	private String conntactPerson;
+	private String contactPerson;
 	private String userName;
 	private String password;
 	private boolean active;
@@ -22,6 +22,6 @@ public class ClientDTO {
 	private Long orgId;
 	private String createdBy;
 	private Role role;
-	private String clintAdminName;
+	private String clientAdminName;
 
 }

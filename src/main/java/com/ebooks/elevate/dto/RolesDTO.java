@@ -14,7 +14,7 @@ public class RolesDTO {
 	private Long id;
 	private String role;
 	private String createdBy;
-	private Long orgId;
+//	private Long orgId;
 	private boolean active;
 	private List<RolesResponsibilityDTO> rolesResponsibilityDTO;
 

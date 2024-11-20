@@ -40,8 +40,8 @@ public class RolesVO {
 	@Column(name = "modifiedby")
 	private String updatedBy;
 	
-	@Column(name="orgid")
-	private Long orgId;
+//	@Column(name="orgid")
+//	private Long orgId;
 	
 	private boolean active;
 	
