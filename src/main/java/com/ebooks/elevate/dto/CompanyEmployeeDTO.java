@@ -7,16 +7,18 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EltCompanyDTO {
+public class CompanyEmployeeDTO {
 
-private Long id;
-	
+	private Long id;
+
+	private String employeeCode;
 	private String companyCode;
-	private String companyName;
+	private String employeeName;
 	private String phone;
 	private String email;
 	private String webSite;
 	private String createdBy;
+	private Long orgId;
 	private boolean active;
-	
+
 }

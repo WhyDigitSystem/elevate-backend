@@ -1,6 +1,8 @@
 package com.ebooks.elevate.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,10 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
+import com.ebooks.elevate.dto.CompanyEmployeeDTO;
 import com.ebooks.elevate.dto.EltCompanyDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
+import com.ebooks.elevate.entity.CompanyEmployeeVO;
 import com.ebooks.elevate.entity.EltCompanyVO;
 import com.ebooks.elevate.service.CompanyService;
+
 
 @CrossOrigin
 @RestController
@@ -71,7 +76,7 @@ import com.ebooks.elevate.service.CompanyService;
 		try {
 			eltCompanyVO = companyService.getEltCompanyById(id);
 		} catch (Exception e) {
-			errorMsg = e.getMessage();
+			errorMsg = e.getMessage();   
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
 		}
 		if (StringUtils.isBlank(errorMsg)) {
@@ -86,4 +91,108 @@ import com.ebooks.elevate.service.CompanyService;
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@GetMapping("/getAllEltCompany")
+	public ResponseEntity<ResponseDTO> getAllEltCompany() {
+		String methodName = "getAllEltCompany()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		Optional<EltCompanyVO> eltCompanyVO = null;
+		List<EltCompanyVO> eltCompanyVOs = new ArrayList<>();
+		try {
+			eltCompanyVOs = companyService.getAllEltCompany();
+		} catch (Exception e) {
+			errorMsg = e.getMessage();   
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Elt CompanyVO information get successfully By id");
+			responseObjectsMap.put("eltCompanyVOs", eltCompanyVOs);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					"Elt CompanyVO information receive failed By OrgId", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	
+	//Company Employee
+	
+	@PutMapping("/updateCreateCompanyEmployee")
+	public ResponseEntity<ResponseDTO> updateCreateCompanyEmployee(@Valid @RequestBody CompanyEmployeeDTO companyEmployeeDTO) {
+		String methodName = "updateCreateCompanyEmployee()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+
+		try {
+	        Map<String, Object> companyEmployeeVO = companyService.updateCreateCompanyEmployee(companyEmployeeDTO);
+	        responseObjectsMap.put(CommonConstant.STRING_MESSAGE, companyEmployeeVO.get("message"));
+	        responseObjectsMap.put("companyEmployeeVO", companyEmployeeVO.get("companyEmployeeVO")); // Corrected key
+	        responseDTO = createServiceResponse(responseObjectsMap);
+	    } catch (Exception e) {
+	        errorMsg = e.getMessage();
+	        LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+	        responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+	    }
+	    LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+	    return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getCompanyEmployeeById")
+	public ResponseEntity<ResponseDTO> getCompanyEmployeeById(@RequestParam(required = false) Long id) {
+		String methodName = "getCompanyEmployeeById()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		Optional<CompanyEmployeeVO> companyEmployeeVO = null;
+		try {
+			companyEmployeeVO = companyService.getCompanyEmployeeById(id);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();   
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Company Employee information get successfully By id");
+			responseObjectsMap.put("companyEmployeeVO", companyEmployeeVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					"Company Employee information receive failed By id", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	
+	@GetMapping("/getAllCompanyEmployeeByOrgId")
+	public ResponseEntity<ResponseDTO> getAllCompanyEmployeeByOrgId(@RequestParam(required = false) Long orgId) {
+		String methodName = "getAllCompanyEmployeeByOrgId()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<CompanyEmployeeVO> companyEmployeeVO = new ArrayList<>();
+		try {
+			companyEmployeeVO = companyService.getAllCompanyEmployeeByOrgId(orgId);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();   
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Company Employee information get successfully By orgId");
+			responseObjectsMap.put("companyEmployeeVO", companyEmployeeVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					"Company Employee information receive failed By OrgId", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 }
