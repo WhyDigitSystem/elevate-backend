@@ -46,15 +46,15 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 
 			clientCompanyVO = new ClientCompanyVO();
 
-			if (clientCompanyRepo.existsByCompanyCodeAndOrgId(clientCompanyDTO.getCompanyCode(), clientCompanyDTO.getOrgId())) {
-				String errorMessage = String.format("The CompanyCode: %s  already exists This Organization.",
-						clientCompanyDTO.getCompanyCode());
+			if (clientCompanyRepo.existsByClientCodeAndOrgId(clientCompanyDTO.getClientCode(), clientCompanyDTO.getOrgId())) {
+				String errorMessage = String.format("The ClientCode: %s  already exists This Organization.",
+						clientCompanyDTO.getClientCode());
 				throw new ApplicationException(errorMessage);
 			}
 
-			if (clientCompanyRepo.existsByCompanyNameAndOrgId(clientCompanyDTO.getCompanyName(), clientCompanyDTO.getOrgId())) {
-				String errorMessage = String.format("The CompanyName: %s  already exists This Organization.",
-						clientCompanyDTO.getCompanyName());
+			if (clientCompanyRepo.existsByClientNameAndOrgId(clientCompanyDTO.getClientName(), clientCompanyDTO.getOrgId())) {
+				String errorMessage = String.format("The ClientName: %s  already exists This Organization.",
+						clientCompanyDTO.getClientName());
 				throw new ApplicationException(errorMessage);
 			}
 
@@ -87,23 +87,23 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 					() -> new ApplicationException("Elt CompanyVO  Not Found with id: " + clientCompanyDTO.getOrgId()));
 			clientCompanyVO.setUpdatedBy(clientCompanyDTO.getCreatedBy());
 
-			if (!clientCompanyVO.getCompanyCode().equalsIgnoreCase(clientCompanyDTO.getCompanyCode())) {
-			if (clientCompanyRepo.existsByCompanyCodeAndOrgId(clientCompanyDTO.getCompanyCode(), clientCompanyDTO.getOrgId())) {
-				String errorMessage = String.format("The CompanyCode: %s  already exists This Organization.",
-						clientCompanyDTO.getCompanyCode());
+			if (!clientCompanyVO.getClientCode().equalsIgnoreCase(clientCompanyDTO.getClientCode())) {
+			if (clientCompanyRepo.existsByClientCodeAndOrgId(clientCompanyDTO.getClientCode(), clientCompanyDTO.getOrgId())) {
+				String errorMessage = String.format("The ClientCode: %s  already exists This Organization.",
+						clientCompanyDTO.getClientCode());
 				throw new ApplicationException(errorMessage);
 			}
 			}
 			
 			clientCompanyVO.setCompanyCode(clientCompanyDTO.getCompanyCode());
 
-			if (!clientCompanyVO.getCompanyName().equalsIgnoreCase(clientCompanyDTO.getCompanyName())) {
-			if (clientCompanyRepo.existsByCompanyNameAndOrgId(clientCompanyDTO.getCompanyName(), clientCompanyDTO.getOrgId())) {
-				String errorMessage = String.format("The CompanyName: %s  already exists This Organization.",
-						clientCompanyDTO.getCompanyName());
+			if (!clientCompanyVO.getClientName().equalsIgnoreCase(clientCompanyDTO.getClientName())) {
+			if (clientCompanyRepo.existsByClientNameAndOrgId(clientCompanyDTO.getClientName(), clientCompanyDTO.getOrgId())) {
+				String errorMessage = String.format("The ClientName: %s  already exists This Organization.",
+						clientCompanyDTO.getClientName());
 				throw new ApplicationException(errorMessage);
 			}}
-			clientCompanyVO.setCompanyName(clientCompanyDTO.getCompanyName());
+			clientCompanyVO.setClientName(clientCompanyDTO.getClientName());
 
 			if (!clientCompanyVO.getEmail().equalsIgnoreCase(clientCompanyDTO.getEmail())) {
 			if (clientCompanyRepo.existsByEmailAndOrgId(clientCompanyDTO.getEmail(), clientCompanyDTO.getOrgId())) {
@@ -148,8 +148,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 	private ClientCompanyVO getClientCompanyVOFromClientCompanyDTO(ClientCompanyVO clientCompanyVO,
 			@Valid ClientCompanyDTO clientCompanyDTO) {
 
+		clientCompanyVO.setClientCode(clientCompanyDTO.getClientCode());
+		clientCompanyVO.setClientName(clientCompanyDTO.getClientName());
 		clientCompanyVO.setCompanyCode(clientCompanyDTO.getCompanyCode());
-		clientCompanyVO.setCompanyName(clientCompanyDTO.getCompanyName());
 		clientCompanyVO.setEmail(clientCompanyDTO.getEmail());
 		clientCompanyVO.setPhone(clientCompanyDTO.getPhone());
 		clientCompanyVO.setWebSite(clientCompanyDTO.getWebSite());

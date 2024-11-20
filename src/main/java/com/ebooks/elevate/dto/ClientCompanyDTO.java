@@ -12,7 +12,8 @@ public class ClientCompanyDTO {
 	private Long id;
 	private Long orgId;
 	private String companyCode;
-	private String companyName;
+	private String clientName;
+	private String clientCode;
 	private String phone;
 	private String email;
 	private String webSite;

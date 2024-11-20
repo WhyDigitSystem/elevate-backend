@@ -17,7 +17,7 @@ public interface ClientCompanyRepo extends JpaRepository<ClientCompanyVO, Long>{
 	@Query(nativeQuery = true, value = "select * from clientcompany  where clientcompanyid=?1")
 	Optional<ClientCompanyVO> findByClientCompanyById(Long companyid);
 
-	boolean existsByCompanyCodeAndOrgId(String companyCode, Long id);
+	boolean existsByClientCodeAndOrgId(String companyCode, Long id);
 
 	boolean existsByWebSiteAndOrgId(String webSite, Long id);
 
@@ -25,7 +25,7 @@ public interface ClientCompanyRepo extends JpaRepository<ClientCompanyVO, Long>{
 
 	boolean existsByEmailAndOrgId(String email, Long id);
 
-	boolean existsByCompanyNameAndOrgId(String companyName, Long id);
+	boolean existsByClientNameAndOrgId(String companyName, Long id);
 
 
 
