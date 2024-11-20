@@ -17,5 +17,6 @@ private Long id;
 	private String email;
 	private String webSite;
 	private String createdBy;
+	private boolean active;
 	
 }

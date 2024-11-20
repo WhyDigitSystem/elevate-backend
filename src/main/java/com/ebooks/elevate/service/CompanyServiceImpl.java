@@ -144,6 +144,7 @@ public class CompanyServiceImpl implements CompanyService {
 		eltCompanyVO.setEmail(eltCompanyDTO.getEmail());
 		eltCompanyVO.setPhone(eltCompanyDTO.getPhone());
 		eltCompanyVO.setWebSite(eltCompanyDTO.getWebSite());
+		eltCompanyVO.setActive(eltCompanyDTO.isActive());
 		return eltCompanyVO;
 	}
 
@@ -263,6 +264,7 @@ public class CompanyServiceImpl implements CompanyService {
 			companyEmployeeVO.setPhone(companyEmployeeDTO.getPhone());
 			companyEmployeeVO.setOrgId(companyEmployeeDTO.getOrgId());
 			companyEmployeeVO.setWebSite(companyEmployeeDTO.getWebSite());
+			companyEmployeeVO.setActive(companyEmployeeDTO.isActive());
 			return companyEmployeeVO;
 		}
 

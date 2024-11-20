@@ -19,5 +19,6 @@ public class CompanyEmployeeDTO {
 	private String webSite;
 	private String createdBy;
 	private Long orgId;
+	private boolean active;
 
 }
