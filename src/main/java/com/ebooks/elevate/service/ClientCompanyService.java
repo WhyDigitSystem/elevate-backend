@@ -1,5 +1,6 @@
 package com.ebooks.elevate.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,7 +12,7 @@ import com.ebooks.elevate.exception.ApplicationException;
 
 public interface ClientCompanyService {
 
-	Optional<ClientCompanyVO> getClientCompanyByOrgId(Long orgId);
+	List<ClientCompanyVO> getClientCompanyByOrgId(Long orgId);
 
 	Optional<ClientCompanyVO> getClientCompanyById(Long id);
 

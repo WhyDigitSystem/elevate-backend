@@ -1,6 +1,8 @@
 package com.ebooks.elevate.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -85,6 +87,7 @@ public class ClientCompanyController  extends BaseController{
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+
 	
 	@GetMapping("/getClientCompanyByOrgId")
 	public ResponseEntity<ResponseDTO> getClientCompanyByOrgId(@RequestParam(required = false) Long orgId) {
@@ -93,7 +96,7 @@ public class ClientCompanyController  extends BaseController{
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
-		Optional<ClientCompanyVO> clientCompanyVO = null;
+		List<ClientCompanyVO> clientCompanyVO = new ArrayList<>();
 		try {
 			clientCompanyVO = clientCompanyService.getClientCompanyByOrgId(orgId);
 		} catch (Exception e) {
