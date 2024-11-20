@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.validation.Valid;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
+import com.ebooks.elevate.dto.CostInvoiceDTO;
+import com.ebooks.elevate.dto.GlobalParameterDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.entity.GlobalParameterVO;
 import com.ebooks.elevate.service.GlobalParameterService;
@@ -105,31 +109,53 @@ public class GlobalParameterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	@PutMapping("/globalparam")
-	public ResponseEntity<ResponseDTO> updateGlobalParam(@RequestBody GlobalParameterVO globalParameterVO) {
-		String methodName = "updateGlobalParam()";
+//	@PutMapping("/globalparam")
+//	public ResponseEntity<ResponseDTO> updateCreateGlobalParam(@RequestBody GlobalParameterDTO globalParameterDTO) {
+//		String methodName = "updateGlobalParam()";
+//		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+//		String errorMsg = null;
+//		Map<String, Object> responseObjectsMap = new HashMap<>();
+//		ResponseDTO responseDTO = null;
+//		try {
+//			GlobalParameterVO gloParameterVO = globalParameterService.updateCreateGlobalParam(globalParameterDTO);
+//			if (gloParameterVO != null) {
+//				responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Global Parameter Updated successfully");
+//				responseObjectsMap.put("GlobalParameterVO", gloParameterVO);
+//				responseDTO = createServiceResponse(responseObjectsMap);
+//			} else {
+//				errorMsg = "Global Parameter not found for ID: " + globalParameterVO.getId();
+//				responseDTO = createServiceResponseError(responseObjectsMap, "Global Parameter Update failed",
+//						errorMsg);
+//			}
+//		} catch (Exception e) {
+//			errorMsg = e.getMessage();
+//			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+//			responseDTO = createServiceResponseError(responseObjectsMap, "Global Parameter Update failed", errorMsg);
+//		}
+//		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+//		return ResponseEntity.ok().body(responseDTO);
+//	}
+	
+	@PutMapping("/updateCreateGlobalparam")
+	public ResponseEntity<ResponseDTO> updateCreateGlobalparam(@Valid @RequestBody GlobalParameterDTO globalParameterDTO) {
+		String methodName = "updateCreateGlobalparam()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
+
 		try {
-			GlobalParameterVO gloParameterVO = globalParameterService.updateGlobaParameter(globalParameterVO);
-			if (gloParameterVO != null) {
-				responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Global Parameter Updated successfully");
-				responseObjectsMap.put("GlobalParameterVO", gloParameterVO);
-				responseDTO = createServiceResponse(responseObjectsMap);
-			} else {
-				errorMsg = "Global Parameter not found for ID: " + globalParameterVO.getId();
-				responseDTO = createServiceResponseError(responseObjectsMap, "Global Parameter Update failed",
-						errorMsg);
-			}
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-			responseDTO = createServiceResponseError(responseObjectsMap, "Global Parameter Update failed", errorMsg);
-		}
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
+	        Map<String, Object> globalParameterVO = globalParameterService.updateCreateGlobalparam(globalParameterDTO);
+	        responseObjectsMap.put(CommonConstant.STRING_MESSAGE, globalParameterVO.get("message"));
+	        responseObjectsMap.put("globalParameterVO", globalParameterVO.get("globalParameterVO")); // Corrected key
+	        responseDTO = createServiceResponse(responseObjectsMap);
+	    } catch (Exception e) {
+	        errorMsg = e.getMessage();
+	        LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+	        responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+	    }
+	    LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+	    return ResponseEntity.ok().body(responseDTO);
 	}
 
 	@GetMapping("/globalparamBranchByUserName")

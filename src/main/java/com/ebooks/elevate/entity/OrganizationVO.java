@@ -22,40 +22,48 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="roles")
+@Table(name = "organization")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RolesVO {
-	
+public class OrganizationVO{
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rolesgen")
-	@SequenceGenerator(name = "rolesgen", sequenceName = "rolesseq", initialValue = 1000000001, allocationSize = 1)
-	@Column(name = "rolesid")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "organizationgen")
+	@SequenceGenerator(name = "organizationgen", sequenceName = "organizationseq", initialValue = 1000000001, allocationSize = 1)
+	@Column(name = "organizationid")
 	private Long id;
-	@Column(name = "role")
-	private String role;
+	@Column(name = "orgname")
+	private String organizationName;
 	@Column(name = "createdby")
 	private String createdBy;
 	@Column(name = "modifiedby")
 	private String updatedBy;
-	
-//	@Column(name="orgid")
-//	private Long orgId;
-	
+	@Column(name = "orgmail")
+	private String organizationMail;
+	@Column(name = "phoneno")
+	private String phoneNo;
+	private String state;
+	private String city;
+	private String country;
+	@Column(name = "pincode")
+	private String pinCode;
+	private String address;
 	private boolean active;
-	
+
 	@Embedded
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
-	
-	@JsonManagedReference
-	@OneToMany(mappedBy = "rolesVO", cascade = CascadeType.ALL)
-	private List<RolesResponsibilityVO> rolesReposibilitiesVO;
 
+//	@OneToMany(mappedBy = "organizationVO", cascade = CascadeType.ALL)
+//	@JsonManagedReference
+//	private List<ClientVO> clientVO;
+	
+	
+	
 	@JsonGetter("active")
-    public String getActive() {
-        return active ? "Active" : "In-Active";
-    }
-	
-
+	public String getActive() {
+		return active ? "Active" : "In-Active";
+		
+		
+		
+	}
 }
