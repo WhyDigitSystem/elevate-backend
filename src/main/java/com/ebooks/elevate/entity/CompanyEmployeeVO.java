@@ -31,8 +31,8 @@ public class CompanyEmployeeVO {
 	
 	@Column(name = "employeecode")
 	private String employeeCode;
-	@Column(name = "companycode")
-	private String companyCode;
+//	@Column(name = "companycode")
+//	private String companyCode;
 	@Column(name = "employeename")
 	private String employeeName;
 	@Column(name = "phone")

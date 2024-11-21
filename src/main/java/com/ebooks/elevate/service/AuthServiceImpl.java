@@ -33,6 +33,7 @@ import com.ebooks.elevate.dto.RolesResponsibilityDTO;
 import com.ebooks.elevate.dto.ScreensDTO;
 import com.ebooks.elevate.dto.SignUpFormDTO;
 import com.ebooks.elevate.dto.UserLoginBranchAccessDTO;
+import com.ebooks.elevate.dto.UserLoginClientAccessDTO;
 import com.ebooks.elevate.dto.UserLoginRoleAccessDTO;
 import com.ebooks.elevate.dto.UserResponseDTO;
 import com.ebooks.elevate.entity.ResponsibilityVO;
@@ -41,9 +42,11 @@ import com.ebooks.elevate.entity.RolesVO;
 import com.ebooks.elevate.entity.ScreensVO;
 import com.ebooks.elevate.entity.TokenVO;
 import com.ebooks.elevate.entity.UserLoginBranchAccessibleVO;
+import com.ebooks.elevate.entity.UserLoginClientAccessVO;
 import com.ebooks.elevate.entity.UserLoginRolesVO;
 import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.ClientAccessRepo;
 import com.ebooks.elevate.repo.ResponsibilitiesRepo;
 import com.ebooks.elevate.repo.RolesRepo;
 import com.ebooks.elevate.repo.RolesResponsibilityRepo;
@@ -97,6 +100,9 @@ public class AuthServiceImpl implements AuthService {
 
 	@Autowired
 	RolesResponsibilityRepo rolesResponsibilityRepo;
+	
+	@Autowired
+	ClientAccessRepo clientAccessRepo;
 
 	@Override
 	public void signup(SignUpFormDTO signUpRequest) {
@@ -128,11 +134,15 @@ public class AuthServiceImpl implements AuthService {
 
 			List<UserLoginRolesVO> roles = loginRolesRepo.findByUserVO(userVO);
 			loginRolesRepo.deleteAll(roles);
-//			List<UserLoginClientAccessVO> client = clientAccessRepo.findByUserVO(userVO);
-//			clientAccessRepo.deleteAll(client);
+			List<UserLoginClientAccessVO> client = clientAccessRepo.findByUserVO(userVO);
+			clientAccessRepo.deleteAll(client);
 			List<UserLoginBranchAccessibleVO> branch = branchAccessRepo.findByUserVO(userVO);
 			branchAccessRepo.deleteAll(branch);
+			List<UserLoginClientAccessVO> client1 = clientAccessRepo.findByUserVO(userVO);
+			clientAccessRepo.deleteAll(client1);
+			
 		}
+		
 		userVO.setUserName(signUpFormDTO.getUserName());
 		if (ObjectUtils.isEmpty(userVO.getId())) {
 			try {
@@ -167,17 +177,17 @@ public class AuthServiceImpl implements AuthService {
 		}
 
 		userVO.setRoleAccessVO(rolesVO);
-//		List<UserLoginClientAccessVO> clientAccessVOList = new ArrayList<>();
-//		if (signUpFormDTO.getClientAccessDTOList() != null) {
-//			for (UserLoginClientAccessDTO clientAccessDTO : signUpFormDTO.getClientAccessDTOList()) {
-//				UserLoginClientAccessVO clientAccessVO = new UserLoginClientAccessVO();
-//				clientAccessVO.setClient(clientAccessDTO.getClient());
-//				clientAccessVO.setCustomer(clientAccessDTO.getCustomer());
-//				clientAccessVO.setUserVO(userVO);
-//				clientAccessVOList.add(clientAccessVO);
-//			}
-//		}
-//		userVO.setClientAccessVO(clientAccessVOList);
+		List<UserLoginClientAccessVO> clientAccessVOList = new ArrayList<>();
+		if (signUpFormDTO.getClientAccessDTOList() != null) {
+			for (UserLoginClientAccessDTO clientAccessDTO : signUpFormDTO.getClientAccessDTOList()) {
+				UserLoginClientAccessVO clientAccessVO = new UserLoginClientAccessVO();
+				clientAccessVO.setClientName(clientAccessDTO.getClientName());
+				clientAccessVO.setClientCode(clientAccessDTO.getClientCode());
+				clientAccessVO.setUserVO(userVO);
+				clientAccessVOList.add(clientAccessVO);
+			}
+		}
+		userVO.setClientAccessVO(clientAccessVOList);
 
 		List<UserLoginBranchAccessibleVO> branchAccessList = new ArrayList<>();
 		if (signUpFormDTO.getBranchAccessDTOList() != null) {

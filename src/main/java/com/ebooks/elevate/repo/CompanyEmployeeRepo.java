@@ -9,7 +9,7 @@ import com.ebooks.elevate.entity.CompanyEmployeeVO;
 
 public interface CompanyEmployeeRepo extends JpaRepository<CompanyEmployeeVO, Long>{
 
-	boolean existsByEmployeeCodeAndOrgId(String employeeCode, Long orgId);
+	//boolean existsByEmployeeCodeAndOrgId(String employeeCode, Long orgId);
 
 	boolean existsByEmailAndOrgId(String email, Long orgId);
 
@@ -19,5 +19,7 @@ public interface CompanyEmployeeRepo extends JpaRepository<CompanyEmployeeVO, Lo
 
 	@Query(nativeQuery =true,value ="SELECT * FROM companyemployee  where orgid=?1")
 	List<CompanyEmployeeVO> getAllCompanyEmployee(Long orgId);
+
+	boolean existsByEmployeeCodeAndOrgId(String employeeCode, Long orgId);
 
 }
