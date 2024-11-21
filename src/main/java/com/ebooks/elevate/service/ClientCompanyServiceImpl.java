@@ -1,6 +1,7 @@
 package com.ebooks.elevate.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,9 +27,10 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 	ClientCompanyRepo clientCompanyRepo;
 	
 	@Override
-	public Optional<ClientCompanyVO> getClientCompanyByOrgId(Long orgId) {
+	public List<ClientCompanyVO> getClientCompanyByOrgId(Long orgId) {
 		return clientCompanyRepo.findClientCompanyByOrgId(orgId);
 	}
+
 
 	@Override
 	public Optional<ClientCompanyVO> getClientCompanyById(Long companyid) {
@@ -161,5 +163,6 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		return clientCompanyVO;
 	}
 
+	
 	
 }

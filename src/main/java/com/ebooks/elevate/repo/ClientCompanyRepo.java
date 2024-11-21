@@ -1,5 +1,6 @@
 package com.ebooks.elevate.repo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +13,7 @@ import com.ebooks.elevate.entity.ClientCompanyVO;
 public interface ClientCompanyRepo extends JpaRepository<ClientCompanyVO, Long>{
 
 	@Query(nativeQuery = true, value = "select * from clientcompany  where orgid=?1")
-	Optional<ClientCompanyVO> findClientCompanyByOrgId(Long orgId);
+	List<ClientCompanyVO> findClientCompanyByOrgId(Long orgId);
 
 	@Query(nativeQuery = true, value = "select * from clientcompany  where clientcompanyid=?1")
 	Optional<ClientCompanyVO> findByClientCompanyById(Long companyid);
