@@ -2,8 +2,6 @@ package com.ebooks.elevate.dto;
 
 import java.time.LocalDate;
 
-import javax.persistence.Column;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,8 +16,8 @@ public class EmployeeDTO {
 	private String employeeCode;
 	private String employeeName;
 	private String gender;
-	private String branch;
-	private String branchCode;
+	//private String branch;
+	//private String branchCode;
 	private String department;
 	private String email;
 	private String designation;

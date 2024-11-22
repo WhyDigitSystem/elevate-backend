@@ -33,16 +33,16 @@ public class ClientVO {
 	private String client;
 	@Column(name = "clientcode")
 	private String clientCode;
-	@Column(name = "clintadminname")
-	private String clintAdminName;
+	@Column(name = "clientadminname")
+	private String clientAdminName;
 	@Column(name = "clienttype")
 	private String clientType;
 	@Column(name = "clientmail")
 	private String clientMail;
 	@Column(name = "phoneno")
 	private String phoneNo;
-	@Column(name = "conntactperson")
-	private String conntactPerson;
+	@Column(name = "contactperson")
+	private String contactPerson;
 	@Column(name = "username")
 	private String userName;
 	private String password;

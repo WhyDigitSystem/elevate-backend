@@ -41,7 +41,6 @@ import com.ebooks.elevate.entity.ClientVO;
 import com.ebooks.elevate.entity.CompanyVO;
 import com.ebooks.elevate.entity.CountryVO;
 import com.ebooks.elevate.entity.CurrencyVO;
-import com.ebooks.elevate.entity.FinScreenVO;
 import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.entity.RegionVO;
 import com.ebooks.elevate.entity.ScreenNamesVO;
@@ -977,5 +976,6 @@ public class CommonMasterController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+	
 	
 }

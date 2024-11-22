@@ -1,7 +1,5 @@
 package com.ebooks.elevate.dto;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,14 +7,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponsibilityDTO {
+public class EltCompanyDTO {
+
+private Long id;
 	
-	private Long id;
-	private String responsibility;
-	private List<ScreensDTO>screensDTO;
-	//private Long orgId;
+	private String companyCode;
+	private String companyName;
+	private String phone;
+	private String email;
+	private String webSite;
 	private String createdBy;
 	private boolean active;
 	
-
 }

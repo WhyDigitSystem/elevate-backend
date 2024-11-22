@@ -1,4 +1,4 @@
-     package com.ebooks.elevate.entity;
+package com.ebooks.elevate.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -10,69 +10,47 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.ebooks.elevate.dto.CreatedUpdatedDate;
-import com.ebooks.elevate.dto.Role;
 import com.fasterxml.jackson.annotation.JsonGetter;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Entity
-@Table(name = "company")
+@Table(name = "clientcompany")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CompanyVO {
-
+public class ClientCompanyVO {
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "companygen")
-	@SequenceGenerator(name = "companygen", sequenceName = "companyseq", initialValue = 1000000001, allocationSize = 1)
-	@Column(name = "companyid")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "clientcompanygen")
+	@SequenceGenerator(name = "clientcompanygen", sequenceName = "clientcompanyseq", initialValue = 1000000001, allocationSize = 1)
+	@Column(name = "clientcompanyid")
 	private Long id;
-
+	
+	@Column(name = "orgid")
+	private Long orgId;
 	@Column(name = "companycode")
 	private String companyCode;
-	@Column(name = "companyname")
-	private String companyName;
-	@Column(name = "country")
-	private String country;
-	@Column(name = "currency")
-	private String currency;
-	@Column(name = "maincurrency")
-	private String mainCurrency;
-	@Column(name = "address")
-	private String address;
-	@Column(name = "zipcode")
-	private String zip;
-	@Column(name = "city")
-	private String city;
-	@Column(name = "state")
-	private String state;
+	@Column(name = "clientname")
+	private String clientName;
+	@Column(name = "clientcode")
+	private String clientCode;
 	@Column(name = "phone")
 	private String phone;
 	@Column(name = "email")
 	private String email;
 	@Column(name = "website")
 	private String webSite;
-	@Column(name = "notes")
-	private String note;
 	@Column(name = "active")
 	private boolean active;
-	@Column(name = "employeename")
-	private String employeeName;
-	@Column(name = "employeecode")
-	private String employeeCode;
-	@Column(name = "password")
-	private String password;
 	@Column(name = "createdby")
 	private String createdBy;
 	@Column(name = "modifiedby")
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
-	private Role role;
-	private String ceo;
-	private String gst;
 
 	@JsonGetter("active")
 	public String getActive() {

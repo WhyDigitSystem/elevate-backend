@@ -38,12 +38,12 @@ public class EmployeeVO {
 	private String employeeName;
 	@Column(name = "gender",length = 30)
 	private String gender;
-	@Column(name = "branch",length = 50)
-	private String branch;
+//	@Column(name = "branch",length = 50)
+//	private String branch;
 	@Column(name = "email",length = 150)
 	private String email;
-	@Column(name = "branchcode",length = 30)
-	private String branchCode;
+//	@Column(name = "branchcode",length = 30)
+//	private String branchCode;
 	@Column(name = "department",length = 30)
 	private String department;
 	@Column(name = "designation",length = 30)

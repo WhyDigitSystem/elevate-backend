@@ -441,10 +441,10 @@ public class AuthServiceImpl implements AuthService {
 		if (ObjectUtils.isEmpty(responsibilityDTO.getId())) {
 
 			// Validate if responsibility already exists by responsibility name
-			if (responsibilityRepo.existsByResponsibilityAndOrgId(responsibilityDTO.getResponsibility(),
-					responsibilityDTO.getOrgId())) {
-				throw new ApplicationException("Responsibility Name already exists");
-			}
+//			if (responsibilityRepo.existsByResponsibilityAndOrgId(responsibilityDTO.getResponsibility(),
+//					responsibilityDTO.getOrgId())) {
+//				throw new ApplicationException("Responsibility Name already exists");
+//			}
 
 			responsibilityVO.setCreatedBy(responsibilityDTO.getCreatedBy());
 			responsibilityVO.setUpdatedBy(responsibilityDTO.getCreatedBy());
@@ -460,10 +460,10 @@ public class AuthServiceImpl implements AuthService {
 
 			// Validate and update unique fields if changed
 			if (!responsibilityVO.getResponsibility().equalsIgnoreCase(responsibilityDTO.getResponsibility())) {
-				if (responsibilityRepo.existsByResponsibilityAndOrgId(responsibilityDTO.getResponsibility(),
-						responsibilityDTO.getOrgId())) {
-					throw new ApplicationException("Responsibility Name already exists");
-				}
+//				if (responsibilityRepo.existsByResponsibilityAndOrgId(responsibilityDTO.getResponsibility(),
+//						responsibilityDTO.getOrgId())) {
+//					throw new ApplicationException("Responsibility Name already exists");
+//				}
 				responsibilityVO.setResponsibility(responsibilityDTO.getResponsibility());
 			}
 
@@ -487,14 +487,14 @@ public class AuthServiceImpl implements AuthService {
 	private void mapResponsibilityDtoToResponsibilityVo(ResponsibilityDTO responsibilityDTO,
 			ResponsibilityVO responsibilityVO) {
 		responsibilityVO.setResponsibility(responsibilityDTO.getResponsibility().toUpperCase());
-		responsibilityVO.setOrgId(responsibilityDTO.getOrgId());
+		//responsibilityVO.setOrgId(responsibilityDTO.getOrgId());
 		responsibilityVO.setActive(responsibilityDTO.isActive());
 		if (responsibilityDTO.getScreensDTO() != null) {
 			List<ScreensVO> screensVOList = new ArrayList<>();
 			for (ScreensDTO screensDTO : responsibilityDTO.getScreensDTO()) {
 				ScreensVO screensVO = new ScreensVO();
 				screensVO.setScreenName(screensDTO.getScreenName().toUpperCase());
-				screensVO.setOrgId(responsibilityDTO.getOrgId());
+				//screensVO.setOrgId(responsibilityDTO.getOrgId());
 				screensVO.setResponsibilityVO(responsibilityVO);
 				screensVOList.add(screensVO);
 			}
@@ -503,8 +503,8 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getResponsibilityForRolesByOrgId(Long orgId) {
-		Set<Object[]> activeResponsibility = responsibilityRepo.findActiveByOrgId(orgId);
+	public List<Map<String, Object>> getResponsibilityForRolesByOrgId() {
+		Set<Object[]> activeResponsibility = responsibilityRepo.findActiveResponsibility();
 		return getActiveResponsibile(activeResponsibility);
 	}
 
@@ -528,9 +528,9 @@ public class AuthServiceImpl implements AuthService {
 		if (ObjectUtils.isEmpty(rolesDTO.getId())) {
 
 			// Validate if role already exists
-			if (rolesRepo.existsByRoleAndOrgId(rolesDTO.getRole(), rolesDTO.getOrgId())) {
-				throw new ApplicationException("Role already exists");
-			}
+//			if (rolesRepo.existsByRoleAndOrgId(rolesDTO.getRole(), rolesDTO.getOrgId())) {
+//				throw new ApplicationException("Role already exists");
+//			}
 
 			rolesVO.setCreatedBy(rolesDTO.getCreatedBy());
 			rolesVO.setUpdatedBy(rolesDTO.getCreatedBy());
@@ -546,9 +546,9 @@ public class AuthServiceImpl implements AuthService {
 
 			// Validate and update unique fields if changed
 			if (!rolesVO.getRole().equalsIgnoreCase(rolesDTO.getRole())) {
-				if (rolesRepo.existsByRoleAndOrgId(rolesDTO.getRole(), rolesDTO.getOrgId())) {
-					throw new ApplicationException("Role already exists");
-				}
+//				if (rolesRepo.existsByRoleAndOrgId(rolesDTO.getRole(), rolesDTO.getOrgId())) {
+//					throw new ApplicationException("Role already exists");
+//				}
 				rolesVO.setRole(rolesDTO.getRole().toUpperCase());
 			}
 
@@ -571,7 +571,7 @@ public class AuthServiceImpl implements AuthService {
 	// Helper method to map RolesDTO to RolesVO
 	private void mapRolesDtoToRolesVo(RolesDTO rolesDTO, RolesVO rolesVO) {
 		rolesVO.setRole(rolesDTO.getRole().toUpperCase());
-		rolesVO.setOrgId(rolesDTO.getOrgId());
+	//	rolesVO.setOrgId(rolesDTO.getOrgId());
 		rolesVO.setActive(rolesDTO.isActive());
 		if (rolesDTO.getRolesResponsibilityDTO() != null) {
 			List<RolesResponsibilityVO> rolesResponsibilityVOList = new ArrayList<>();
@@ -579,7 +579,7 @@ public class AuthServiceImpl implements AuthService {
 				RolesResponsibilityVO rolesResponsibilityVO = new RolesResponsibilityVO();
 				rolesResponsibilityVO.setResponsibility(rolesResponsibilityDTO.getResponsibility().toUpperCase());
 				rolesResponsibilityVO.setResponsibilityId(rolesResponsibilityDTO.getResponsibilityId());
-				rolesResponsibilityVO.setOrgId(rolesDTO.getOrgId());
+//				rolesResponsibilityVO.setOrgId(rolesDTO.getOrgId());
 				rolesResponsibilityVO.setRolesVO(rolesVO);
 				rolesResponsibilityVOList.add(rolesResponsibilityVO);
 			}
@@ -588,15 +588,15 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<RolesVO> getAllRoles(Long orgId) {
+	public List<RolesVO> getAllRoles() {
 
-		return rolesRepo.findAllRolesByOrgId(orgId);
+		return rolesRepo.findAll();
 	}
 
 	@Override
-	public List<RolesVO> getAllActiveRoles(Long orgId) {
+	public List<RolesVO> getAllActiveRoles() {
 
-		return rolesRepo.findAllActiveRolesByOrgId(orgId);
+		return rolesRepo.findAllActiveRoles();
 	}
 
 	@Override
@@ -626,18 +626,17 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<ResponsibilityVO> getAllResponsibility(Long orgId) {
+	public List<ResponsibilityVO> getAllResponsibility() {
 
-		return responsibilityRepo.findAllResponsibilityByOrgId(orgId);
+		return responsibilityRepo.findAll();
 	}
 
 	@Override
-	public List<ResponsibilityVO> getAllActiveResponsibility(Long orgId) {
+	public List<ResponsibilityVO> getAllActiveResponsibility() {
 		// TODO Auto-generated method stub
-		return responsibilityRepo.findAllActiveResponsibilityByOrgId(orgId);
+		return responsibilityRepo.findAllActiveResponsibility();
 	}
 
-	@Override
 	public List<UserVO> getAllUsersByOrgId(Long orgId) {
 		// TODO Auto-generated method stub
 		return userRepo.findAllByOrgId(orgId);

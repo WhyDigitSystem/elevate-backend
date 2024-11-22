@@ -1162,18 +1162,20 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		clientVO=getClientVOFromClientDTO(clientVO,clientDTO);
 		clientRepo.save(clientVO);
 		
-		EmployeeVO employeeVO = new EmployeeVO();
-		employeeVO.setEmployeeName(clientVO.getUserName());
-		employeeVO.setEmployeeCode(clientVO.getClientCode());
-		employeeVO.setRole(clientVO.getRole());
-		employeeVO.setActive(true);
-		employeeVO.setOrgId(clientVO.getId());
-		employeeRepo.save(employeeVO);
+//		EmployeeVO employeeVO = new EmployeeVO();
+//		employeeVO.setEmployeeName(clientVO.getUserName());
+//		employeeVO.setEmployeeCode(clientVO.getClientCode());
+//		employeeVO.setRole(clientVO.getRole());
+//		employeeVO.setActive(true);
+//		employeeVO.setEmail(clientVO.getClientMail());
+//		employeeVO.setOrgId(clientVO.getId());
+//		employeeRepo.save(employeeVO);
 		
 		
 		UserVO userVO = new UserVO();
 		userVO.setUserName(clientVO.getUserName());
-		userVO.setEmployeeName(clientDTO.getClintAdminName());
+		userVO.setUserName(clientVO.getClientCode());
+		userVO.setEmployeeName(clientDTO.getClientAdminName());
 		userVO.setEmployeeCode(clientVO.getClientCode());
 		userVO.setEmail(clientVO.getClientMail());
 		userVO.setMobileNo(clientVO.getPhoneNo());
@@ -1210,14 +1212,14 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 	    clientVO.setClientType(clientDTO.getClientType());
 	    clientVO.setClientMail(clientDTO.getClientMail());
 	    clientVO.setPhoneNo(clientDTO.getPhoneNo());
-	    clientVO.setConntactPerson(clientDTO.getConntactPerson());
+	    clientVO.setContactPerson(clientDTO.getContactPerson());
 	    clientVO.setUserName(clientDTO.getUserName());
 	    clientVO.setPassword(clientDTO.getPassword());
 	    clientVO.setActive(clientDTO.isActive());
 	    clientVO.setCancel(clientDTO.isCancel());
 	    clientVO.setOrgId(clientDTO.getOrgId());
 	    clientVO.setCreatedBy(clientDTO.getCreatedBy());
-	    clientVO.setClintAdminName(clientDTO.getClintAdminName());
+	    clientVO.setClientAdminName(clientDTO.getClientAdminName());
 	    clientVO.setRole(Role.ADMIN);
 	    
 	    clientVO.setPassword(clientDTO.getPassword());

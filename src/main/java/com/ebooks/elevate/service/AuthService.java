@@ -35,23 +35,29 @@ public interface AuthService {
 
 	public RefreshTokenDTO getRefreshToken(String userName, String tokenId) throws ApplicationException;
 	
-	List<Map<String, Object>> getResponsibilityForRolesByOrgId(Long orgId);
+	//Responsibility
 	
-	Map<String, Object> createUpdateRoles(RolesDTO rolesDTO) throws ApplicationException;
+	List<Map<String, Object>> getResponsibilityForRolesByOrgId();
 	
-	public List<RolesVO> getAllRoles(Long orgId);
+	public List<ResponsibilityVO> getAllResponsibility();
 
-	public List<RolesVO> getAllActiveRoles(Long orgId);
+	public List<ResponsibilityVO> getAllActiveResponsibility();
 	
-	RolesVO getRolesById(Long id) throws ApplicationException;
+	ResponsibilityVO getResponsibilityById(Long id) throws ApplicationException;
 	
 	Map<String, Object> createUpdateResponsibilities(ResponsibilityDTO responsibilityDTO) throws ApplicationException;
 	
-	public List<ResponsibilityVO> getAllResponsibility(Long orgId);
-
-	public List<ResponsibilityVO> getAllActiveResponsibility(Long orgId);
+	//ROLES
 	
-	ResponsibilityVO getResponsibilityById(Long id) throws ApplicationException;
+	Map<String, Object> createUpdateRoles(RolesDTO rolesDTO) throws ApplicationException;
+	
+	public List<RolesVO> getAllRoles();
+
+	public List<RolesVO> getAllActiveRoles();
+	
+	RolesVO getRolesById(Long id) throws ApplicationException;
+	
+	//USERS
 	
 	List<UserVO>getAllUsersByOrgId(Long orgId);
 	
