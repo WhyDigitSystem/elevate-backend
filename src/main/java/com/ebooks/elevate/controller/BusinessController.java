@@ -278,4 +278,39 @@ public class BusinessController extends BaseController{
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@PostMapping("/excelUploadForCCoa")
+	public ResponseEntity<ResponseDTO> excelUploadForCCoa(@RequestParam MultipartFile[] files,@RequestParam(required = false) String createdBy,
+			@RequestParam(required=false) String clientCode) {
+		String methodName = "excelUploadForCCoa()";
+		int totalRows = 0;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		int successfulUploads = 0;
+		ResponseDTO responseDTO = null;
+		try {
+			// Call service method to process Excel upload
+			businessService.excelUploadForCCoa(files,createdBy,clientCode);
+
+			// Retrieve the counts after processing
+			totalRows = businessService.getTotalRows(); // Get total rows processed
+			successfulUploads = businessService.getSuccessfulUploads(); // Get successful uploads count
+			responseObjectsMap.put("statusFlag", "Ok");
+	        responseObjectsMap.put("status", true);
+	        responseObjectsMap.put("totalRows", totalRows);
+	        responseObjectsMap.put("successfulUploads", successfulUploads);
+	        responseObjectsMap.put("message", "Excel Upload For Client Coa successful"); // Directly include the message here
+	        responseDTO = createServiceResponse(responseObjectsMap);
+
+	    } catch (Exception e) {
+	        String errorMsg = e.getMessage();
+	        LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
+	        responseObjectsMap.put("statusFlag", "Error");
+	        responseObjectsMap.put("status", false);
+	        responseObjectsMap.put("errorMessage", errorMsg);
+
+	        responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client Coa Failed", errorMsg);
+	    }
+	    LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+	    return ResponseEntity.ok().body(responseDTO);
+	}
+	
 }

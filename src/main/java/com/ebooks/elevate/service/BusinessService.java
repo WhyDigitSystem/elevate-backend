@@ -42,6 +42,8 @@ public interface BusinessService {
 
 	List<Map<String, Object>> getGroupNameForCCoa();
 
+	void excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode) throws EncryptedDocumentException, IOException, ApplicationException;
+
 	
 
 }
