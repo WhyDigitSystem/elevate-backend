@@ -15,9 +15,11 @@ import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.CompanyEmployeeDTO;
 import com.ebooks.elevate.dto.EltCompanyDTO;
+import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.CompanyEmployeeVO;
 import com.ebooks.elevate.entity.EltCompanyVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.BranchRepo;
 import com.ebooks.elevate.repo.CompanyEmployeeRepo;
 import com.ebooks.elevate.repo.EltCompanyRepo;
 
@@ -30,6 +32,10 @@ public class CompanyServiceImpl implements CompanyService {
 	@Autowired
 	CompanyEmployeeRepo companyEmployeeRepo;
 
+	
+	@Autowired
+	BranchRepo branchRepo;
+	
 	public static final Logger LOGGER = LoggerFactory.getLogger(CompanyServiceImpl.class);
 
 	@Override
@@ -207,12 +213,12 @@ public class CompanyServiceImpl implements CompanyService {
 	            throw new ApplicationException(errorMessage);
 	        }
 
-	        if (companyEmployeeRepo.existsByWebSiteAndOrgId(companyEmployeeDTO.getWebSite(),
-	                companyEmployeeDTO.getOrgId())) {
-	            String errorMessage = String.format("The WebSite: %s already exists in this Organization.",
-	                    companyEmployeeDTO.getWebSite());
-	            throw new ApplicationException(errorMessage);
-	        }
+//	        if (companyEmployeeRepo.existsByWebSiteAndOrgId(companyEmployeeDTO.getWebSite(),
+//	                companyEmployeeDTO.getOrgId())) {
+//	            String errorMessage = String.format("The WebSite: %s already exists in this Organization.",
+//	                    companyEmployeeDTO.getWebSite());
+//	            throw new ApplicationException(errorMessage);
+//	        }
 
 	        companyEmployeeVO.setCreatedBy(companyEmployeeDTO.getCreatedBy());
 	        companyEmployeeVO.setUpdatedBy(companyEmployeeDTO.getCreatedBy());
@@ -254,15 +260,15 @@ public class CompanyServiceImpl implements CompanyService {
 	            companyEmployeeVO.setPhone(companyEmployeeDTO.getPhone());
 	        }
 
-	        if (!companyEmployeeVO.getWebSite().equalsIgnoreCase(companyEmployeeDTO.getWebSite())) {
-	            if (companyEmployeeRepo.existsByWebSiteAndOrgId(companyEmployeeDTO.getWebSite(),
-	                    companyEmployeeDTO.getOrgId())) {
-	                String errorMessage = String.format("The WebSite: %s already exists in this Organization.",
-	                        companyEmployeeDTO.getWebSite());
-	                throw new ApplicationException(errorMessage);
-	            }
-	            companyEmployeeVO.setWebSite(companyEmployeeDTO.getWebSite());
-	        }
+//	        if (!companyEmployeeVO.getWebSite().equalsIgnoreCase(companyEmployeeDTO.getWebSite())) {
+//	            if (companyEmployeeRepo.existsByWebSiteAndOrgId(companyEmployeeDTO.getWebSite(),
+//	                    companyEmployeeDTO.getOrgId())) {
+//	                String errorMessage = String.format("The WebSite: %s already exists in this Organization.",
+//	                        companyEmployeeDTO.getWebSite());
+//	                throw new ApplicationException(errorMessage);
+//	            }
+//	            companyEmployeeVO.setWebSite(companyEmployeeDTO.getWebSite());
+//	        }
 
 	        message = "Company Employee Updation Successfully";
 	    }
@@ -284,7 +290,7 @@ public class CompanyServiceImpl implements CompanyService {
 	    companyEmployeeVO.setEmail(companyEmployeeDTO.getEmail());
 	    companyEmployeeVO.setPhone(companyEmployeeDTO.getPhone());
 	    companyEmployeeVO.setOrgId(companyEmployeeDTO.getOrgId());
-	    companyEmployeeVO.setWebSite(companyEmployeeDTO.getWebSite());
+	  //  companyEmployeeVO.setWebSite(companyEmployeeDTO.getWebSite());
 	    companyEmployeeVO.setActive(companyEmployeeDTO.isActive());
 	    return companyEmployeeVO;
 	}
@@ -299,5 +305,6 @@ public class CompanyServiceImpl implements CompanyService {
 	public List<CompanyEmployeeVO> getAllCompanyEmployeeByOrgId(Long orgId) {
 		return companyEmployeeRepo.getAllCompanyEmployee(orgId);
 	}
+
 
 }

@@ -29,7 +29,6 @@ import com.ebooks.elevate.dto.ChargeTypeRequestDTO;
 import com.ebooks.elevate.dto.ChequeBookDTO;
 import com.ebooks.elevate.dto.CostCenterDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
-import com.ebooks.elevate.dto.GroupLedgerDTO;
 import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.dto.PartyMasterDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
@@ -45,7 +44,6 @@ import com.ebooks.elevate.entity.ChargeTypeRequestVO;
 import com.ebooks.elevate.entity.ChequeBookVO;
 import com.ebooks.elevate.entity.CostCenterVO;
 import com.ebooks.elevate.entity.EmployeeVO;
-import com.ebooks.elevate.entity.GroupLedgerVO;
 import com.ebooks.elevate.entity.ListOfValuesVO;
 import com.ebooks.elevate.entity.PartyMasterVO;
 import com.ebooks.elevate.entity.SacCodeVO;
@@ -809,151 +807,7 @@ public class MasterController extends BaseController {
 
 	}
 
-	// Group Ledger
-	@GetMapping("/getAllGroupLedgerByOrgId")
-	public ResponseEntity<ResponseDTO> getAllGroupLedgerByOrgId(@RequestParam(required = false) Long orgId) {
-		String methodName = "getAllGroupLedgerByOrgId()";
-		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-		String errorMsg = null;
-		Map<String, Object> responseObjectsMap = new HashMap<>();
-		ResponseDTO responseDTO = null;
-		List<GroupLedgerVO> groupLedgerVO = new ArrayList<>();
-		try {
-			groupLedgerVO = masterService.getAllGroupLedgerByOrgId(orgId);
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-		}
-		if (StringUtils.isBlank(errorMsg)) {
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Group Ledger information get successfully ByOrgId");
-			responseObjectsMap.put("groupLedgerVO", groupLedgerVO);
-			responseDTO = createServiceResponse(responseObjectsMap);
-		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap,
-					"Group Ledger information receive failedByOrgId", errorMsg);
-		}
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
-
-	}
 	
-	@GetMapping("/getGroupNameByOrgId")
-	public ResponseEntity<ResponseDTO> getGroupNameByOrgId(
-			@RequestParam Long orgId) {
-
-		String methodName = "getGroupNameByOrgId()";
-		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-		String errorMsg = null;
-		Map<String, Object> responseObjectsMap = new HashMap<>();
-		ResponseDTO responseDTO = null;
-		List<Map<String, Object>> groupName = new ArrayList<>();
-		try {
-			groupName = masterService.getGroupName(orgId);
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-		}
-
-		if (StringUtils.isBlank(errorMsg)) {
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE,
-					"Group Name information get  successfully By OrgId");
-			responseObjectsMap.put("groupNameDetails", groupName);
-			responseDTO = createServiceResponse(responseObjectsMap);
-		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap,
-					"Group Name information receive PartyMaster failed By OrgId", errorMsg);
-		}
-
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
-	}
-
-	@GetMapping("/getAllGroupLedgerById")
-	public ResponseEntity<ResponseDTO> getAllGroupLedgerById(@RequestParam(required = false) Long id) {
-		String methodName = "getAllGroupLedgerById()";
-		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-		String errorMsg = null;
-		Map<String, Object> responseObjectsMap = new HashMap<>();
-		ResponseDTO responseDTO = null;
-		List<GroupLedgerVO> groupLedgerVO = new ArrayList<>();
-		try {
-			groupLedgerVO = masterService.getAllGroupLedgerById(id);
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-		}
-		if (StringUtils.isBlank(errorMsg)) {
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Group Ledger information get successfully ByOrgId");
-			responseObjectsMap.put("groupLedgerVO", groupLedgerVO);
-			responseDTO = createServiceResponse(responseObjectsMap);
-		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap,
-					"Group Ledger information receive failedByOrgId", errorMsg);
-		}
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
-
-	}
-
-	@PutMapping("/updateCreateGroupLedger")
-	public ResponseEntity<ResponseDTO> updateCreateGroupLedger(@Valid @RequestBody GroupLedgerDTO groupLedgerDTO) {
-	    String methodName = "updateCreateGroupLedger()";
-
-	    LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-	    String errorMsg = null;
-	    Map<String, Object> responseObjectsMap = new HashMap<>();
-	    ResponseDTO responseDTO = null;
-
-	    try {
-	        GroupLedgerVO groupLedgerVO = masterService.updateCreateGroupLedger(groupLedgerDTO);
-	        boolean isUpdate = groupLedgerDTO.getId() != null;
-	        if (groupLedgerVO != null) {
-	            responseObjectsMap.put(CommonConstant.STRING_MESSAGE, isUpdate ? "Group Ledger updated successfully" : "Group Ledger created successfully");
-	            responseObjectsMap.put("groupLedgerVO", groupLedgerVO);
-	            responseDTO = createServiceResponse(responseObjectsMap);
-	        } else {
-	            errorMsg = isUpdate ? "Group Ledger not found for ID: " + groupLedgerDTO.getId() : "Group Ledger creation failed";
-	            responseDTO = createServiceResponseError(responseObjectsMap, isUpdate ? "Group Ledger update failed" : "Group Ledger creation failed", errorMsg);
-	        }
-	    } catch (Exception e) {
-	        errorMsg = e.getMessage();
-	        boolean isUpdate = groupLedgerDTO.getId() != null;
-	        LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-	        responseDTO = createServiceResponseError(responseObjectsMap, isUpdate ? "Group Ledger update failed" : "Group Ledger creation failed", errorMsg);
-	    }
-	    LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-	    return ResponseEntity.ok().body(responseDTO);
-	}
-
-
-
-	@GetMapping("/getGroupLedgerByActive")
-	public ResponseEntity<ResponseDTO> getGroupLedgerByActive() {
-		String methodName = "getGroupLedgerByActive()";
-		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-		String errorMsg = null;
-		Map<String, Object> responseObjectsMap = new HashMap<>();
-		ResponseDTO responseDTO = null;
-		List<GroupLedgerVO> groupLedgerVO = new ArrayList<>();
-		try {
-			groupLedgerVO = masterService.getGroupLedgerByActive();
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-		}
-		if (StringUtils.isBlank(errorMsg)) {
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "GroupLedger information get successfully By Active");
-			responseObjectsMap.put("groupLedgerVO", groupLedgerVO);
-			responseDTO = createServiceResponse(responseObjectsMap);
-		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap,
-					"GroupLedger information receive failed By Active", errorMsg);
-		}
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
-
-	}
-
 	// SacCode
 	@GetMapping("/getAllSacCodeByOrgId")
 	public ResponseEntity<ResponseDTO> getAllSapCodeByOrgId(@RequestParam(required = false) Long orgId) {

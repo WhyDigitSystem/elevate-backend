@@ -17,49 +17,70 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "groupledger")
+@Table(name = "ccoa")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GroupLedgerVO {
-
+public class CCoaVO {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "groupledgergen")
-	@SequenceGenerator(name = "groupledgergen", sequenceName = "groupledgerseq", initialValue = 1000000001, allocationSize = 1)
-	@Column(name = "accountcode")
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "ccoagen")
+	@SequenceGenerator(name = "ccoagen", sequenceName = "ccoaseq", initialValue = 1000000001, allocationSize = 1)
+	@Column(name = "ccoaid")
 	private Long id;
-	@Column(name = "orgid")
-	private Long orgId;
+	
+	@Column(name = "type", length = 30)
+	private String type; 
+	
 	@Column(name = "groupname", length = 150)
 	private String groupName;
-	@Column(name = "gsttaxflag", length = 50)
-	private String gstTaxFlag;
-	@Column(name = "coalist", length = 50)
-	private String coaList;
+	
 	@Column(name = "accountgroupname", length = 150)
 	private String accountGroupName;
-	@Column(name = "type", length = 50)
-	private String type;
-	@Column(name = "interbranchac")
-	private boolean interBranchAc;
-	@Column(name = "controllac")
-	private boolean controllAc;
-	@Column(name = "category", length = 50)
-	private String category;
-	@Column(name = "currency", length = 50)
-	private String currency;
+	
+	@Column(name = "natureofaccount", length = 50)
+	private String natureOfAccount;
+	
+	@Column(name = "parentid")
+	private String parentId;
+	
+	@Column(name = "parentcode",length =10)
+	private String parentCode;
+	
+	@Column(name = "accountcode", length = 10)
+	private String accountCode;
+	
 	@Column(name = "createdby", length = 50)
 	private String createdBy;
+	
 	@Column(name = "modifiedby", length = 50)
 	private String updatedBy;
+	
 	@Column(name = "cancelremarks", length = 150)
 	private String cancelRemarks;
-	private boolean cancel;
+	
+	@Column(name = "interbranchac")
+	private boolean interBranchAc;
+	
+	@Column(name = "controllac")
+	private boolean controllAc;
+	
+	@Column(name = "currency", length = 50)
+	private String currency;
+	
+	@Column(name = "clientname", length = 50)
+	private String clientName;
+	
+	@Column(name = "clientid", length = 50)
+	private String clientId;
+	
+	private boolean cancel=false;
+	
 	private boolean active;
 
 	@Embedded
 	@Builder.Default
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
+	
 }

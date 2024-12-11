@@ -33,16 +33,16 @@ public class ClientVO {
 	private String client;
 	@Column(name = "clientcode")
 	private String clientCode;
-	@Column(name = "clientadminname")
-	private String clientAdminName;
-	@Column(name = "clienttype")
-	private String clientType;
+//	@Column(name = "clientadminname")
+//	private String clientAdminName;
+	@Column(name = "type")
+	private String type;
 	@Column(name = "clientmail")
 	private String clientMail;
 	@Column(name = "phoneno")
 	private String phoneNo;
-	@Column(name = "contactperson")
-	private String contactPerson;
+//	@Column(name = "contactperson")
+//	private String contactPerson;
 	@Column(name = "username")
 	private String userName;
 	private String password;
@@ -54,7 +54,7 @@ public class ClientVO {
 	private String createdBy;
 	@Column(name ="modifiedby")
 	private String updatedBy;
-	private Role role;
+	//private Role role;
 
 	@JsonGetter("active")
 	public String getActive() {

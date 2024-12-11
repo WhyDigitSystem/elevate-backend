@@ -3,6 +3,7 @@ package com.ebooks.elevate.service;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
+import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.UserActionVO;
 import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.repo.TokenRepo;
@@ -42,6 +44,7 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	TokenRepo tokenRepo;
+	
 
 	public void createUserAction(String userName, Long usersId, String actionType) {
 		try {
@@ -110,6 +113,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
+
+	@Override
+	public List<UserVO> getBranchCodeByUser(String userName) {
+		
+		return userRepo.getBranchCodeDetails(userName);
+	}
 	
 
 }

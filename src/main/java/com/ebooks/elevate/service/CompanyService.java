@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.CompanyEmployeeDTO;
 import com.ebooks.elevate.dto.EltCompanyDTO;
+import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.CompanyEmployeeVO;
 import com.ebooks.elevate.entity.EltCompanyVO;
 import com.ebooks.elevate.exception.ApplicationException;
@@ -30,6 +31,7 @@ public interface CompanyService {
 	Optional<CompanyEmployeeVO> getCompanyEmployeeById(Long id);
 
 	List<CompanyEmployeeVO> getAllCompanyEmployeeByOrgId(Long orgId);
+
 
 	
 

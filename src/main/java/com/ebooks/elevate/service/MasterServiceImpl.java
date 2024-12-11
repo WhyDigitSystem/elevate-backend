@@ -27,7 +27,7 @@ import com.ebooks.elevate.dto.ChequeBookDTO;
 import com.ebooks.elevate.dto.ChequeBookDetailsDTO;
 import com.ebooks.elevate.dto.CostCenterDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
-import com.ebooks.elevate.dto.GroupLedgerDTO;
+import com.ebooks.elevate.dto.CoaDTO;
 import com.ebooks.elevate.dto.ListOfValues1DTO;
 import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.dto.PartyAddressDTO;
@@ -60,7 +60,7 @@ import com.ebooks.elevate.entity.ChequeBookVO;
 import com.ebooks.elevate.entity.CostCenterVO;
 import com.ebooks.elevate.entity.DocumentTypeMappingDetailsVO;
 import com.ebooks.elevate.entity.EmployeeVO;
-import com.ebooks.elevate.entity.GroupLedgerVO;
+import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.ListOfValues1VO;
 import com.ebooks.elevate.entity.ListOfValuesVO;
 import com.ebooks.elevate.entity.PartyAddressVO;
@@ -96,7 +96,7 @@ import com.ebooks.elevate.repo.ChequeBookRepo;
 import com.ebooks.elevate.repo.CostCenterRepo;
 import com.ebooks.elevate.repo.DocumentTypeMappingDetailsRepo;
 import com.ebooks.elevate.repo.EmployeeRepo;
-import com.ebooks.elevate.repo.GroupLedgerRepo;
+import com.ebooks.elevate.repo.CoaRepo;
 import com.ebooks.elevate.repo.ListOfValues1Repo;
 import com.ebooks.elevate.repo.ListOfValuesRepo;
 import com.ebooks.elevate.repo.PartyAddressRepo;
@@ -165,7 +165,7 @@ public class MasterServiceImpl implements MasterService {
 	Account3Repo account3Repo;
 
 	@Autowired
-	GroupLedgerRepo groupLedgerRepo;
+	CoaRepo coaRepo;
 
 	@Autowired
 	SacCodeRepo sacCodeRepo;
@@ -962,99 +962,7 @@ public class MasterServiceImpl implements MasterService {
 
 	}
 
-	// groupledgerVO
-
-	@Override
-	public List<GroupLedgerVO> getAllGroupLedgerById(Long id) {
-		List<GroupLedgerVO> groupLedgerVO = new ArrayList<>();
-		if (ObjectUtils.isNotEmpty(id)) {
-			LOGGER.info("Successfully Received  SetTaxRateInformation BY Id : {}", id);
-			groupLedgerVO = groupLedgerRepo.getAllGroupLedgerById(id);
-		} else {
-			LOGGER.info("Successfully Received  SetTaxRateInformation For All Id.");
-			groupLedgerVO = groupLedgerRepo.findAll();
-		}
-		return groupLedgerVO;
-	}
-
-	@Override
-	public List<GroupLedgerVO> getAllGroupLedgerByOrgId(Long orgId) {
-		List<GroupLedgerVO> groupLedgerVO = new ArrayList<>();
-		if (ObjectUtils.isNotEmpty(orgId)) {
-			LOGGER.info("Successfully Received  SetTaxRateInformation BY OrgId : {}", orgId);
-			groupLedgerVO = groupLedgerRepo.getAllGroupLedgerByOrgId(orgId);
-		} else {
-			LOGGER.info("Successfully Received  SetTaxRateInformation For All OrgId.");
-			groupLedgerVO = groupLedgerRepo.findAll();
-		}
-		return groupLedgerVO;
-	}
-
-	@Override
-	public GroupLedgerVO updateCreateGroupLedger(@Valid GroupLedgerDTO groupLedgerDTO) throws ApplicationException {
-		GroupLedgerVO groupLedgerVO = new GroupLedgerVO();
-		boolean isUpdate = false;
-		if (ObjectUtils.isNotEmpty(groupLedgerDTO.getId())) {
-			isUpdate = true;
-			groupLedgerVO = groupLedgerRepo.findById(groupLedgerDTO.getId())
-					.orElseThrow(() -> new ApplicationException("Invalid GroupLedger details"));
-			groupLedgerVO.setUpdatedBy(groupLedgerDTO.getCreatedBy());
-		} else {
-			if (groupLedgerRepo.existsByAccountGroupNameAndOrgId(groupLedgerDTO.getAccountGroupName(),
-					groupLedgerDTO.getOrgId())) {
-				throw new ApplicationException("The given Account Group Name already exists.");
-			}
-			groupLedgerVO.setUpdatedBy(groupLedgerDTO.getCreatedBy());
-			groupLedgerVO.setCreatedBy(groupLedgerDTO.getCreatedBy());
-		}
-		if (isUpdate) {
-			GroupLedgerVO groupLedger = groupLedgerRepo.findById(groupLedgerDTO.getId()).orElse(null);
-			if (!groupLedger.getGroupName().equals(groupLedgerDTO.getGroupName())) {
-				if (groupLedgerRepo.existsByAccountGroupNameAndOrgId(groupLedgerDTO.getAccountGroupName(),
-						groupLedgerDTO.getOrgId())) {
-					throw new ApplicationException("The given Account Group Name already exists.");
-				}
-			}
-		}
-		getGroupLedgerVOFromGroupLedgerDTO(groupLedgerDTO, groupLedgerVO);
-		return groupLedgerRepo.save(groupLedgerVO);
-	}
-
-	private void getGroupLedgerVOFromGroupLedgerDTO(@Valid GroupLedgerDTO groupLedgerDTO, GroupLedgerVO groupLedgerVO) {
-		groupLedgerVO.setGroupName(groupLedgerDTO.getGroupName().toUpperCase());
-		groupLedgerVO.setOrgId(groupLedgerDTO.getOrgId());
-		groupLedgerVO.setCoaList(groupLedgerDTO.getCoaList().toUpperCase());
-		groupLedgerVO.setType(groupLedgerDTO.getType().toUpperCase());
-		groupLedgerVO.setCategory(groupLedgerDTO.getCategory().toUpperCase());
-		groupLedgerVO.setCurrency(groupLedgerDTO.getCurrency());
-		groupLedgerVO.setGstTaxFlag(groupLedgerDTO.getGstTaxFlag());
-		groupLedgerVO.setActive(groupLedgerDTO.isActive());
-		groupLedgerVO.setInterBranchAc(groupLedgerDTO.isInterBranchAc());
-		groupLedgerVO.setControllAc(groupLedgerDTO.isControllAc());
-		groupLedgerVO.setAccountGroupName(groupLedgerDTO.getAccountGroupName().toUpperCase());
-	}
-
-	@Override
-	public List<Map<String, Object>> getGroupName(Long orgId) {
-		Set<Object[]> groupDetails = groupLedgerRepo.getGroupDetails(orgId);
-		return group(groupDetails);
-	}
-
-	private List<Map<String, Object>> group(Set<Object[]> groupDetails) {
-		List<Map<String, Object>> groupdetails1 = new ArrayList<>();
-		for (Object[] fs : groupDetails) {
-			Map<String, Object> part = new HashMap<>();
-			part.put("groupName", fs[0] != null ? fs[0].toString() : "");
-			groupdetails1.add(part);
-		}
-		return groupdetails1;
-	}
-
-	@Override
-	public List<GroupLedgerVO> getGroupLedgerByActive() {
-		return groupLedgerRepo.findGroupLedgerByActive();
-
-	}
+	
 
 	// SacCode
 

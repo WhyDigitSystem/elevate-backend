@@ -29,18 +29,18 @@ public class CompanyEmployeeVO {
 	@Column(name = "companyemployeeid")
 	private Long id;
 	
-	@Column(name = "employeecode")
+	@Column(name = "code")
 	private String employeeCode;
 //	@Column(name = "companycode")
 //	private String companyCode;
-	@Column(name = "employeename")
+	@Column(name = "name")
 	private String employeeName;
 	@Column(name = "phone")
 	private String phone;
 	@Column(name = "email")
 	private String email;
-	@Column(name = "website")
-	private String webSite;
+//	@Column(name = "website")
+//	private String webSite;
 	@Column(name = "active")
 	private boolean active;
 	@Column(name = "createdby")

@@ -29,9 +29,9 @@ public class EltCompanyVO {
 	@Column(name = "eltcompanyid")
 	private Long id;
 	
-	@Column(name = "companycode")
+	@Column(name = "code")
 	private String companyCode;
-	@Column(name = "companyname")
+	@Column(name = "name")
 	private String companyName;
 	@Column(name = "phone")
 	private String phone;

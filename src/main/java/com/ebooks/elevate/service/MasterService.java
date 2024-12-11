@@ -14,7 +14,7 @@ import com.ebooks.elevate.dto.ChargeTypeRequestDTO;
 import com.ebooks.elevate.dto.ChequeBookDTO;
 import com.ebooks.elevate.dto.CostCenterDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
-import com.ebooks.elevate.dto.GroupLedgerDTO;
+import com.ebooks.elevate.dto.CoaDTO;
 import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.dto.PartyMasterDTO;
 import com.ebooks.elevate.dto.SacCodeDTO;
@@ -29,7 +29,7 @@ import com.ebooks.elevate.entity.ChargeTypeRequestVO;
 import com.ebooks.elevate.entity.ChequeBookVO;
 import com.ebooks.elevate.entity.CostCenterVO;
 import com.ebooks.elevate.entity.EmployeeVO;
-import com.ebooks.elevate.entity.GroupLedgerVO;
+import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.ListOfValuesVO;
 import com.ebooks.elevate.entity.PartyMasterVO;
 import com.ebooks.elevate.entity.SacCodeVO;
@@ -110,16 +110,6 @@ public interface MasterService {
 
 	List<AccountVO> getAccountByActive();
 
-//	GroupLedgerVO
-	List<GroupLedgerVO> getAllGroupLedgerById(Long id);
-
-	List<GroupLedgerVO> getAllGroupLedgerByOrgId(Long orgId);
-
-	List<Map<String, Object>> getGroupName(Long orgId);
-
-	GroupLedgerVO updateCreateGroupLedger(@Valid GroupLedgerDTO groupLedgerDTO) throws ApplicationException;
-
-	List<GroupLedgerVO> getGroupLedgerByActive();
 
 //	SacCode
 	List<SacCodeVO> getAllSacCodeById(Long id);

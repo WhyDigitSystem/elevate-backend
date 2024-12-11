@@ -31,9 +31,9 @@ public class ClientCompanyVO {
 	
 	@Column(name = "orgid")
 	private Long orgId;
-	@Column(name = "companycode")
+	@Column(name = "code")
 	private String companyCode;
-	@Column(name = "clientname")
+	@Column(name = "name")
 	private String clientName;
 	@Column(name = "clientcode")
 	private String clientCode;

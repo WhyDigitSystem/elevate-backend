@@ -9,19 +9,30 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GroupLedgerDTO {
+public class CoaDTO {
 
 	private Long id;
-	private Long orgId;
-	private String groupName;
-	private String gstTaxFlag;
-	private String coaList;
-	private String accountGroupName;
+
 	private String type;
-	private boolean interBranchAc;
-	private boolean controllAc;
-	private String category;
-	private String currency;
+
+	private String groupName;
+
+	private String accountGroupName;
+
+	private String natureOfAccount;
+
+	private String accountCode;
+
 	private String createdBy;
+
+	private boolean interBranchAc;
+
+	private boolean controllAc;
+
+	private String currency;
+	
 	private boolean active;
+
+	
+
 }

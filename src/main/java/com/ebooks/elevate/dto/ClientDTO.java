@@ -11,17 +11,17 @@ public class ClientDTO {
 	private Long id;
 	private String client;
 	private String clientCode;
-	private String clientType;
+	private String Type;
 	private String clientMail;
 	private String phoneNo;
-	private String contactPerson;
+	// private String contactPerson;
 	private String userName;
 	private String password;
 	private boolean active;
 	private boolean cancel;
 	private Long orgId;
 	private String createdBy;
-	private Role role;
-	private String clientAdminName;
+	// private Role role;
+	// private String clientAdminName;
 
 }

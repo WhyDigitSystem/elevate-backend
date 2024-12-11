@@ -236,8 +236,8 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 			throw new ApplicationContextException("Unable To Encode Password");
 		}
 	}
-	
-@Override
+
+	@Override
 	public CompanyVO updateCompany(CompanyDTO companyDTO) throws ApplicationException {
 
 		if (ObjectUtils.isEmpty(companyDTO.getId())) {
@@ -1122,46 +1122,59 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 					.orElseThrow(() -> new ApplicationException("Client not found with id: " + clientDTO.getId()));
 			clientVO.setUpdatedBy(clientDTO.getCreatedBy());
 
-			if (clientRepo.existsByClientCodeAndId(clientDTO.getClientCode(), clientDTO.getId())) {
-				String errorMessage = String.format("The Client Code:%s Already Exists This Id .",
-						clientDTO.getClientCode());
-				throw new ApplicationException(errorMessage);
+			if (!clientVO.getClientCode().equalsIgnoreCase(clientDTO.getClientCode())) {
+
+				if (clientRepo.existsByClientCodeAndId(clientDTO.getClientCode(), clientDTO.getId())) {
+					String errorMessage = String.format("The Client Code:%s Already Exists This Id .",
+							clientDTO.getClientCode());
+					throw new ApplicationException(errorMessage);
+				}
+
+				clientVO.setClientCode(clientDTO.getClientCode());
 			}
 
-			clientVO.setClientCode(clientDTO.getClientCode());
+			if (!clientVO.getClient().equalsIgnoreCase(clientDTO.getClient())) {
 
-			if (clientRepo.existsByClientAndId(clientDTO.getClient(), clientDTO.getId())) {
-				String errorMessage = String.format("The Client:%s Already Exists This Id .", clientDTO.getClient());
-				throw new ApplicationException(errorMessage);
+				if (clientRepo.existsByClientAndId(clientDTO.getClient(), clientDTO.getId())) {
+					String errorMessage = String.format("The Client:%s Already Exists This Id .",
+							clientDTO.getClient());
+					throw new ApplicationException(errorMessage);
 
+				}
+
+				clientVO.setClient(clientDTO.getClientCode());
 			}
 
-			clientVO.setClient(clientDTO.getClientCode());
+			if (!clientVO.getClientMail().equalsIgnoreCase(clientDTO.getClientMail())) {
 
-			if (clientRepo.existsByClientMailAndId(clientDTO.getClientMail(), clientDTO.getId())) {
-				String errorMessage = String.format("The Client Mail:%s Already Exists This Id .",
-						clientDTO.getClientMail());
-				throw new ApplicationException(errorMessage);
+				if (clientRepo.existsByClientMailAndId(clientDTO.getClientMail(), clientDTO.getId())) {
+					String errorMessage = String.format("The Client Mail:%s Already Exists This Id .",
+							clientDTO.getClientMail());
+					throw new ApplicationException(errorMessage);
 
+				}
+
+				clientVO.setClientMail(clientDTO.getClientMail());
 			}
 
-			clientVO.setClientMail(clientDTO.getClientMail());
+			if (!clientVO.getPhoneNo().equalsIgnoreCase(clientDTO.getPhoneNo())) {
 
-			if (clientRepo.existsByPhoneNoAndId(clientDTO.getPhoneNo(), clientDTO.getId())) {
-				String errorMessage = String.format("The Client Name:%s Already Exists This Id .",
-						clientDTO.getPhoneNo());
-				throw new ApplicationException(errorMessage);
+				if (clientRepo.existsByPhoneNoAndId(clientDTO.getPhoneNo(), clientDTO.getId())) {
+					String errorMessage = String.format("The Client Name:%s Already Exists This Id .",
+							clientDTO.getPhoneNo());
+					throw new ApplicationException(errorMessage);
 
+				}
+
+				clientVO.setPhoneNo(clientDTO.getPhoneNo());
 			}
 
-			clientVO.setPhoneNo(clientDTO.getPhoneNo());
-			
-			message="Client Updation Succesfully";
+			message = "Client Updation Succesfully";
 		}
-		
-		clientVO=getClientVOFromClientDTO(clientVO,clientDTO);
+
+		clientVO = getClientVOFromClientDTO(clientVO, clientDTO);
 		clientRepo.save(clientVO);
-		
+
 //		EmployeeVO employeeVO = new EmployeeVO();
 //		employeeVO.setEmployeeName(clientVO.getUserName());
 //		employeeVO.setEmployeeCode(clientVO.getClientCode());
@@ -1170,24 +1183,23 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 //		employeeVO.setEmail(clientVO.getClientMail());
 //		employeeVO.setOrgId(clientVO.getId());
 //		employeeRepo.save(employeeVO);
-		
-		
+
 		UserVO userVO = new UserVO();
 		userVO.setUserName(clientVO.getUserName());
 		userVO.setUserName(clientVO.getClientCode());
-		userVO.setEmployeeName(clientDTO.getClientAdminName());
+		// userVO.setEmployeeName(clientDTO.getClientAdminName());
 		userVO.setEmployeeCode(clientVO.getClientCode());
 		userVO.setEmail(clientVO.getClientMail());
 		userVO.setMobileNo(clientVO.getPhoneNo());
-		userVO.setRole(clientVO.getRole());
-		userVO.setUserType("Client");
+		// userVO.setRole(clientVO.getRole());
+		userVO.setUserType(clientVO.getType());
 		userVO.setOrgId(clientVO.getOrgId());
 		userVO.setCreatedby(clientVO.getCreatedBy());
 		userVO.setUpdatedby(clientVO.getCreatedBy());
-		userVO.setActive(true);
+		userVO.setActive(clientDTO.isActive());
 		userVO.setClientId(clientVO.getId());
 		userVO.setLoginStatus(false);
-		
+
 		try {
 			userVO.setPassword(encoder.encode(CryptoUtils.getDecrypt(clientDTO.getPassword())));
 		} catch (Exception e) {
@@ -1197,8 +1209,6 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 
 		userRepo.save(userVO);
 
-		
-		
 		Map<String, Object> response = new HashMap<>();
 		response.put("message", message);
 		response.put("clientVO", clientVO);
@@ -1206,44 +1216,44 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 	}
 
 	private ClientVO getClientVOFromClientDTO(ClientVO clientVO, ClientDTO clientDTO) {
-		
+
 		clientVO.setClient(clientDTO.getClient());
-	    clientVO.setClientCode(clientDTO.getClientCode());
-	    clientVO.setClientType(clientDTO.getClientType());
-	    clientVO.setClientMail(clientDTO.getClientMail());
-	    clientVO.setPhoneNo(clientDTO.getPhoneNo());
-	    clientVO.setContactPerson(clientDTO.getContactPerson());
-	    clientVO.setUserName(clientDTO.getUserName());
-	    clientVO.setPassword(clientDTO.getPassword());
-	    clientVO.setActive(clientDTO.isActive());
-	    clientVO.setCancel(clientDTO.isCancel());
-	    clientVO.setOrgId(clientDTO.getOrgId());
-	    clientVO.setCreatedBy(clientDTO.getCreatedBy());
-	    clientVO.setClientAdminName(clientDTO.getClientAdminName());
-	    clientVO.setRole(Role.ADMIN);
-	    
-	    clientVO.setPassword(clientDTO.getPassword());
-	    
-	    try {
-	    	clientVO.setPassword(encoder.encode(CryptoUtils.getDecrypt(clientDTO.getPassword())));
+		clientVO.setClientCode(clientDTO.getClientCode());
+		clientVO.setType(clientDTO.getType());
+		clientVO.setClientMail(clientDTO.getClientMail());
+		clientVO.setPhoneNo(clientDTO.getPhoneNo());
+		// clientVO.setContactPerson(clientDTO.getContactPerson());
+		clientVO.setUserName(clientDTO.getUserName());
+		clientVO.setPassword(clientDTO.getPassword());
+		clientVO.setActive(clientDTO.isActive());
+		clientVO.setCancel(clientDTO.isCancel());
+		clientVO.setOrgId(clientDTO.getOrgId());
+		clientVO.setCreatedBy(clientDTO.getCreatedBy());
+		// clientVO.setClientAdminName(clientDTO.getClientAdminName());
+		// clientVO.setRole(Role.ADMIN);
+
+		clientVO.setPassword(clientDTO.getPassword());
+
+		try {
+			clientVO.setPassword(encoder.encode(CryptoUtils.getDecrypt(clientDTO.getPassword())));
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			throw new ApplicationContextException("Unable To Encode Password");
 		}
 
-	    return clientVO; // Return the populated ClientVO
-		
+		return clientVO; // Return the populated ClientVO
+
 	}
 
 	@Override
 	public List<ClientVO> getAllClients(Long orgId) {
-		
+
 		return clientRepo.findAllClientByorgId(orgId);
 	}
 
 	@Override
 	public Optional<ClientVO> getClientById(Long id) {
-		
+
 		return clientRepo.findById(id);
 	}
 

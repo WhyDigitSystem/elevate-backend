@@ -15,7 +15,7 @@ public interface CompanyEmployeeRepo extends JpaRepository<CompanyEmployeeVO, Lo
 
 	boolean existsByPhoneAndOrgId(String phone, Long orgId);
 
-	boolean existsByWebSiteAndOrgId(String webSite, Long orgId);
+//	boolean existsByWebSiteAndOrgId(String webSite, Long orgId);
 
 	@Query(nativeQuery =true,value ="SELECT * FROM companyemployee  where orgid=?1")
 	List<CompanyEmployeeVO> getAllCompanyEmployee(Long orgId);
