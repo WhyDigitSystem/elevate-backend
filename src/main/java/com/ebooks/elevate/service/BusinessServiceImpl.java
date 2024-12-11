@@ -2,8 +2,6 @@ package com.ebooks.elevate.service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +30,6 @@ import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.CoaDTO;
 import com.ebooks.elevate.entity.CCoaVO;
 import com.ebooks.elevate.entity.CoaVO;
-import com.ebooks.elevate.entity.FirstDataVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.CCoaRepo;
 import com.ebooks.elevate.repo.CoaRepo;
@@ -104,7 +101,7 @@ public class BusinessServiceImpl implements BusinessService {
 					throw new ApplicationException(errorMessage);
 				}
 
-				coaVO.setGroupName(coaDTO.getGroupName());
+				coaVO.setAccountGroupName(coaDTO.getAccountGroupName());
 			}
 
 			message = "Chart Of Account Updation Successful";
@@ -124,7 +121,7 @@ public class BusinessServiceImpl implements BusinessService {
 		return response;
 	}
 
-	private CoaVO getcoaVOFromcoaDTO(CoaVO coaVO, CoaDTO coaDTO) {
+	private CoaVO getcoaVOFromcoaDTO(CoaVO coaVO, CoaDTO coaDTO) throws ApplicationException {
 
 		// Basic field mapping
 		coaVO.setType(coaDTO.getType());
@@ -145,10 +142,18 @@ public class BusinessServiceImpl implements BusinessService {
 		}
 
 		else {
-			CoaVO coaVO2 = coaRepo.findByAccountGroupName(coaDTO.getGroupName());
-			coaVO.setParentId(coaVO2.getId().toString());
-			coaVO.setParentCode(coaVO2.getAccountCode());
-		}
+	        // Fetch the parent record
+	        CoaVO coaVO2 = coaRepo.findByAccountGroupName(coaDTO.getGroupName());
+	        
+	        if (coaVO2 == null) {
+	            // Handle the case where the parent record is not found
+	            throw new ApplicationException("Parent record not found for groupName: " + coaDTO.getGroupName());
+	        }
+
+	        // Set parentId and parentCode
+	        coaVO.setParentId(coaVO2.getId().toString());
+	        coaVO.setParentCode(coaVO2.getAccountCode());
+	    }
 
 		return coaVO;
 	}
@@ -226,12 +231,8 @@ public class BusinessServiceImpl implements BusinessService {
 				cCoaVO.setAccountCode(cCoaDTO.getAccountCode());
 			}
 
-			if (!cCoaVO.getAccountGroupName().equalsIgnoreCase(cCoaDTO.getAccountGroupName())
-					&& !cCoaVO.getClientName().equalsIgnoreCase(cCoaDTO.getClientName())) {
-				// Your code here
-			}
-			{
-
+			if (!cCoaVO.getAccountGroupName().equalsIgnoreCase(cCoaDTO.getAccountGroupName())) {
+				
 				if (cCoaRepo.existsByAccountGroupNameAndClientName(cCoaDTO.getAccountGroupName(),
 						cCoaDTO.getClientName())) {
 
@@ -240,9 +241,9 @@ public class BusinessServiceImpl implements BusinessService {
 					throw new ApplicationException(errorMessage);
 				}
 
-				cCoaVO.setGroupName(cCoaDTO.getGroupName());
+				cCoaVO.setAccountGroupName(cCoaDTO.getAccountGroupName());
 			}
-
+			
 			message = "Chart Of Account Updation Successful";
 		}
 
@@ -260,7 +261,7 @@ public class BusinessServiceImpl implements BusinessService {
 		return response;
 	}
 
-	private CCoaVO getCCoaVOFromCCoaDTO(CCoaVO cCoaVO, CCoaDTO cCoaDTO) {
+	private CCoaVO getCCoaVOFromCCoaDTO(CCoaVO cCoaVO, CCoaDTO cCoaDTO) throws ApplicationException {
 		// Basic field mapping
 		cCoaVO.setType(cCoaDTO.getType());
 		cCoaVO.setGroupName(cCoaDTO.getGroupName());
@@ -279,11 +280,21 @@ public class BusinessServiceImpl implements BusinessService {
 		if ("group".equalsIgnoreCase(cCoaDTO.getType()) && cCoaDTO.getGroupName() == null) {
 			cCoaVO.setParentId(null);
 			cCoaVO.setParentCode("0");
-		} else {
-			CCoaVO cCoaVO3 = cCoaRepo.findByAccountGroupName(cCoaDTO.getGroupName());
-			cCoaVO.setParentId(cCoaVO3.getId().toString());
-			cCoaVO.setParentCode(cCoaVO3.getAccountCode());
 		}
+
+		else {
+	        // Fetch the parent record
+	        CCoaVO cCoaVO2 = cCoaRepo.findByAccountGroupName(cCoaDTO.getGroupName());
+	        
+	        if (cCoaVO2 == null) {
+	            // Handle the case where the parent record is not found
+	            throw new ApplicationException("Parent record not found for groupName: " + cCoaDTO.getGroupName());
+	        }
+
+	        // Set parentId and parentCode
+	        cCoaVO.setParentId(cCoaVO2.getId().toString());
+	        cCoaVO.setParentCode(cCoaVO2.getAccountCode());
+	    }
 
 		return cCoaVO;
 	}
@@ -332,9 +343,9 @@ public class BusinessServiceImpl implements BusinessService {
 	    @Transactional
 	    @Override
 	    public void excelUploadForCoa(MultipartFile[] files, String createdBy) throws ApplicationException, EncryptedDocumentException, java.io.IOException {
-	        List<CoaVO> dataToSave = new ArrayList<>();
-	        List<CoaVO> groupsToSave = new ArrayList<>(); // List to save group records first
-	        List<CoaVO> accountsToSave = new ArrayList<>(); // List to save account records
+	        List<CoaVO> mainGroupList = new ArrayList<>();  // List to store main group records
+	        List<CoaVO> subGroupList = new ArrayList<>();   // List to store subgroup records
+	        List<CoaVO> accountList = new ArrayList<>();    // List to store account records
 
 	        // Reset counters at the start of each upload
 	        totalRows = 0;
@@ -364,57 +375,59 @@ public class BusinessServiceImpl implements BusinessService {
 	                        // Retrieve cell values based on the provided order
 	                        String type = getStringCellValue(row.getCell(0));
 	                        String groupName = getStringCellValue(row.getCell(1));
-	                        String accountCode = getStringCellValue(row.getCell(2));
-	                        String accountName = getStringCellValue(row.getCell(3));
-	                        String natureOfAccount = getStringCellValue(row.getCell(4));
-	                        Boolean active = getBooleanCellValue(row.getCell(5));
+	                        String accountCode=getStringCellValue(row.getCell(2));
+	                        String accountName=getStringCellValue(row.getCell(3));
+	                        String natureOfAccount=getStringCellValue(row.getCell(4));
+	                        String activeString = getStringCellValue(row.getCell(5)); // Get value from the cell
 
-	                        // Create CoaVO and add to list for batch saving
+	                     // Convert activeString to integer and handle the conditions
+	                     boolean active;
+	                     if ("1".equals(activeString)) {
+	                         active = true;  // If the value is '1', set active to true
+	                     } else if ("0".equals(activeString)) {
+	                         active = false; // If the value is '0', set active to false
+	                     } else {
+	                         throw new ApplicationException("Invalid value for 'active' field. Expected '1' or '0', but got: " + activeString);
+	                     }
+
+	                        // Create CoaVO and add to appropriate list
 	                        CoaVO coaVO = new CoaVO();
-
-	                        // Condition 1: Check if AccountCode already exists in the database
-	                        if ("account".equalsIgnoreCase(type) && coaRepo.existsByAccountCode(accountCode)) {
-	                            String errorMessage = String.format("This AccountCode: %s Already Exists", accountCode);
-	                            throw new ApplicationException(errorMessage);
-	                        }
-
-	                        // Set common fields for both groups and accounts
 	                        coaVO.setType(type);
-	                        coaVO.setGroupName(groupName);
-	                        coaVO.setAccountGroupName(accountName);
-	                        coaVO.setAccountCode(accountCode);
-	                        coaVO.setNatureOfAccount(natureOfAccount);
-	                        coaVO.setActive(active);
-	                        coaVO.setCreatedBy(createdBy);
-	                        coaVO.setUpdatedBy(createdBy);
+	                		coaVO.setGroupName(groupName);
+	                		coaVO.setAccountGroupName(accountName);
+	                		coaVO.setNatureOfAccount(natureOfAccount);
+	                		coaVO.setAccountCode(accountCode);
+	                		coaVO.setCreatedBy(createdBy);
+	                		coaVO.setInterBranchAc(false);
+	                		coaVO.setControllAc(false);
+	                		coaVO.setCurrency("INR");
+	                		coaVO.setActive(active);
+	                		coaVO.setUpdatedBy(createdBy);
+	                        
 
-	                        // Condition 2: Handle ParentId and ParentCode based on type and groupName
-	                        if ("group".equalsIgnoreCase(type) && (groupName == null || groupName.isEmpty())) {
-	                            // For "group" type with empty groupName, set parentId to null and parentCode to "0"
-	                            coaVO.setParentId(null);
-	                            coaVO.setParentCode("0");
-
-	                            // Add to groupsToSave
-	                            groupsToSave.add(coaVO);
-	                        } else if ("account".equalsIgnoreCase(type)) {
-	                            // For "account" type, check for parent groupName
-	                            if (groupName != null && !groupName.isEmpty()) {
-	                                CoaVO parentCoa = coaRepo.findByAccountGroupName(groupName);
-	                                if (parentCoa == null) {
-	                                    String errorMessage = "Parent record not found for groupName: " + groupName;
-	                                    errorMessages.add(errorMessage);
-	                                    continue; // Skip this row if parent record is not found
-	                                }
-	                                coaVO.setParentId(parentCoa.getId().toString());
-	                                coaVO.setParentCode(parentCoa.getAccountCode());
+	                        // Logic for adding to specific lists based on conditions
+	                        if ("Group".equalsIgnoreCase(type)) {
+	                            if (groupName == null || groupName.isEmpty()) {
+	                            	coaVO.setParentCode("0");
+	                            	coaVO.setParentId(null);
+	                                // Main group (groupName is null)
+	                                mainGroupList.add(coaVO);
+	                                coaRepo.saveAll(mainGroupList);
 	                            } else {
-	                                // If no groupName for account, set parentId to null and parentCode to "0"
-	                                coaVO.setParentId(null);
-	                                coaVO.setParentCode("0");
+	                            	CoaVO vo= coaRepo.findByAccountGroupName(groupName);
+	                            	coaVO.setParentCode(vo.getAccountCode());
+	                            	coaVO.setParentId(vo.getId().toString());
+	                                // Subgroup (groupName is not null)
+	                                subGroupList.add(coaVO);
+	                                coaRepo.saveAll(subGroupList);
 	                            }
-
-	                            // Add to accountsToSave
-	                            accountsToSave.add(coaVO);
+	                        } else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
+	                            // Account (groupName is not null)
+	                        	CoaVO vo= coaRepo.findByAccountGroupName(groupName);
+                            	coaVO.setParentCode(vo.getAccountCode());
+                            	coaVO.setParentId(vo.getId().toString());
+	                            accountList.add(coaVO);
+	                            coaRepo.saveAll(accountList);
 	                        }
 
 	                        successfulUploads++; // Increment successfulUploads
@@ -422,16 +435,6 @@ public class BusinessServiceImpl implements BusinessService {
 	                    } catch (Exception e) {
 	                        errorMessages.add("Error processing row " + (row.getRowNum() + 1) + ": " + e.getMessage());
 	                    }
-	                }
-
-	                // First save all group records
-	                if (!groupsToSave.isEmpty()) {
-	                    coaRepo.saveAll(groupsToSave);
-	                }
-
-	                // Then save all account records (after group records are saved)
-	                if (!accountsToSave.isEmpty()) {
-	                    coaRepo.saveAll(accountsToSave);
 	                }
 
 	                if (!errorMessages.isEmpty()) {
@@ -446,73 +449,56 @@ public class BusinessServiceImpl implements BusinessService {
 	        }
 	    }
 
-	    private Boolean getBooleanCellValue(Cell cell) {
-	        if (cell == null || cell.getCellType() == CellType.BLANK) {
-	            return false; // Default to false if the cell is blank
-	        }
+	private boolean isHeaderValid(Row headerRow) {
+		if (headerRow == null) {
+			return false;
+		}
 
-	        switch (cell.getCellType()) {
-	            case NUMERIC:
-	                return cell.getNumericCellValue() == 1; // Treat 1 as true, 0 as false
-	            case STRING:
-	                String value = cell.getStringCellValue().trim().toLowerCase();
-	                return "1".equals(value) || "true".equals(value) || "yes".equals(value);
-	            default:
-	                throw new IllegalArgumentException("Invalid value for boolean field in Active column: " + cell.toString());
-	        }
-	    }
+		// Adjust based on the actual header names in your Excel
+		return "Type".equalsIgnoreCase(getStringCellValue(headerRow.getCell(0)))
+				&& "Group Name".equalsIgnoreCase(getStringCellValue(headerRow.getCell(1)))
+				&& "Account Code".equalsIgnoreCase(getStringCellValue(headerRow.getCell(2)))
+				&& "AccountName".equalsIgnoreCase(getStringCellValue(headerRow.getCell(3)))
+				&& "Nature of Account".equalsIgnoreCase(getStringCellValue(headerRow.getCell(4)))
+				&& "Active".equalsIgnoreCase(getStringCellValue(headerRow.getCell(5)));
+	}
 
-	    private boolean isHeaderValid(Row headerRow) {
-	        if (headerRow == null) {
-	            return false;
-	        }
+	private String getStringCellValue(Cell cell) {
+		if (cell == null) {
+			return "";
+		}
 
-	        // Adjust based on the actual header names in your Excel
-	        return "Type".equalsIgnoreCase(getStringCellValue(headerRow.getCell(0))) &&
-	               "Group Name".equalsIgnoreCase(getStringCellValue(headerRow.getCell(1))) &&
-	               "Account Code".equalsIgnoreCase(getStringCellValue(headerRow.getCell(2))) &&
-	               "AccountName".equalsIgnoreCase(getStringCellValue(headerRow.getCell(3))) &&
-	               "Nature of Account".equalsIgnoreCase(getStringCellValue(headerRow.getCell(4))) &&
-	               "Active".equalsIgnoreCase(getStringCellValue(headerRow.getCell(5)));
-	    }
+		switch (cell.getCellType()) {
+		case STRING:
+			return cell.getStringCellValue().trim();
+		case NUMERIC:
+			if (DateUtil.isCellDateFormatted(cell)) {
+				return new SimpleDateFormat("dd-MM-yyyy").format(cell.getDateCellValue());
+			} else {
+				double numericValue = cell.getNumericCellValue();
+				if (numericValue == (int) numericValue) {
+					return String.valueOf((int) numericValue);
+				} else {
+					return BigDecimal.valueOf(numericValue).toPlainString();
+				}
+			}
+		case BOOLEAN:
+			return String.valueOf(cell.getBooleanCellValue());
+		case FORMULA:
+			return cell.getCellFormula();
+		default:
+			return "";
+		}
+	}
 
-	    private String getStringCellValue(Cell cell) {
-	        if (cell == null) {
-	            return "";
-	        }
-
-	        switch (cell.getCellType()) {
-	            case STRING:
-	                return cell.getStringCellValue().trim();
-	            case NUMERIC:
-	                if (DateUtil.isCellDateFormatted(cell)) {
-	                    return new SimpleDateFormat("dd-MM-yyyy").format(cell.getDateCellValue());
-	                } else {
-	                    double numericValue = cell.getNumericCellValue();
-	                    if (numericValue == (int) numericValue) {
-	                        return String.valueOf((int) numericValue);
-	                    } else {
-	                        return BigDecimal.valueOf(numericValue).toPlainString();
-	                    }
-	                }
-	            case BOOLEAN:
-	                return String.valueOf(cell.getBooleanCellValue());
-	            case FORMULA:
-	                return cell.getCellFormula();
-	            default:
-	                return "";
-	        }
-	    }
-
-	    private boolean isRowEmpty(Row row) {
-	        for (int cellNum = row.getFirstCellNum(); cellNum < row.getLastCellNum(); cellNum++) {
-	            Cell cell = row.getCell(cellNum);
-	            if (cell != null && cell.getCellType() != CellType.BLANK) {
-	                return false;
-	            }
-	        }
-	        return true;
-	    }
-
+	private boolean isRowEmpty(Row row) {
+		for (int cellNum = row.getFirstCellNum(); cellNum < row.getLastCellNum(); cellNum++) {
+			Cell cell = row.getCell(cellNum);
+			if (cell != null && cell.getCellType() != CellType.BLANK) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }
