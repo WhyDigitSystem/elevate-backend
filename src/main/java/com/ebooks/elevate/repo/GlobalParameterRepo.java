@@ -19,4 +19,6 @@ public interface GlobalParameterRepo extends JpaRepository<GlobalParameterVO, Lo
 	@Query(nativeQuery = true, value = "select w.warehouse from warehouse w , warehouseclient wc where wc.warehouseid=w.warehouseid and orgid=?1 and branch=?2 and client =?3")
 	Set<Object[]> findWarehouseNameByOrgIdAndBranchAndClient(Long orgid, String branch, String client);
 
+	Optional<GlobalParameterVO> findById(String id);
+
 }
