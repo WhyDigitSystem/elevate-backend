@@ -32,7 +32,15 @@ public class LedgerMappingVO {
 
 	@Column(name = "clientcoa")
 	private String clientCoa;
+	@Column(name = "clientcoacode")
+	private String clientCoaCode;
+	
+	@Column(name = "coa")
 	private String coa;
+	
+	@Column(name = "coacode")
+	private String coaCode;
+	
 	@Column(name = "createdby")
 	private String createdBy;
 	@Column(name = "updatedby")
