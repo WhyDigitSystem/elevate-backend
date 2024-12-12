@@ -368,4 +368,68 @@ public class BusinessController extends BaseController{
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	
+	@GetMapping("/getCOAMap")
+    public ResponseEntity<ResponseDTO> getCOAMap() {
+        String methodName = "getCOAMap()";
+        LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+        
+        String errorMsg = null;
+        Map<String, Object> responseObjectsMap = new HashMap<>();
+        ResponseDTO responseDTO = null;
+        List<Map<String, Object>> COA = null;
+        try {
+            // Call the method to get the ledger map (i.e., the required group data)
+            COA = businessService.getLedgerMap();
+        } catch (Exception e) {
+            errorMsg = e.getMessage();
+            LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+        }
+
+        // If no errors, create the successful response
+        if (errorMsg == null) {
+            responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "COA information retrieved successfully for CCoa");
+            responseObjectsMap.put("COA", COA);
+            responseDTO = createServiceResponse(responseObjectsMap);
+        } else {
+            // If there was an error, create an error response
+            responseDTO = createServiceResponseError(responseObjectsMap, "COA information retrieval failed", errorMsg);
+        }
+
+        LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+	
+	@GetMapping("/getFillGridForLedgerMapping")
+    public ResponseEntity<ResponseDTO> getFillGridForLedgerMapping(@RequestParam String clientCode) {
+        String methodName = "getFillGridForLedgerMapping()";
+        LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+        
+        String errorMsg = null;
+        Map<String, Object> responseObjectsMap = new HashMap<>();
+        ResponseDTO responseDTO = null;
+        List<Map<String, Object>> COA = null;
+        try {
+            // Call the method to get the ledger map (i.e., the required group data)
+            COA = businessService.getFillGridForLedgerMapping(clientCode);
+        } catch (Exception e) {
+            errorMsg = e.getMessage();
+            LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+        }
+
+        // If no errors, create the successful response
+        if (errorMsg == null) {
+            responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "COA information retrieved successfully for CCoa");
+            responseObjectsMap.put("COA", COA);
+            responseDTO = createServiceResponse(responseObjectsMap);
+        } else {
+            // If there was an error, create an error response
+            responseDTO = createServiceResponseError(responseObjectsMap, "COA information retrieval failed", errorMsg);
+        }
+
+        LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+	
 }

@@ -18,8 +18,15 @@ public interface LedgerMappingRepo extends JpaRepository<LedgerMappingVO, Long>{
 	@Query(nativeQuery =true,value ="select c.accountgroupname,c.accountcode from ccoa c where c.type='Account' and c.active=1")
 	Set<Object[]> getFullGridForLedgerMapping();
 
+
 	@Modifying
 	@Transactional
 	@Query("DELETE FROM LedgerMappingVO l WHERE l.clientCode = :clientCode")
 	void deleteByClientCode(@Param("clientCode") String clientCode);
+
+	@Query(nativeQuery =true,value ="SELECT ccoa.accountgroupname,ccoa.accountcode,lm.coa,lm.coacode FROM ccoa\r\n"
+			+ "LEFT OUTER JOIN ledgermapping lm ON ccoa.accountcode = lm.clientcoacode and ccoa.clientid=lm.clientcode\r\n"
+			+ "WHERE ccoa.clientid = ?1 AND ccoa.type = 'Account'")
+	Set<Object[]> getFillGridForLedgerMapping(String clientCode);
+
 }
