@@ -317,29 +317,33 @@ public class BusinessController extends BaseController{
 	//LEDGER MAPPING
 	
 	@PutMapping("/createUpdateLedgerMapping")
-	public ResponseEntity<ResponseDTO> createUpdateLedgerMapping(@RequestBody LedgerMappingDTO ledgerMappingDTO) {
-		String methodName = "createUpdateLedgerMapping()";
-		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-		String errorMsg = null;
-		Map<String, Object> responseObjectsMap = new HashMap<>();
-		ResponseDTO responseDTO = null;
-		try {
-			Map<String, Object> ledgerMappingVO = businessService.createUpdateLedgerMapping(ledgerMappingDTO);
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE,ledgerMappingVO.get("message") );
-			responseObjectsMap.put("ledgerMappingVO", ledgerMappingVO.get("ledgerMappingVO"));
-			responseDTO = createServiceResponse(responseObjectsMap);
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg,
-					errorMsg);
-		}
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
-	} 
-	
+	public ResponseEntity<ResponseDTO> createUpdateLedgerMapping(@RequestBody List<LedgerMappingDTO> ledgerMappingDTO) {
+	    String methodName = "createUpdateLedgerMapping()";
+	    LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+	    String errorMsg = null;
+	    Map<String, Object> responseObjectsMap = new HashMap<>();
+	    ResponseDTO responseDTO = null;
+	    try {
+	        // Call the service and get the response
+	        Map<String, Object> ledgerMappingVO = businessService.createUpdateLedgerMapping(ledgerMappingDTO);
+
+	        // Set response map values
+	        responseObjectsMap.put(CommonConstant.STRING_MESSAGE, ledgerMappingVO.get("message"));
+	        responseObjectsMap.put("ledgerMappingVOList", ledgerMappingVO.get("ledgerMappingVOList")); // Ensure correct key
+
+	        // Create success response
+	        responseDTO = createServiceResponse(responseObjectsMap);
+	    } catch (Exception e) {
+	        errorMsg = e.getMessage();
+	        LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+	        responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+	    }
+	    LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+	    return ResponseEntity.ok().body(responseDTO);
+	}
+
 	@GetMapping("/getFullGridForLedgerMapping")
-	public ResponseEntity<ResponseDTO> getFullGridForLedgerMapping() {
+	public ResponseEntity<ResponseDTO> getFullGridForLedgerMapping(@RequestParam(required =false) String clientCopde) {
 		String methodName = "getFullGridForLedgerMapping()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
