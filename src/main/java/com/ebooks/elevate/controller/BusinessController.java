@@ -342,16 +342,16 @@ public class BusinessController extends BaseController{
 	    return ResponseEntity.ok().body(responseDTO);
 	}
 
-	@GetMapping("/getFullGridForLedgerMapping")
-	public ResponseEntity<ResponseDTO> getFullGridForLedgerMapping(@RequestParam(required =false) String clientCopde) {
-		String methodName = "getFullGridForLedgerMapping()";
+	@GetMapping("/getCOAForLedgerMapping")
+	public ResponseEntity<ResponseDTO> getCOAForLedgerMapping() {
+		String methodName = "getCOAForLedgerMapping()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> ledgerMappingVO =new  ArrayList<Map<String,Object>>();
 		try {
-			ledgerMappingVO = businessService.getFullGridForLedgerMapping();
+			ledgerMappingVO = businessService.getCOAForLedgerMapping();
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);

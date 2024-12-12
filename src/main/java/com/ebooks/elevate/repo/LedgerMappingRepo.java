@@ -16,7 +16,7 @@ import com.ebooks.elevate.entity.LedgerMappingVO;
 public interface LedgerMappingRepo extends JpaRepository<LedgerMappingVO, Long>{
 
 	@Query(nativeQuery =true,value ="select c.accountgroupname,c.accountcode from ccoa c where c.type='Account' and c.active=1")
-	Set<Object[]> getFullGridForLedgerMapping();
+	Set<Object[]> getCOA();
 
 
 	@Modifying
