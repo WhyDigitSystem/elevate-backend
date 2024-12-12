@@ -21,8 +21,9 @@ public interface CoaRepo extends JpaRepository<CoaVO, Long>{
 	@Query(nativeQuery =true,value ="select accountgroupname from  coa where active=1 and type='group'")
 	Set<Object[]> findGroups();
 
-
-	//Object getId();
+	@Query(nativeQuery = true,value = "select a.accountgroupname maingroup,a.accountcode maingroupaccountcode,b.accountgroupname subgroup,b.accountcode subgroupaccountcode,c.accountgroupname account,c.accountcode accountcode from coa a, coa b,coa c where b.parentcode=a.accountcode and c.parentcode= b.accountcode  \r\n"
+			+ "group by a.accountgroupname,b.accountgroupname,c.accountgroupname,a.accountcode,b.accountcode,c.accountcode order by a.accountcode,b.accountcode,c.accountcode asc")
+	Set<Object[]> findAccountMap();
 
 
 

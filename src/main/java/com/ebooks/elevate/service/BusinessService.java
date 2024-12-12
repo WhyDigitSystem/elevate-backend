@@ -51,6 +51,8 @@ public interface BusinessService {
 
 	List<Map<String, Object>> getFullGridForLedgerMapping();
 
+	List<Map<String, Object>> getLedgerMap();
+
 	
 
 }
