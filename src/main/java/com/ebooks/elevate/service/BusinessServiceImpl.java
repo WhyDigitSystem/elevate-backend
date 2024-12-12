@@ -28,14 +28,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.CoaDTO;
-import com.ebooks.elevate.dto.LedgerMappingDTO;
 import com.ebooks.elevate.entity.CCoaVO;
 import com.ebooks.elevate.entity.CoaVO;
-import com.ebooks.elevate.entity.LedgerMappingVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.CCoaRepo;
 import com.ebooks.elevate.repo.CoaRepo;
-import com.ebooks.elevate.repo.LedgerMappingRepo;
 
 import io.jsonwebtoken.io.IOException;
 
@@ -47,9 +44,6 @@ public class BusinessServiceImpl implements BusinessService {
 
 	@Autowired
 	CCoaRepo cCoaRepo;
-	
-	@Autowired
-	LedgerMappingRepo ledgerMappingRepo;
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(BusinessServiceImpl.class);
 
@@ -365,13 +359,13 @@ public class BusinessServiceImpl implements BusinessService {
 	                System.out.println("Processing file: " + file.getOriginalFilename()); // Debug statement
 
 	                Row headerRow = sheet.getRow(0);
-	                if (!isHeaderValid1(headerRow)) {
+	                if (!isHeaderValid(headerRow)) {
 	                    throw new ApplicationException("Invalid Excel format. Please refer to the sample file.");
 	                }
 
 	                // Check all rows for validity first
 	                for (Row row : sheet) {
-	                    if (row.getRowNum() == 0 || isRowEmpty1(row)) {
+	                    if (row.getRowNum() == 0 || isRowEmpty(row)) {
 	                        continue; // Skip header row and empty rows
 	                    }
 
@@ -379,12 +373,12 @@ public class BusinessServiceImpl implements BusinessService {
 	                    
 	                    try {
 	                        // Retrieve cell values based on the provided order
-	                        String type = getStringCellValue1(row.getCell(0));
-	                        String groupName = getStringCellValue1(row.getCell(1));
-	                        String accountCode=getStringCellValue1(row.getCell(2));
-	                        String accountName=getStringCellValue1(row.getCell(3));
-	                        String natureOfAccount=getStringCellValue1(row.getCell(4));
-	                        String activeString = getStringCellValue1(row.getCell(5)); // Get value from the cell
+	                        String type = getStringCellValue(row.getCell(0));
+	                        String groupName = getStringCellValue(row.getCell(1));
+	                        String accountCode=getStringCellValue(row.getCell(2));
+	                        String accountName=getStringCellValue(row.getCell(3));
+	                        String natureOfAccount=getStringCellValue(row.getCell(4));
+	                        String activeString = getStringCellValue(row.getCell(5)); // Get value from the cell
 
 	                     // Convert activeString to integer and handle the conditions
 	                     boolean active;
@@ -455,196 +449,18 @@ public class BusinessServiceImpl implements BusinessService {
 	        }
 	    }
 
-	private boolean isHeaderValid1(Row headerRow) {
-		if (headerRow == null) {
-			return false;
-		}
-
-		// Adjust based on the actual header names in your Excel
-		return "Type".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(0)))
-				&& "Group Name".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(1)))
-				&& "Account Code".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(2)))
-				&& "AccountName".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(3)))
-				&& "Nature of Account".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(4)))
-				&& "Active".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(5)));
-	}
-
-	private String getStringCellValue1(Cell cell) {
-		if (cell == null) {
-			return "";
-		}
-
-		switch (cell.getCellType()) {
-		case STRING:
-			return cell.getStringCellValue().trim();
-		case NUMERIC:
-			if (DateUtil.isCellDateFormatted(cell)) {
-				return new SimpleDateFormat("dd-MM-yyyy").format(cell.getDateCellValue());
-			} else {
-				double numericValue = cell.getNumericCellValue();
-				if (numericValue == (int) numericValue) {
-					return String.valueOf((int) numericValue);
-				} else {
-					return BigDecimal.valueOf(numericValue).toPlainString();
-				}
-			}
-		case BOOLEAN:
-			return String.valueOf(cell.getBooleanCellValue());
-		case FORMULA:
-			return cell.getCellFormula();
-		default:
-			return "";
-		}
-	}
-
-	private boolean isRowEmpty1(Row row) {
-		for (int cellNum = row.getFirstCellNum(); cellNum < row.getLastCellNum(); cellNum++) {
-			Cell cell = row.getCell(cellNum);
-			if (cell != null && cell.getCellType() != CellType.BLANK) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	
-	//EXCEL UPLOAD FOR CLIENT COA
-//	
-//	 private int totalRows1=0;
-//	    private int successfulUploads1=0;
-//
-//	    @Override
-//	    public int getTotalRows1() {
-//	        return totalRows;
-//	    }
-//
-//	    @Override
-//	    public int getSuccessfulUploads1() {
-//	        return successfulUploads;
-//	    }
-	
-	    @Transactional
-	    @Override
-	    public void excelUploadForCCoa(MultipartFile[] files, String createdBy,String clientCode) throws EncryptedDocumentException, java.io.IOException, ApplicationException {
-	        List<CCoaVO> mainGroupList = new ArrayList<>();  // List to store main group records
-	        List<CCoaVO> subGroupList = new ArrayList<>();   // List to store subgroup records
-	        List<CCoaVO> accountList = new ArrayList<>();    // List to store account records
-
-	        // Reset counters at the start of each upload
-	        totalRows = 0;
-	        successfulUploads = 0;
-
-	        for (MultipartFile file : files) {
-	            try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-	                Sheet sheet = workbook.getSheetAt(0); // Assuming only one sheet
-	                List<String> errorMessages = new ArrayList<>();
-
-	                System.out.println("Processing file: " + file.getOriginalFilename()); // Debug statement
-
-	                Row headerRow = sheet.getRow(0);
-	                if (!isHeaderValid1(headerRow)) {
-	                    throw new ApplicationException("Invalid Excel format. Please refer to the sample file.");
-	                }
-
-	                // Check all rows for validity first
-	                for (Row row : sheet) {
-	                    if (row.getRowNum() == 0 || isRowEmpty1(row)) {
-	                        continue; // Skip header row and empty rows
-	                    }
-
-	                    totalRows++; // Increment totalRows
-	                    
-	                    try {
-	                        // Retrieve cell values based on the provided order
-	                        String type = getStringCellValue1(row.getCell(0));
-	                        String groupName = getStringCellValue1(row.getCell(1));
-	                        String accountCode=getStringCellValue1(row.getCell(2));
-	                        String accountName=getStringCellValue1(row.getCell(3));
-	                        String natureOfAccount=getStringCellValue1(row.getCell(4));
-	                        String activeString = getStringCellValue1(row.getCell(5)); // Get value from the cell
-
-	                     // Convert activeString to integer and handle the conditions
-	                     boolean active;
-	                     if ("1".equals(activeString)) {
-	                         active = true;  // If the value is '1', set active to true
-	                     } else if ("0".equals(activeString)) {
-	                         active = false; // If the value is '0', set active to false
-	                     } else {
-	                         throw new ApplicationException("Invalid value for 'active' field. Expected '1' or '0', but got: " + activeString);
-	                     }
-
-	                        // Create CoaVO and add to appropriate list
-	                        CCoaVO cCoaVO = new CCoaVO();
-	                        cCoaVO.setType(type);
-	                        cCoaVO.setGroupName(groupName);
-	                        cCoaVO.setAccountGroupName(accountName);
-	                        cCoaVO.setNatureOfAccount(natureOfAccount);
-	                        cCoaVO.setAccountCode(accountCode);
-	                        cCoaVO.setCreatedBy(createdBy);
-	                		cCoaVO.setInterBranchAc(false);
-	                		cCoaVO.setControllAc(false);
-	                		cCoaVO.setCurrency("INR");
-	                		cCoaVO.setActive(active);
-	                		cCoaVO.setUpdatedBy(createdBy);
-	                		cCoaVO.setClientId(clientCode);
-	                        
-
-	                        // Logic for adding to specific lists based on conditions
-	                        if ("Group".equalsIgnoreCase(type)) {
-	                            if (groupName == null || groupName.isEmpty()) {
-	                            	cCoaVO.setParentCode("0");
-	                            	cCoaVO.setParentId(null);
-	                                // Main group (groupName is null)
-	                                mainGroupList.add(cCoaVO);
-	                                cCoaRepo.saveAll(mainGroupList);
-	                            } else {
-	                            	CCoaVO vo= cCoaRepo.findByAccountGroupName(groupName);
-	                            	cCoaVO.setParentCode(vo.getAccountCode());
-	                            	cCoaVO.setParentId(vo.getId().toString());
-	                                // Subgroup (groupName is not null)
-	                                subGroupList.add(cCoaVO);
-	                                cCoaRepo.saveAll(subGroupList);
-	                            }
-	                        } else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
-	                            // Account (groupName is not null)
-	                        	CoaVO vo= coaRepo.findByAccountGroupName(groupName);
-	                        	cCoaVO.setParentCode(vo.getAccountCode());
-	                        	cCoaVO.setParentId(vo.getId().toString());
-	                            accountList.add(cCoaVO);
-	                            cCoaRepo.saveAll(accountList);
-	                        }
-
-	                        successfulUploads++; // Increment successfulUploads
-
-	                    } catch (Exception e) {
-	                        errorMessages.add("Error processing row " + (row.getRowNum() + 1) + ": " + e.getMessage());
-	                    }
-	                }
-
-	                if (!errorMessages.isEmpty()) {
-	                    throw new ApplicationException(
-	                            "Excel upload validation failed. Errors: " + String.join(", ", errorMessages));
-	                }
-
-	            } catch (IOException e) {
-	                throw new ApplicationException(
-	                        "Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
-	            }
-	        }
-	    }
-
 	private boolean isHeaderValid(Row headerRow) {
 		if (headerRow == null) {
 			return false;
 		}
 
 		// Adjust based on the actual header names in your Excel
-		return "Type".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(0)))
-				&& "Group Name".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(1)))
-				&& "Account Code".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(2)))
-				&& "AccountName".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(3)))
-				&& "Nature of Account".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(4)))
-				&& "Active".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(5)));
+		return "Type".equalsIgnoreCase(getStringCellValue(headerRow.getCell(0)))
+				&& "Group Name".equalsIgnoreCase(getStringCellValue(headerRow.getCell(1)))
+				&& "Account Code".equalsIgnoreCase(getStringCellValue(headerRow.getCell(2)))
+				&& "AccountName".equalsIgnoreCase(getStringCellValue(headerRow.getCell(3)))
+				&& "Nature of Account".equalsIgnoreCase(getStringCellValue(headerRow.getCell(4)))
+				&& "Active".equalsIgnoreCase(getStringCellValue(headerRow.getCell(5)));
 	}
 
 	private String getStringCellValue(Cell cell) {
@@ -685,71 +501,4 @@ public class BusinessServiceImpl implements BusinessService {
 		return true;
 	}
 
-	@Override
-	public Map<String, Object> createUpdateLedgerMapping(LedgerMappingDTO ledgerMappingDTO) throws ApplicationException {
-
-		LedgerMappingVO ledgerMappingVO=null;
-		String message;
-		
-		if(ObjectUtils.isEmpty(ledgerMappingDTO.getId())) {
-			
-			ledgerMappingVO=new LedgerMappingVO();
-			ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
-			ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
-			
-			message="LedgerMapping Creation Succesfully";
-			
-		}
-		
-		else {
-			
-			ledgerMappingVO = ledgerMappingRepo.findById(ledgerMappingDTO.getId()).orElseThrow(
-					() -> new ApplicationException("LedgerMapping not found with id: " + ledgerMappingDTO.getId()));
-			ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
-
-			message="LedgerMapping Updation Succesfully";
-		}
-		
-		ledgerMappingVO=getLedgerMappingVOFromLedgerMappingDTO(ledgerMappingVO,ledgerMappingDTO);
-		ledgerMappingRepo.save(ledgerMappingVO);
-		
-		Map<String, Object> reponse=new HashMap<String, Object>();
-		reponse.put("message",message);
-		reponse.put("ledgerMappingVO",ledgerMappingVO);
-		return reponse;
-		
-	}
-
-	private LedgerMappingVO getLedgerMappingVOFromLedgerMappingDTO(LedgerMappingVO ledgerMappingVO,
-			LedgerMappingDTO ledgerMappingDTO) {
-		
-		ledgerMappingVO.setClientCoa(ledgerMappingDTO.getClientCoa());
-	    ledgerMappingVO.setCoa(ledgerMappingDTO.getCoa());
-	    ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
-	    ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
-	    ledgerMappingVO.setClientCode(ledgerMappingDTO.getClientCode());
-	    return ledgerMappingVO;
-	}
-
-	@Override
-	public List<Map<String, Object>> getFullGridForLedgerMapping() {
-		Set<Object[]> getFullGrid = ledgerMappingRepo.getFullGridForLedgerMapping();
-		return getFullGridForLedger(getFullGrid);
-	}
-
-	private List<Map<String, Object>> getFullGridForLedger(Set<Object[]> chCode) {
-		List<Map<String, Object>> List1 = new ArrayList<>();
-		for (Object[] ch : chCode) {
-			Map<String, Object> map = new HashMap<>();
-			map.put("accountGroupName", ch[0] != null ? ch[0].toString() : "");
-			map.put("accountCode", ch[0] != null ? ch[0].toString() : "");
-			List1.add(map);
-		}
-		return List1;
-
-	}
-	
-	
-
-	
 }

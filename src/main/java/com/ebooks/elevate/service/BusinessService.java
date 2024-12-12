@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.CoaDTO;
-import com.ebooks.elevate.dto.LedgerMappingDTO;
 import com.ebooks.elevate.entity.CCoaVO;
 import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.exception.ApplicationException;
@@ -42,14 +41,6 @@ public interface BusinessService {
 	Optional<CCoaVO> getCCaoById(Long id);
 
 	List<Map<String, Object>> getGroupNameForCCoa();
-
-	void excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode) throws EncryptedDocumentException, IOException, ApplicationException;
-
-	//LEDGER MAPPING
-	
-	Map<String, Object> createUpdateLedgerMapping(LedgerMappingDTO ledgerMappingDTO) throws ApplicationException;
-
-	List<Map<String, Object>> getFullGridForLedgerMapping();
 
 	
 
