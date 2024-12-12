@@ -686,6 +686,7 @@ public class BusinessServiceImpl implements BusinessService {
 		return true;
 	}
 
+
 	@Override
 	public Map<String, Object> createUpdateLedgerMapping(LedgerMappingDTO ledgerMappingDTO)
 			throws ApplicationException {
@@ -753,6 +754,76 @@ public class BusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
+	public Map<String, Object> createUpdateLedgerMapping(List<LedgerMappingDTO> ledgerMappingDTOList)
+	        throws ApplicationException {
+
+	    List<LedgerMappingVO> ledgerMappingVOList = new ArrayList<>();
+	    String message = "LedgerMapping processed successfully";
+
+	    // Iterate over the list of LedgerMappingDTO objects
+	    for (LedgerMappingDTO ledgerMappingDTO : ledgerMappingDTOList) {
+
+	        LedgerMappingVO ledgerMappingVO = null;
+
+	        if (ObjectUtils.isEmpty(ledgerMappingDTO.getId())) {  
+	        
+	        if(!ledgerMappingVO.getCoa().equalsIgnoreCase(ledgerMappingDTO.getCoa())) { 
+	        	
+	        	// Delete existing records based on clientCode (be cautious of deleting all records before saving)
+		        ledgerMappingRepo.deleteByClientCode(ledgerMappingDTO.getClientCode());
+
+	        }
+		        // Create a new LedgerMappingVO or update existing one
+		       
+		            // New record
+		            ledgerMappingVO = new LedgerMappingVO();
+		            ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
+		            ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
+
+		            // Set the message for creation
+		            message = "LedgerMapping Creation Successful";
+		       
+		        }
+	       
+	        else {
+	            // Existing record, update it
+	            ledgerMappingVO = ledgerMappingRepo.findById(ledgerMappingDTO.getId()).orElseThrow(
+	                    () -> new ApplicationException("LedgerMapping not found with id: " + ledgerMappingDTO.getId()));
+	            ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
+
+	            // Set the message for update
+	            message = "LedgerMapping Updation Successful";
+	        }
+
+	        // Convert DTO to VO
+	        ledgerMappingVO = getLedgerMappingVOFromLedgerMappingDTO(ledgerMappingVO, ledgerMappingDTO);
+
+	        // Add the LedgerMappingVO to the list for batch save
+	        ledgerMappingVOList.add(ledgerMappingVO);
+	    }
+
+	    // Batch save all records at once (for performance optimization)
+	    ledgerMappingRepo.saveAll(ledgerMappingVOList);
+
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("message", message);
+	    response.put("ledgerMappingVOList", ledgerMappingVOList);  // Return the list of saved records
+	    return response;
+	}
+
+	private LedgerMappingVO getLedgerMappingVOFromLedgerMappingDTO(LedgerMappingVO ledgerMappingVO,
+	        LedgerMappingDTO ledgerMappingDTO) {
+
+	    ledgerMappingVO.setClientCoa(ledgerMappingDTO.getClientCoa());
+	    ledgerMappingVO.setCoa(ledgerMappingDTO.getCoa());
+	    ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
+	    ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
+	    ledgerMappingVO.setClientCode(ledgerMappingDTO.getClientCode());
+
+	    return ledgerMappingVO;
+	}
+
+@Override
 	public List<Map<String, Object>> getLedgerMap() {
 		Set<Object[]> getActiveGroup = coaRepo.findAccountMap();
 		return getLedgerGroup(getActiveGroup);

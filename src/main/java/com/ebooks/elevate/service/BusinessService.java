@@ -47,7 +47,7 @@ public interface BusinessService {
 
 	//LEDGER MAPPING
 	
-	Map<String, Object> createUpdateLedgerMapping(LedgerMappingDTO ledgerMappingDTO) throws ApplicationException;
+	Map<String, Object> createUpdateLedgerMapping(List<LedgerMappingDTO> ledgerMappingDTO) throws ApplicationException;
 
 	List<Map<String, Object>> getFullGridForLedgerMapping();
 
