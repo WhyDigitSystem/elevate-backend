@@ -707,10 +707,11 @@ public class BusinessServiceImpl implements BusinessService {
 					() -> new ApplicationException("LedgerMapping not found with id: " + ledgerMappingDTO.getId()));
 			ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
 
-			message="LedgerMapping Updation Succesfully";
+			message="LedgerMapping Updation Succesfully"; 
 		}
 		
 		ledgerMappingVO=getLedgerMappingVOFromLedgerMappingDTO(ledgerMappingVO,ledgerMappingDTO);
+		
 		ledgerMappingRepo.save(ledgerMappingVO);
 		
 		Map<String, Object> reponse=new HashMap<String, Object>();
