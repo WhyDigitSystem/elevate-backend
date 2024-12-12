@@ -28,11 +28,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.CoaDTO;
+import com.ebooks.elevate.dto.LedgerMappingDTO;
 import com.ebooks.elevate.entity.CCoaVO;
 import com.ebooks.elevate.entity.CoaVO;
+import com.ebooks.elevate.entity.LedgerMappingVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.CCoaRepo;
 import com.ebooks.elevate.repo.CoaRepo;
+import com.ebooks.elevate.repo.LedgerMappingRepo;
 
 import io.jsonwebtoken.io.IOException;
 
@@ -44,6 +47,9 @@ public class BusinessServiceImpl implements BusinessService {
 
 	@Autowired
 	CCoaRepo cCoaRepo;
+	
+	@Autowired
+	LedgerMappingRepo ledgerMappingRepo;
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(BusinessServiceImpl.class);
 
@@ -678,6 +684,72 @@ public class BusinessServiceImpl implements BusinessService {
 		}
 		return true;
 	}
+
+	@Override
+	public Map<String, Object> createUpdateLedgerMapping(LedgerMappingDTO ledgerMappingDTO) throws ApplicationException {
+
+		LedgerMappingVO ledgerMappingVO=null;
+		String message;
+		
+		if(ObjectUtils.isEmpty(ledgerMappingDTO.getId())) {
+			
+			ledgerMappingVO=new LedgerMappingVO();
+			ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
+			ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
+			
+			message="LedgerMapping Creation Succesfully";
+			
+		}
+		
+		else {
+			
+			ledgerMappingVO = ledgerMappingRepo.findById(ledgerMappingDTO.getId()).orElseThrow(
+					() -> new ApplicationException("LedgerMapping not found with id: " + ledgerMappingDTO.getId()));
+			ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
+
+			message="LedgerMapping Updation Succesfully";
+		}
+		
+		ledgerMappingVO=getLedgerMappingVOFromLedgerMappingDTO(ledgerMappingVO,ledgerMappingDTO);
+		ledgerMappingRepo.save(ledgerMappingVO);
+		
+		Map<String, Object> reponse=new HashMap<String, Object>();
+		reponse.put("message",message);
+		reponse.put("ledgerMappingVO",ledgerMappingVO);
+		return reponse;
+		
+	}
+
+	private LedgerMappingVO getLedgerMappingVOFromLedgerMappingDTO(LedgerMappingVO ledgerMappingVO,
+			LedgerMappingDTO ledgerMappingDTO) {
+		
+		ledgerMappingVO.setClientCoa(ledgerMappingDTO.getClientCoa());
+	    ledgerMappingVO.setCoa(ledgerMappingDTO.getCoa());
+	    ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
+	    ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
+	    ledgerMappingVO.setClientCode(ledgerMappingDTO.getClientCode());
+	    return ledgerMappingVO;
+	}
+
+	@Override
+	public List<Map<String, Object>> getFullGridForLedgerMapping() {
+		Set<Object[]> getFullGrid = ledgerMappingRepo.getFullGridForLedgerMapping();
+		return getFullGridForLedger(getFullGrid);
+	}
+
+	private List<Map<String, Object>> getFullGridForLedger(Set<Object[]> chCode) {
+		List<Map<String, Object>> List1 = new ArrayList<>();
+		for (Object[] ch : chCode) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("accountGroupName", ch[0] != null ? ch[0].toString() : "");
+			map.put("accountCode", ch[0] != null ? ch[0].toString() : "");
+			List1.add(map);
+		}
+		return List1;
+
+	}
+	
+	
 
 	
 }
