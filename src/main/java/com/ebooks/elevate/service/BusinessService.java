@@ -49,11 +49,14 @@ public interface BusinessService {
 	
 	Map<String, Object> createUpdateLedgerMapping(List<LedgerMappingDTO> ledgerMappingDTO) throws ApplicationException;
 
-	List<Map<String, Object>> getFullGridForLedgerMapping();
+	List<Map<String, Object>> getCOAForLedgerMapping();
 
 	List<Map<String, Object>> getLedgerMap();
 
 	List<Map<String, Object>> getFillGridForLedgerMapping(String clientCode);
+
+	
+
 
 	
 
