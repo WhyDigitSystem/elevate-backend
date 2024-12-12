@@ -53,6 +53,8 @@ public interface BusinessService {
 
 	List<Map<String, Object>> getLedgerMap();
 
+	List<Map<String, Object>> getFillGridForLedgerMapping(String clientCode);
+
 	
 
 }

@@ -48,7 +48,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 	@Autowired
 	CCoaRepo cCoaRepo;
-	
+
 	@Autowired
 	LedgerMappingRepo ledgerMappingRepo;
 
@@ -149,18 +149,18 @@ public class BusinessServiceImpl implements BusinessService {
 		}
 
 		else {
-	        // Fetch the parent record
-	        CoaVO coaVO2 = coaRepo.findByAccountGroupName(coaDTO.getGroupName());
-	        
-	        if (coaVO2 == null) {
-	            // Handle the case where the parent record is not found
-	            throw new ApplicationException("Parent record not found for groupName: " + coaDTO.getGroupName());
-	        }
+			// Fetch the parent record
+			CoaVO coaVO2 = coaRepo.findByAccountGroupName(coaDTO.getGroupName());
 
-	        // Set parentId and parentCode
-	        coaVO.setParentId(coaVO2.getId().toString());
-	        coaVO.setParentCode(coaVO2.getAccountCode());
-	    }
+			if (coaVO2 == null) {
+				// Handle the case where the parent record is not found
+				throw new ApplicationException("Parent record not found for groupName: " + coaDTO.getGroupName());
+			}
+
+			// Set parentId and parentCode
+			coaVO.setParentId(coaVO2.getId().toString());
+			coaVO.setParentCode(coaVO2.getAccountCode());
+		}
 
 		return coaVO;
 	}
@@ -239,7 +239,7 @@ public class BusinessServiceImpl implements BusinessService {
 			}
 
 			if (!cCoaVO.getAccountGroupName().equalsIgnoreCase(cCoaDTO.getAccountGroupName())) {
-				
+
 				if (cCoaRepo.existsByAccountGroupNameAndClientName(cCoaDTO.getAccountGroupName(),
 						cCoaDTO.getClientName())) {
 
@@ -250,7 +250,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 				cCoaVO.setAccountGroupName(cCoaDTO.getAccountGroupName());
 			}
-			
+
 			message = "Chart Of Account Updation Successful";
 		}
 
@@ -290,25 +290,25 @@ public class BusinessServiceImpl implements BusinessService {
 		}
 
 		else {
-	        // Fetch the parent record
-	        CCoaVO cCoaVO2 = cCoaRepo.findByAccountGroupName(cCoaDTO.getGroupName());
-	        
-	        if (cCoaVO2 == null) {
-	            // Handle the case where the parent record is not found
-	            throw new ApplicationException("Parent record not found for groupName: " + cCoaDTO.getGroupName());
-	        }
+			// Fetch the parent record
+			CCoaVO cCoaVO2 = cCoaRepo.findByAccountGroupName(cCoaDTO.getGroupName());
 
-	        // Set parentId and parentCode
-	        cCoaVO.setParentId(cCoaVO2.getId().toString());
-	        cCoaVO.setParentCode(cCoaVO2.getAccountCode());
-	    }
+			if (cCoaVO2 == null) {
+				// Handle the case where the parent record is not found
+				throw new ApplicationException("Parent record not found for groupName: " + cCoaDTO.getGroupName());
+			}
+
+			// Set parentId and parentCode
+			cCoaVO.setParentId(cCoaVO2.getId().toString());
+			cCoaVO.setParentCode(cCoaVO2.getAccountCode());
+		}
 
 		return cCoaVO;
 	}
 
 	@Override
 	public List<CCoaVO> getAllCCao() {
-		 return cCoaRepo.findAll();
+		return cCoaRepo.findAll();
 	}
 
 	@Override
@@ -333,128 +333,128 @@ public class BusinessServiceImpl implements BusinessService {
 
 	}
 
-	
-	 private int totalRows=0;
-	    private int successfulUploads=0;
+	private int totalRows = 0;
+	private int successfulUploads = 0;
 
-	    @Override
-	    public int getTotalRows() {
-	        return totalRows;
-	    }
+	@Override
+	public int getTotalRows() {
+		return totalRows;
+	}
 
-	    @Override
-	    public int getSuccessfulUploads() {
-	        return successfulUploads;
-	    }
-	
-	    @Transactional
-	    @Override
-	    public void excelUploadForCoa(MultipartFile[] files, String createdBy) throws ApplicationException, EncryptedDocumentException, java.io.IOException {
-	        List<CoaVO> mainGroupList = new ArrayList<>();  // List to store main group records
-	        List<CoaVO> subGroupList = new ArrayList<>();   // List to store subgroup records
-	        List<CoaVO> accountList = new ArrayList<>();    // List to store account records
+	@Override
+	public int getSuccessfulUploads() {
+		return successfulUploads;
+	}
 
-	        // Reset counters at the start of each upload
-	        totalRows = 0;
-	        successfulUploads = 0;
+	@Transactional
+	@Override
+	public void excelUploadForCoa(MultipartFile[] files, String createdBy)
+			throws ApplicationException, EncryptedDocumentException, java.io.IOException {
+		List<CoaVO> mainGroupList = new ArrayList<>(); // List to store main group records
+		List<CoaVO> subGroupList = new ArrayList<>(); // List to store subgroup records
+		List<CoaVO> accountList = new ArrayList<>(); // List to store account records
 
-	        for (MultipartFile file : files) {
-	            try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-	                Sheet sheet = workbook.getSheetAt(0); // Assuming only one sheet
-	                List<String> errorMessages = new ArrayList<>();
+		// Reset counters at the start of each upload
+		totalRows = 0;
+		successfulUploads = 0;
 
-	                System.out.println("Processing file: " + file.getOriginalFilename()); // Debug statement
+		for (MultipartFile file : files) {
+			try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+				Sheet sheet = workbook.getSheetAt(0); // Assuming only one sheet
+				List<String> errorMessages = new ArrayList<>();
 
-	                Row headerRow = sheet.getRow(0);
-	                if (!isHeaderValid1(headerRow)) {
-	                    throw new ApplicationException("Invalid Excel format. Please refer to the sample file.");
-	                }
+				System.out.println("Processing file: " + file.getOriginalFilename()); // Debug statement
 
-	                // Check all rows for validity first
-	                for (Row row : sheet) {
-	                    if (row.getRowNum() == 0 || isRowEmpty1(row)) {
-	                        continue; // Skip header row and empty rows
-	                    }
+				Row headerRow = sheet.getRow(0);
+				if (!isHeaderValid1(headerRow)) {
+					throw new ApplicationException("Invalid Excel format. Please refer to the sample file.");
+				}
 
-	                    totalRows++; // Increment totalRows
-	                    
-	                    try {
-	                        // Retrieve cell values based on the provided order
-	                        String type = getStringCellValue1(row.getCell(0));
-	                        String groupName = getStringCellValue1(row.getCell(1));
-	                        String accountCode=getStringCellValue1(row.getCell(2));
-	                        String accountName=getStringCellValue1(row.getCell(3));
-	                        String natureOfAccount=getStringCellValue1(row.getCell(4));
-	                        String activeString = getStringCellValue1(row.getCell(5)); // Get value from the cell
+				// Check all rows for validity first
+				for (Row row : sheet) {
+					if (row.getRowNum() == 0 || isRowEmpty1(row)) {
+						continue; // Skip header row and empty rows
+					}
 
-	                     // Convert activeString to integer and handle the conditions
-	                     boolean active;
-	                     if ("1".equals(activeString)) {
-	                         active = true;  // If the value is '1', set active to true
-	                     } else if ("0".equals(activeString)) {
-	                         active = false; // If the value is '0', set active to false
-	                     } else {
-	                         throw new ApplicationException("Invalid value for 'active' field. Expected '1' or '0', but got: " + activeString);
-	                     }
+					totalRows++; // Increment totalRows
 
-	                        // Create CoaVO and add to appropriate list
-	                        CoaVO coaVO = new CoaVO();
-	                        coaVO.setType(type);
-	                		coaVO.setGroupName(groupName);
-	                		coaVO.setAccountGroupName(accountName);
-	                		coaVO.setNatureOfAccount(natureOfAccount);
-	                		coaVO.setAccountCode(accountCode);
-	                		coaVO.setCreatedBy(createdBy);
-	                		coaVO.setInterBranchAc(false);
-	                		coaVO.setControllAc(false);
-	                		coaVO.setCurrency("INR");
-	                		coaVO.setActive(active);
-	                		coaVO.setUpdatedBy(createdBy);
-	                        
+					try {
+						// Retrieve cell values based on the provided order
+						String type = getStringCellValue1(row.getCell(0));
+						String groupName = getStringCellValue1(row.getCell(1));
+						String accountCode = getStringCellValue1(row.getCell(2));
+						String accountName = getStringCellValue1(row.getCell(3));
+						String natureOfAccount = getStringCellValue1(row.getCell(4));
+						String activeString = getStringCellValue1(row.getCell(5)); // Get value from the cell
 
-	                        // Logic for adding to specific lists based on conditions
-	                        if ("Group".equalsIgnoreCase(type)) {
-	                            if (groupName == null || groupName.isEmpty()) {
-	                            	coaVO.setParentCode("0");
-	                            	coaVO.setParentId(null);
-	                                // Main group (groupName is null)
-	                                mainGroupList.add(coaVO);
-	                                coaRepo.saveAll(mainGroupList);
-	                            } else {
-	                            	CoaVO vo= coaRepo.findByAccountGroupName(groupName);
-	                            	coaVO.setParentCode(vo.getAccountCode());
-	                            	coaVO.setParentId(vo.getId().toString());
-	                                // Subgroup (groupName is not null)
-	                                subGroupList.add(coaVO);
-	                                coaRepo.saveAll(subGroupList);
-	                            }
-	                        } else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
-	                            // Account (groupName is not null)
-	                        	CoaVO vo= coaRepo.findByAccountGroupName(groupName);
-                            	coaVO.setParentCode(vo.getAccountCode());
-                            	coaVO.setParentId(vo.getId().toString());
-	                            accountList.add(coaVO);
-	                            coaRepo.saveAll(accountList);
-	                        }
+						// Convert activeString to integer and handle the conditions
+						boolean active;
+						if ("1".equals(activeString)) {
+							active = true; // If the value is '1', set active to true
+						} else if ("0".equals(activeString)) {
+							active = false; // If the value is '0', set active to false
+						} else {
+							throw new ApplicationException(
+									"Invalid value for 'active' field. Expected '1' or '0', but got: " + activeString);
+						}
 
-	                        successfulUploads++; // Increment successfulUploads
+						// Create CoaVO and add to appropriate list
+						CoaVO coaVO = new CoaVO();
+						coaVO.setType(type);
+						coaVO.setGroupName(groupName);
+						coaVO.setAccountGroupName(accountName);
+						coaVO.setNatureOfAccount(natureOfAccount);
+						coaVO.setAccountCode(accountCode);
+						coaVO.setCreatedBy(createdBy);
+						coaVO.setInterBranchAc(false);
+						coaVO.setControllAc(false);
+						coaVO.setCurrency("INR");
+						coaVO.setActive(active);
+						coaVO.setUpdatedBy(createdBy);
 
-	                    } catch (Exception e) {
-	                        errorMessages.add("Error processing row " + (row.getRowNum() + 1) + ": " + e.getMessage());
-	                    }
-	                }
+						// Logic for adding to specific lists based on conditions
+						if ("Group".equalsIgnoreCase(type)) {
+							if (groupName == null || groupName.isEmpty()) {
+								coaVO.setParentCode("0");
+								coaVO.setParentId(null);
+								// Main group (groupName is null)
+								mainGroupList.add(coaVO);
+								coaRepo.saveAll(mainGroupList);
+							} else {
+								CoaVO vo = coaRepo.findByAccountGroupName(groupName);
+								coaVO.setParentCode(vo.getAccountCode());
+								coaVO.setParentId(vo.getId().toString());
+								// Subgroup (groupName is not null)
+								subGroupList.add(coaVO);
+								coaRepo.saveAll(subGroupList);
+							}
+						} else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
+							// Account (groupName is not null)
+							CoaVO vo = coaRepo.findByAccountGroupName(groupName);
+							coaVO.setParentCode(vo.getAccountCode());
+							coaVO.setParentId(vo.getId().toString());
+							accountList.add(coaVO);
+							coaRepo.saveAll(accountList);
+						}
 
-	                if (!errorMessages.isEmpty()) {
-	                    throw new ApplicationException(
-	                            "Excel upload validation failed. Errors: " + String.join(", ", errorMessages));
-	                }
+						successfulUploads++; // Increment successfulUploads
 
-	            } catch (IOException e) {
-	                throw new ApplicationException(
-	                        "Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
-	            }
-	        }
-	    }
+					} catch (Exception e) {
+						errorMessages.add("Error processing row " + (row.getRowNum() + 1) + ": " + e.getMessage());
+					}
+				}
+
+				if (!errorMessages.isEmpty()) {
+					throw new ApplicationException(
+							"Excel upload validation failed. Errors: " + String.join(", ", errorMessages));
+				}
+
+			} catch (IOException e) {
+				throw new ApplicationException(
+						"Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
+			}
+		}
+	}
 
 	private boolean isHeaderValid1(Row headerRow) {
 		if (headerRow == null) {
@@ -508,8 +508,7 @@ public class BusinessServiceImpl implements BusinessService {
 		return true;
 	}
 
-	
-	//EXCEL UPLOAD FOR CLIENT COA
+	// EXCEL UPLOAD FOR CLIENT COA
 //	
 //	 private int totalRows1=0;
 //	    private int successfulUploads1=0;
@@ -523,116 +522,117 @@ public class BusinessServiceImpl implements BusinessService {
 //	    public int getSuccessfulUploads1() {
 //	        return successfulUploads;
 //	    }
-	
-	    @Transactional
-	    @Override
-	    public void excelUploadForCCoa(MultipartFile[] files, String createdBy,String clientCode) throws EncryptedDocumentException, java.io.IOException, ApplicationException {
-	        List<CCoaVO> mainGroupList = new ArrayList<>();  // List to store main group records
-	        List<CCoaVO> subGroupList = new ArrayList<>();   // List to store subgroup records
-	        List<CCoaVO> accountList = new ArrayList<>();    // List to store account records
 
-	        // Reset counters at the start of each upload
-	        totalRows = 0;
-	        successfulUploads = 0;
+	@Transactional
+	@Override
+	public void excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode)
+			throws EncryptedDocumentException, java.io.IOException, ApplicationException {
+		List<CCoaVO> mainGroupList = new ArrayList<>(); // List to store main group records
+		List<CCoaVO> subGroupList = new ArrayList<>(); // List to store subgroup records
+		List<CCoaVO> accountList = new ArrayList<>(); // List to store account records
 
-	        for (MultipartFile file : files) {
-	            try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-	                Sheet sheet = workbook.getSheetAt(0); // Assuming only one sheet
-	                List<String> errorMessages = new ArrayList<>();
+		// Reset counters at the start of each upload
+		totalRows = 0;
+		successfulUploads = 0;
 
-	                System.out.println("Processing file: " + file.getOriginalFilename()); // Debug statement
+		for (MultipartFile file : files) {
+			try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+				Sheet sheet = workbook.getSheetAt(0); // Assuming only one sheet
+				List<String> errorMessages = new ArrayList<>();
 
-	                Row headerRow = sheet.getRow(0);
-	                if (!isHeaderValid1(headerRow)) {
-	                    throw new ApplicationException("Invalid Excel format. Please refer to the sample file.");
-	                }
+				System.out.println("Processing file: " + file.getOriginalFilename()); // Debug statement
 
-	                // Check all rows for validity first
-	                for (Row row : sheet) {
-	                    if (row.getRowNum() == 0 || isRowEmpty1(row)) {
-	                        continue; // Skip header row and empty rows
-	                    }
+				Row headerRow = sheet.getRow(0);
+				if (!isHeaderValid1(headerRow)) {
+					throw new ApplicationException("Invalid Excel format. Please refer to the sample file.");
+				}
 
-	                    totalRows++; // Increment totalRows
-	                    
-	                    try {
-	                        // Retrieve cell values based on the provided order
-	                        String type = getStringCellValue1(row.getCell(0));
-	                        String groupName = getStringCellValue1(row.getCell(1));
-	                        String accountCode=getStringCellValue1(row.getCell(2));
-	                        String accountName=getStringCellValue1(row.getCell(3));
-	                        String natureOfAccount=getStringCellValue1(row.getCell(4));
-	                        String activeString = getStringCellValue1(row.getCell(5)); // Get value from the cell
+				// Check all rows for validity first
+				for (Row row : sheet) {
+					if (row.getRowNum() == 0 || isRowEmpty1(row)) {
+						continue; // Skip header row and empty rows
+					}
 
-	                     // Convert activeString to integer and handle the conditions
-	                     boolean active;
-	                     if ("1".equals(activeString)) {
-	                         active = true;  // If the value is '1', set active to true
-	                     } else if ("0".equals(activeString)) {
-	                         active = false; // If the value is '0', set active to false
-	                     } else {
-	                         throw new ApplicationException("Invalid value for 'active' field. Expected '1' or '0', but got: " + activeString);
-	                     }
+					totalRows++; // Increment totalRows
 
-	                        // Create CoaVO and add to appropriate list
-	                        CCoaVO cCoaVO = new CCoaVO();
-	                        cCoaVO.setType(type);
-	                        cCoaVO.setGroupName(groupName);
-	                        cCoaVO.setAccountGroupName(accountName);
-	                        cCoaVO.setNatureOfAccount(natureOfAccount);
-	                        cCoaVO.setAccountCode(accountCode);
-	                        cCoaVO.setCreatedBy(createdBy);
-	                		cCoaVO.setInterBranchAc(false);
-	                		cCoaVO.setControllAc(false);
-	                		cCoaVO.setCurrency("INR");
-	                		cCoaVO.setActive(active);
-	                		cCoaVO.setUpdatedBy(createdBy);
-	                		cCoaVO.setClientId(clientCode);
-	                        
+					try {
+						// Retrieve cell values based on the provided order
+						String type = getStringCellValue1(row.getCell(0));
+						String groupName = getStringCellValue1(row.getCell(1));
+						String accountCode = getStringCellValue1(row.getCell(2));
+						String accountName = getStringCellValue1(row.getCell(3));
+						String natureOfAccount = getStringCellValue1(row.getCell(4));
+						String activeString = getStringCellValue1(row.getCell(5)); // Get value from the cell
 
-	                        // Logic for adding to specific lists based on conditions
-	                        if ("Group".equalsIgnoreCase(type)) {
-	                            if (groupName == null || groupName.isEmpty()) {
-	                            	cCoaVO.setParentCode("0");
-	                            	cCoaVO.setParentId(null);
-	                                // Main group (groupName is null)
-	                                mainGroupList.add(cCoaVO);
-	                                cCoaRepo.saveAll(mainGroupList);
-	                            } else {
-	                            	CCoaVO vo= cCoaRepo.findByAccountGroupName(groupName);
-	                            	cCoaVO.setParentCode(vo.getAccountCode());
-	                            	cCoaVO.setParentId(vo.getId().toString());
-	                                // Subgroup (groupName is not null)
-	                                subGroupList.add(cCoaVO);
-	                                cCoaRepo.saveAll(subGroupList);
-	                            }
-	                        } else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
-	                            // Account (groupName is not null)
-	                        	CoaVO vo= coaRepo.findByAccountGroupName(groupName);
-	                        	cCoaVO.setParentCode(vo.getAccountCode());
-	                        	cCoaVO.setParentId(vo.getId().toString());
-	                            accountList.add(cCoaVO);
-	                            cCoaRepo.saveAll(accountList);
-	                        }
+						// Convert activeString to integer and handle the conditions
+						boolean active;
+						if ("1".equals(activeString)) {
+							active = true; // If the value is '1', set active to true
+						} else if ("0".equals(activeString)) {
+							active = false; // If the value is '0', set active to false
+						} else {
+							throw new ApplicationException(
+									"Invalid value for 'active' field. Expected '1' or '0', but got: " + activeString);
+						}
 
-	                        successfulUploads++; // Increment successfulUploads
+						// Create CoaVO and add to appropriate list
+						CCoaVO cCoaVO = new CCoaVO();
+						cCoaVO.setType(type);
+						cCoaVO.setGroupName(groupName);
+						cCoaVO.setAccountGroupName(accountName);
+						cCoaVO.setNatureOfAccount(natureOfAccount);
+						cCoaVO.setAccountCode(accountCode);
+						cCoaVO.setCreatedBy(createdBy);
+						cCoaVO.setInterBranchAc(false);
+						cCoaVO.setControllAc(false);
+						cCoaVO.setCurrency("INR");
+						cCoaVO.setActive(active);
+						cCoaVO.setUpdatedBy(createdBy);
+						cCoaVO.setClientId(clientCode);
 
-	                    } catch (Exception e) {
-	                        errorMessages.add("Error processing row " + (row.getRowNum() + 1) + ": " + e.getMessage());
-	                    }
-	                }
+						// Logic for adding to specific lists based on conditions
+						if ("Group".equalsIgnoreCase(type)) {
+							if (groupName == null || groupName.isEmpty()) {
+								cCoaVO.setParentCode("0");
+								cCoaVO.setParentId(null);
+								// Main group (groupName is null)
+								mainGroupList.add(cCoaVO);
+								cCoaRepo.saveAll(mainGroupList);
+							} else {
+								CCoaVO vo = cCoaRepo.findByAccountGroupName(groupName);
+								cCoaVO.setParentCode(vo.getAccountCode());
+								cCoaVO.setParentId(vo.getId().toString());
+								// Subgroup (groupName is not null)
+								subGroupList.add(cCoaVO);
+								cCoaRepo.saveAll(subGroupList);
+							}
+						} else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
+							// Account (groupName is not null)
+							CoaVO vo = coaRepo.findByAccountGroupName(groupName);
+							cCoaVO.setParentCode(vo.getAccountCode());
+							cCoaVO.setParentId(vo.getId().toString());
+							accountList.add(cCoaVO);
+							cCoaRepo.saveAll(accountList);
+						}
 
-	                if (!errorMessages.isEmpty()) {
-	                    throw new ApplicationException(
-	                            "Excel upload validation failed. Errors: " + String.join(", ", errorMessages));
-	                }
+						successfulUploads++; // Increment successfulUploads
 
-	            } catch (IOException e) {
-	                throw new ApplicationException(
-	                        "Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
-	            }
-	        }
-	    }
+					} catch (Exception e) {
+						errorMessages.add("Error processing row " + (row.getRowNum() + 1) + ": " + e.getMessage());
+					}
+				}
+
+				if (!errorMessages.isEmpty()) {
+					throw new ApplicationException(
+							"Excel upload validation failed. Errors: " + String.join(", ", errorMessages));
+				}
+
+			} catch (IOException e) {
+				throw new ApplicationException(
+						"Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
+			}
+		}
+	}
 
 	private boolean isHeaderValid(Row headerRow) {
 		if (headerRow == null) {
@@ -687,50 +687,51 @@ public class BusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
-	public Map<String, Object> createUpdateLedgerMapping(LedgerMappingDTO ledgerMappingDTO) throws ApplicationException {
+	public Map<String, Object> createUpdateLedgerMapping(LedgerMappingDTO ledgerMappingDTO)
+			throws ApplicationException {
 
-		LedgerMappingVO ledgerMappingVO=null;
+		LedgerMappingVO ledgerMappingVO = null;
 		String message;
-		
-		if(ObjectUtils.isEmpty(ledgerMappingDTO.getId())) {
-			
-			ledgerMappingVO=new LedgerMappingVO();
+
+		if (ObjectUtils.isEmpty(ledgerMappingDTO.getId())) {
+
+			ledgerMappingVO = new LedgerMappingVO();
 			ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
 			ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
-			
-			message="LedgerMapping Creation Succesfully";
-			
+
+			message = "LedgerMapping Creation Succesfully";
+
 		}
-		
+
 		else {
-			
+
 			ledgerMappingVO = ledgerMappingRepo.findById(ledgerMappingDTO.getId()).orElseThrow(
 					() -> new ApplicationException("LedgerMapping not found with id: " + ledgerMappingDTO.getId()));
 			ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
 
-			message="LedgerMapping Updation Succesfully"; 
+			message = "LedgerMapping Updation Succesfully";
 		}
-		
-		ledgerMappingVO=getLedgerMappingVOFromLedgerMappingDTO(ledgerMappingVO,ledgerMappingDTO);
-		
+
+		ledgerMappingVO = getLedgerMappingVOFromLedgerMappingDTO(ledgerMappingVO, ledgerMappingDTO);
+
 		ledgerMappingRepo.save(ledgerMappingVO);
-		
-		Map<String, Object> reponse=new HashMap<String, Object>();
-		reponse.put("message",message);
-		reponse.put("ledgerMappingVO",ledgerMappingVO);
+
+		Map<String, Object> reponse = new HashMap<String, Object>();
+		reponse.put("message", message);
+		reponse.put("ledgerMappingVO", ledgerMappingVO);
 		return reponse;
-		
+
 	}
 
 	private LedgerMappingVO getLedgerMappingVOFromLedgerMappingDTO(LedgerMappingVO ledgerMappingVO,
 			LedgerMappingDTO ledgerMappingDTO) {
-		
+
 		ledgerMappingVO.setClientCoa(ledgerMappingDTO.getClientCoa());
-	    ledgerMappingVO.setCoa(ledgerMappingDTO.getCoa());
-	    ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
-	    ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
-	    ledgerMappingVO.setClientCode(ledgerMappingDTO.getClientCode());
-	    return ledgerMappingVO;
+		ledgerMappingVO.setCoa(ledgerMappingDTO.getCoa());
+		ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
+		ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
+		ledgerMappingVO.setClientCode(ledgerMappingDTO.getClientCode());
+		return ledgerMappingVO;
 	}
 
 	@Override
@@ -750,66 +751,82 @@ public class BusinessServiceImpl implements BusinessService {
 		return List1;
 
 	}
+
+	@Override
+	public List<Map<String, Object>> getLedgerMap() {
+		Set<Object[]> getActiveGroup = coaRepo.findAccountMap();
+		return getLedgerGroup(getActiveGroup);
+	}
+
+	private List<Map<String, Object>> getLedgerGroup(Set<Object[]> getActiveGroup) {
+		// A map to store the hierarchy for efficient processing
+		Map<String, Map<String, Object>> mainGroupMap = new LinkedHashMap<>();
+
+		for (Object[] row : getActiveGroup) {
+			String mainGroupName = (String) row[0];
+			String mainGroupCode = (String) row[1];
+			String subGroupName = (String) row[2];
+			String subGroupCode = (String) row[3];
+			String accountName = (String) row[4];
+			String accountCode = (String) row[5];
+
+			// Add or retrieve main group
+			Map<String, Object> mainGroup = mainGroupMap.computeIfAbsent(mainGroupCode, k -> {
+				Map<String, Object> group = new LinkedHashMap<>();
+				group.put("mainGroupName", mainGroupName);
+				group.put("mainGroupCode", mainGroupCode);
+				group.put("subGroups", new LinkedHashMap<>());
+				return group;
+			});
+
+			// Add or retrieve sub group within main group
+			Map<String, Map<String, Object>> subGroupMap = (Map<String, Map<String, Object>>) mainGroup
+					.get("subGroups");
+			Map<String, Object> subGroup = subGroupMap.computeIfAbsent(subGroupCode, k -> {
+				Map<String, Object> group = new LinkedHashMap<>();
+				group.put("subGroupName", subGroupName);
+				group.put("subGroupCode", subGroupCode);
+				group.put("accounts", new ArrayList<>());
+				return group;
+			});
+
+			// Add account to sub group
+			List<Map<String, String>> accounts = (List<Map<String, String>>) subGroup.get("accounts");
+			Map<String, String> account = new LinkedHashMap<>();
+			account.put("accountName", accountName);
+			account.put("accountCode", accountCode);
+			accounts.add(account);
+		}
+
+		// Convert the hierarchical map into a list
+		List<Map<String, Object>> result = new ArrayList<>();
+		for (Map<String, Object> mainGroup : mainGroupMap.values()) {
+			Map<String, Map<String, Object>> subGroups = (Map<String, Map<String, Object>>) mainGroup.get("subGroups");
+			mainGroup.put("subGroups", new ArrayList<>(subGroups.values()));
+			result.add(mainGroup);
+		}
+
+		return result;
+
+	}
 	
 	@Override
-    public List<Map<String, Object>> getLedgerMap() {
-        Set<Object[]> getActiveGroup = coaRepo.findAccountMap();
-        return getLedgerGroup(getActiveGroup);
-    }
+	public List<Map<String, Object>> getFillGridForLedgerMapping(String clientCode) {
+		Set<Object[]> getFullGrid = ledgerMappingRepo.getFillGridForLedgerMapping(clientCode);
+		return getFillGridForLedger(getFullGrid);
+	}
 
-    private List<Map<String, Object>> getLedgerGroup(Set<Object[]> getActiveGroup) {
-        // A map to store the hierarchy for efficient processing
-        Map<String, Map<String, Object>> mainGroupMap = new LinkedHashMap<>();
+	private List<Map<String, Object>> getFillGridForLedger(Set<Object[]> getFullGrid) {
+	    List<Map<String, Object>> List1 = new ArrayList<>();
+	    for (Object[] ch : getFullGrid) {
+	        Map<String, Object> map = new HashMap<>();
+	        map.put("clientCOA", ch[0] != null ? ch[0].toString() : ""); // Map accountGroupName
+	        map.put("clientCoaCode", ch[1] != null ? ch[1].toString() : ""); // Map accountCode
+	        map.put("coa", ch[2] != null ? ch[2].toString() : ""); // Map coa
+	        map.put("coaCode", ch[3] != null ? ch[3].toString() : ""); // Map coacode
+	        List1.add(map);
+	    }
+	    return List1;
+	}
 
-        for (Object[] row : getActiveGroup) {
-            String mainGroupName = (String) row[0];
-            String mainGroupCode = (String) row[1];
-            String subGroupName = (String) row[2];
-            String subGroupCode = (String) row[3];
-            String accountName = (String) row[4];
-            String accountCode = (String) row[5];
-
-            // Add or retrieve main group
-            Map<String, Object> mainGroup = mainGroupMap.computeIfAbsent(mainGroupCode, k -> {
-                Map<String, Object> group = new LinkedHashMap<>();
-                group.put("mainGroupName", mainGroupName);
-                group.put("mainGroupCode", mainGroupCode);
-                group.put("subGroups", new LinkedHashMap<>());
-                return group;
-            });
-
-            // Add or retrieve sub group within main group
-            Map<String, Map<String, Object>> subGroupMap = (Map<String, Map<String, Object>>) mainGroup.get("subGroups");
-            Map<String, Object> subGroup = subGroupMap.computeIfAbsent(subGroupCode, k -> {
-                Map<String, Object> group = new LinkedHashMap<>();
-                group.put("subGroupName", subGroupName);
-                group.put("subGroupCode", subGroupCode);
-                group.put("accounts", new ArrayList<>());
-                return group;
-            });
-
-            // Add account to sub group
-            List<Map<String, String>> accounts = (List<Map<String, String>>) subGroup.get("accounts");
-            Map<String, String> account = new LinkedHashMap<>();
-            account.put("accountName", accountName);
-            account.put("accountCode", accountCode);
-            accounts.add(account);
-        }
-
-        // Convert the hierarchical map into a list
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (Map<String, Object> mainGroup : mainGroupMap.values()) {
-            Map<String, Map<String, Object>> subGroups = (Map<String, Map<String, Object>>) mainGroup.get("subGroups");
-            mainGroup.put("subGroups", new ArrayList<>(subGroups.values()));
-            result.add(mainGroup);
-        }
-
-        return result;
-    
-}
-
-	
-	
-
-	
 }
