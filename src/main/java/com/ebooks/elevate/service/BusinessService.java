@@ -14,6 +14,7 @@ import com.ebooks.elevate.dto.CoaDTO;
 import com.ebooks.elevate.dto.LedgerMappingDTO;
 import com.ebooks.elevate.entity.CCoaVO;
 import com.ebooks.elevate.entity.CoaVO;
+import com.ebooks.elevate.entity.LedgerMappingVO;
 import com.ebooks.elevate.exception.ApplicationException;
 
 @Service
@@ -54,6 +55,10 @@ public interface BusinessService {
 	List<Map<String, Object>> getLedgerMap();
 
 	List<Map<String, Object>> getFillGridForLedgerMapping(String clientCode);
+
+	Optional<LedgerMappingVO> getLedgerMappingbyId(Long id);
+
+	List<LedgerMappingVO> getAllLedgerMapping();
 
 	
 

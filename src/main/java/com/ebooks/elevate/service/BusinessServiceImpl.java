@@ -832,4 +832,14 @@ public class BusinessServiceImpl implements BusinessService {
 		return List1;
 	}
 
+	@Override
+	public Optional<LedgerMappingVO> getLedgerMappingbyId(Long id) {
+		return ledgerMappingRepo.findById(id);
+	}
+
+	@Override
+	public List<LedgerMappingVO> getAllLedgerMapping() {
+		return ledgerMappingRepo.findAll();
+	}
+
 }
