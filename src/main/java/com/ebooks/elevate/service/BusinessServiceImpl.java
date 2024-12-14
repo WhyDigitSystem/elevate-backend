@@ -697,7 +697,7 @@ public class BusinessServiceImpl implements BusinessService {
 		for (LedgerMappingDTO ledgerMappingDTO : ledgerMappingDTOList) {
 
 			LedgerMappingVO ledgerMappingVO = new LedgerMappingVO();
-
+ 
 			if (ObjectUtils.isEmpty(ledgerMappingDTO.getId())) {
 
 				// New record
@@ -826,7 +826,7 @@ public class BusinessServiceImpl implements BusinessService {
 		for (Object[] ch : getCoa) {
 			Map<String, Object> map = new HashMap<>();
 			map.put("accountGroupName", ch[0] != null ? ch[0].toString() : "");
-			map.put("accountCode", ch[0] != null ? ch[0].toString() : "");
+			map.put("accountCode", ch[1] != null ? ch[1].toString() : "");
 			List1.add(map);
 		}
 		return List1;

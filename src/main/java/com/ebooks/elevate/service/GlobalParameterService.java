@@ -1,8 +1,8 @@
 package com.ebooks.elevate.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -15,15 +15,19 @@ import com.ebooks.elevate.exception.ApplicationException;
 @Service
 public interface GlobalParameterService {
 	// Global Parameter
-	Set<Object[]> getWarehouseNameByOrgIdAndBranchAndClient(Long orgid, String branch, String client);
+	//Set<Object[]> getWarehouseNameByOrgIdAndBranchAndClient(Long orgid, String branch, String client);
 
-	Optional<GlobalParameterVO> getGlobalParamByOrgIdAndUserName(Long orgid, String userId);
+	//Optional<GlobalParameterVO> getGlobalParamByOrgIdAndUserName(String userId);
 
 	// to getAcces Global Param Dteails
 
-	Set<Object[]> getGlobalParametersBranchAndBranchCodeByOrgIdAndUserName(Long orgid, String userName);
+	//Set<Object[]> getGlobalParametersBranchAndBranchCodeByOrgIdAndUserName(Long orgid, String userName);
 
 	Map<String, Object> updateCreateGlobalparam(@Valid GlobalParameterDTO globalParameterDTO) throws ApplicationException;
+
+	List<Map<String, Object>> getClientCodeForGlopalParam(String userName);
+
+	Optional<GlobalParameterVO> getGlobalparamByUserId(Long userId);
 
 
 }
