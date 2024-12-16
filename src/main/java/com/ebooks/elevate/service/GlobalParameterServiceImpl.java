@@ -102,7 +102,7 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 	    return response;
 	}
 
-
+   
 	
 
 	@Override
