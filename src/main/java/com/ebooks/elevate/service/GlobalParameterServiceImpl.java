@@ -120,12 +120,12 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 			List1.add(map); // Add the map to the list
 		}
 		return List1;
-	}
-
+	}  
+ 
 	@Override
 	public Optional<GlobalParameterVO> getGlobalparamByUserId(Long userId) {
 
 		return globalParameterRepo.getGlobalParam(userId);
-	}
+	}  
 
 }
