@@ -201,7 +201,7 @@ public class BusinessServiceImpl implements BusinessService {
 		if (ObjectUtils.isEmpty(cCoaDTO.getId())) {
 			// Create operation
 
-			if (cCoaRepo.existsByAccountCode(cCoaDTO.getAccountCode())) {
+			if (cCoaRepo.existsByAccountCodeAndClientCode(cCoaDTO.getAccountCode(), cCoaDTO.getClientCode())) {
 
 				String errorMessage = String.format("This AccountCode: %s Already Exists", cCoaDTO.getAccountCode());
 				throw new ApplicationException(errorMessage);
@@ -227,7 +227,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 			if (!cCoaVO.getAccountCode().equalsIgnoreCase(cCoaDTO.getAccountCode())) {
 
-				if (cCoaRepo.existsByAccountCode(cCoaDTO.getAccountCode())) {
+				if (cCoaRepo.existsByAccountCodeAndClientCode(cCoaDTO.getAccountCode(),cCoaDTO.getClientCode())) {
 
 					String errorMessage = String.format("This AccountCode: %s Already Exists",
 							cCoaDTO.getAccountCode());
@@ -254,7 +254,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 		// Map fields from DTO to VO
 		cCoaVO = getCCoaVOFromCCoaDTO(cCoaVO, cCoaDTO);
-
+ 
 		// Save the entity to the repository
 		cCoaRepo.save(cCoaVO);
 
