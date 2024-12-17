@@ -49,7 +49,7 @@ public class CCoaVO {
 	@Column(name = "currency", length = 50)
 	private String currency;
 	
-	@Column(name = "clientname", length = 50)
+	@Column(name = "clientcode", length = 50)
 	private String clientCode;
 	
 	@Column(name = "clientid", length = 50)

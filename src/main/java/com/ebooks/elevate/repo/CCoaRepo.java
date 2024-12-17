@@ -11,14 +11,16 @@ import com.ebooks.elevate.entity.CCoaVO;
 @Repository
 public interface CCoaRepo extends JpaRepository<CCoaVO, Long>{
 
-	boolean existsByAccountCode(String accountCode);
 
 	CCoaVO findByAccountName(String groupName);
-
 
 	@Query(nativeQuery =true,value ="select accountgroupname from  ccoa where active=1 and type='group'")
 	Set<Object[]> findGroups();
 
 	boolean existsByAccountNameAndClientCode(String accountName, String clientCode);
+
+	boolean existsByAccountCodeAndClientCode(String accountCode, String clientCode);
+
+	boolean existsByAccountCode(String accountCode);
 
 }
