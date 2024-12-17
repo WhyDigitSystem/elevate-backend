@@ -13,11 +13,12 @@ public interface CCoaRepo extends JpaRepository<CCoaVO, Long>{
 
 	boolean existsByAccountCode(String accountCode);
 
-	CCoaVO findByAccountGroupName(String groupName);
+	CCoaVO findByAccountName(String groupName);
 
-	boolean existsByAccountGroupNameAndClientName(String accountGroupName, String string);
 
 	@Query(nativeQuery =true,value ="select accountgroupname from  ccoa where active=1 and type='group'")
 	Set<Object[]> findGroups();
+
+	boolean existsByAccountNameAndClientCode(String accountName, String clientCode);
 
 }

@@ -30,23 +30,9 @@ public class CCoaVO {
 	@Column(name = "ccoaid")
 	private Long id;
 	
-	@Column(name = "type", length = 30)
-	private String type; 
 	
-	@Column(name = "groupname", length = 150)
-	private String groupName;
-	
-	@Column(name = "accountgroupname", length = 150)
-	private String accountGroupName;
-	
-	@Column(name = "natureofaccount", length = 50)
-	private String natureOfAccount;
-	
-	@Column(name = "parentid")
-	private String parentId;
-	
-	@Column(name = "parentcode",length =10)
-	private String parentCode;
+	@Column(name = "accountname", length = 150)
+	private String accountName;
 	
 	@Column(name = "accountcode", length = 10)
 	private String accountCode;
@@ -60,17 +46,11 @@ public class CCoaVO {
 	@Column(name = "cancelremarks", length = 150)
 	private String cancelRemarks;
 	
-	@Column(name = "interbranchac")
-	private boolean interBranchAc;
-	
-	@Column(name = "controllac")
-	private boolean controllAc;
-	
 	@Column(name = "currency", length = 50)
 	private String currency;
 	
 	@Column(name = "clientname", length = 50)
-	private String clientName;
+	private String clientCode;
 	
 	@Column(name = "clientid", length = 50)
 	private String clientId;

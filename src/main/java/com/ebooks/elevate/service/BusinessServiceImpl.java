@@ -207,11 +207,10 @@ public class BusinessServiceImpl implements BusinessService {
 				throw new ApplicationException(errorMessage);
 			}
 
-			if (cCoaRepo.existsByAccountGroupNameAndClientName(cCoaDTO.getAccountGroupName(),
-					cCoaDTO.getClientName())) {
+			if (cCoaRepo.existsByAccountNameAndClientCode(cCoaDTO.getAccountName(), cCoaDTO.getClientCode())) {
 
 				String errorMessage = String.format("This AccountGroupName: %s Already Exists",
-						cCoaDTO.getAccountGroupName());
+						cCoaDTO.getAccountName());
 				throw new ApplicationException(errorMessage);
 			}
 
@@ -238,17 +237,16 @@ public class BusinessServiceImpl implements BusinessService {
 				cCoaVO.setAccountCode(cCoaDTO.getAccountCode());
 			}
 
-			if (!cCoaVO.getAccountGroupName().equalsIgnoreCase(cCoaDTO.getAccountGroupName())) {
+			if (!cCoaVO.getAccountName().equalsIgnoreCase(cCoaDTO.getAccountName())) {
 
-				if (cCoaRepo.existsByAccountGroupNameAndClientName(cCoaDTO.getAccountGroupName(),
-						cCoaDTO.getClientName())) {
+				if (cCoaRepo.existsByAccountNameAndClientCode(cCoaDTO.getAccountName(), cCoaDTO.getClientCode())) {
 
 					String errorMessage = String.format("This AccountGroupName: %s Already Exists",
-							cCoaDTO.getAccountGroupName());
+							cCoaDTO.getAccountName());
 					throw new ApplicationException(errorMessage);
 				}
 
-				cCoaVO.setAccountGroupName(cCoaDTO.getAccountGroupName());
+				cCoaVO.setAccountName(cCoaDTO.getAccountName());
 			}
 
 			message = "Chart Of Account Updation Successful";
@@ -270,38 +268,13 @@ public class BusinessServiceImpl implements BusinessService {
 
 	private CCoaVO getCCoaVOFromCCoaDTO(CCoaVO cCoaVO, CCoaDTO cCoaDTO) throws ApplicationException {
 		// Basic field mapping
-		cCoaVO.setType(cCoaDTO.getType());
-		cCoaVO.setGroupName(cCoaDTO.getGroupName());
-		cCoaVO.setAccountGroupName(cCoaDTO.getAccountGroupName());
-		cCoaVO.setNatureOfAccount(cCoaDTO.getNatureOfAccount());
 		cCoaVO.setAccountCode(cCoaDTO.getAccountCode());
+		cCoaVO.setAccountName(cCoaDTO.getAccountName());
 		cCoaVO.setCreatedBy(cCoaDTO.getCreatedBy());
-		cCoaVO.setInterBranchAc(cCoaDTO.isInterBranchAc());
-		cCoaVO.setControllAc(cCoaDTO.isControllAc());
 		cCoaVO.setCurrency(cCoaDTO.getCurrency());
 		cCoaVO.setActive(cCoaDTO.isActive());
 		cCoaVO.setClientId(cCoaDTO.getClientId());
-		cCoaVO.setClientName(cCoaDTO.getClientName());
-
-		// Handle type "group" with no groupName
-		if ("group".equalsIgnoreCase(cCoaDTO.getType()) && cCoaDTO.getGroupName() == null) {
-			cCoaVO.setParentId(null);
-			cCoaVO.setParentCode("0");
-		}
-
-		else {
-			// Fetch the parent record
-			CCoaVO cCoaVO2 = cCoaRepo.findByAccountGroupName(cCoaDTO.getGroupName());
-
-			if (cCoaVO2 == null) {
-				// Handle the case where the parent record is not found
-				throw new ApplicationException("Parent record not found for groupName: " + cCoaDTO.getGroupName());
-			}
-
-			// Set parentId and parentCode
-			cCoaVO.setParentId(cCoaVO2.getId().toString());
-			cCoaVO.setParentCode(cCoaVO2.getAccountCode());
-		}
+		cCoaVO.setClientCode(cCoaDTO.getClientCode());
 
 		return cCoaVO;
 	}
@@ -528,8 +501,8 @@ public class BusinessServiceImpl implements BusinessService {
 	public void excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode)
 			throws EncryptedDocumentException, java.io.IOException, ApplicationException {
 		List<CCoaVO> mainGroupList = new ArrayList<>(); // List to store main group records
-		List<CCoaVO> subGroupList = new ArrayList<>(); // List to store subgroup records
-		List<CCoaVO> accountList = new ArrayList<>(); // List to store account records
+//		List<CCoaVO> subGroupList = new ArrayList<>(); // List to store subgroup records
+//		List<CCoaVO> accountList = new ArrayList<>(); // List to store account records
 
 		// Reset counters at the start of each upload
 		totalRows = 0;
@@ -557,12 +530,12 @@ public class BusinessServiceImpl implements BusinessService {
 
 					try {
 						// Retrieve cell values based on the provided order
-						String type = getStringCellValue1(row.getCell(0));
-						String groupName = getStringCellValue1(row.getCell(1));
-						String accountCode = getStringCellValue1(row.getCell(2));
-						String accountName = getStringCellValue1(row.getCell(3));
-						String natureOfAccount = getStringCellValue1(row.getCell(4));
-						String activeString = getStringCellValue1(row.getCell(5)); // Get value from the cell
+//						String type = getStringCellValue1(row.getCell(0));
+//						String groupName = getStringCellValue1(row.getCell(1));
+						String accountCode = getStringCellValue1(row.getCell(0));
+						String accountName = getStringCellValue1(row.getCell(1));
+//						String natureOfAccount = getStringCellValue1(row.getCell(4));
+						String activeString = getStringCellValue1(row.getCell(2)); // Get value from the cell
 
 						// Convert activeString to integer and handle the conditions
 						boolean active;
@@ -577,43 +550,16 @@ public class BusinessServiceImpl implements BusinessService {
 
 						// Create CoaVO and add to appropriate list
 						CCoaVO cCoaVO = new CCoaVO();
-						cCoaVO.setType(type);
-						cCoaVO.setGroupName(groupName);
-						cCoaVO.setAccountGroupName(accountName);
-						cCoaVO.setNatureOfAccount(natureOfAccount);
+
+						cCoaVO.setAccountName(accountName);
 						cCoaVO.setAccountCode(accountCode);
 						cCoaVO.setCreatedBy(createdBy);
-						cCoaVO.setInterBranchAc(false);
-						cCoaVO.setControllAc(false);
 						cCoaVO.setCurrency("INR");
 						cCoaVO.setActive(active);
 						cCoaVO.setUpdatedBy(createdBy);
 						cCoaVO.setClientId(clientCode);
 
-						// Logic for adding to specific lists based on conditions
-						if ("Group".equalsIgnoreCase(type)) {
-							if (groupName == null || groupName.isEmpty()) {
-								cCoaVO.setParentCode("0");
-								cCoaVO.setParentId(null);
-								// Main group (groupName is null)
-								mainGroupList.add(cCoaVO);
-								cCoaRepo.saveAll(mainGroupList);
-							} else {
-								CCoaVO vo = cCoaRepo.findByAccountGroupName(groupName);
-								cCoaVO.setParentCode(vo.getAccountCode());
-								cCoaVO.setParentId(vo.getId().toString());
-								// Subgroup (groupName is not null)
-								subGroupList.add(cCoaVO);
-								cCoaRepo.saveAll(subGroupList);
-							}
-						} else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
-							// Account (groupName is not null)
-							CoaVO vo = coaRepo.findByAccountGroupName(groupName);
-							cCoaVO.setParentCode(vo.getAccountCode());
-							cCoaVO.setParentId(vo.getId().toString());
-							accountList.add(cCoaVO);
-							cCoaRepo.saveAll(accountList);
-						}
+						mainGroupList.add(cCoaVO);
 
 						successfulUploads++; // Increment successfulUploads
 
@@ -640,12 +586,9 @@ public class BusinessServiceImpl implements BusinessService {
 		}
 
 		// Adjust based on the actual header names in your Excel
-		return "Type".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(0)))
-				&& "Group Name".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(1)))
-				&& "Account Code".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(2)))
-				&& "AccountName".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(3)))
-				&& "Nature of Account".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(4)))
-				&& "Active".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(5)));
+		return "Account Code".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(0)))
+				&& "AccountName".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(1)))
+				&& "Active".equalsIgnoreCase(getStringCellValue1(headerRow.getCell(2)));
 	}
 
 	private String getStringCellValue(Cell cell) {
@@ -689,15 +632,15 @@ public class BusinessServiceImpl implements BusinessService {
 	@Override
 	public Map<String, Object> createUpdateLedgerMapping(List<LedgerMappingDTO> ledgerMappingDTOList)
 			throws ApplicationException {
-		
-		List<LedgerMappingVO>ledgerMappingVOList = new ArrayList<LedgerMappingVO>();
+
+		List<LedgerMappingVO> ledgerMappingVOList = new ArrayList<LedgerMappingVO>();
 		String message = "LedgerMapping processed successfully";
 
 		// Iterate over the list of LedgerMappingDTO objects
 		for (LedgerMappingDTO ledgerMappingDTO : ledgerMappingDTOList) {
 
 			LedgerMappingVO ledgerMappingVO = new LedgerMappingVO();
- 
+
 			if (ObjectUtils.isEmpty(ledgerMappingDTO.getId())) {
 
 				// New record
@@ -710,7 +653,7 @@ public class BusinessServiceImpl implements BusinessService {
 				ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
 				ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
 				ledgerMappingVO.setClientCode(ledgerMappingDTO.getClientCode());
-				
+
 				ledgerMappingRepo.save(ledgerMappingVO);
 				// Set the message for creation
 				message = "LedgerMapping Creation Successful";
@@ -737,7 +680,7 @@ public class BusinessServiceImpl implements BusinessService {
 		response.put("ledgerMappingVOList", ledgerMappingVOList); // Return the list of saved records
 		return response;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getLedgerMap() {
 		Set<Object[]> getActiveGroup = coaRepo.findAccountMap();
