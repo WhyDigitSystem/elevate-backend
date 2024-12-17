@@ -41,7 +41,7 @@ public class SecurityConfig {
 						"/api/businesscontroller/**", "/api/documentType/**", "/api/taxInvoice/**",
 						"/api/arapAdjustments/**", "/api/companycontroller/**", "/api/costdebitnote/**",
 						"/api/costInvoice/**", "/api/irnCreditNote/**", "/api/excelfileupload/**",
-						"/api/companycontroller/**", "/api/clientcompanycontroller/**")
+						"/api/companycontroller/**", "/api/clientcompanycontroller/**","/api/trailBalanceController/**")
 
 				.permitAll().antMatchers("/api/**").hasAnyRole("USER", "GUEST_USER").anyRequest().authenticated();
 		http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

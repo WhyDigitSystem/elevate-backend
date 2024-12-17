@@ -665,7 +665,7 @@ public class CommonMasterController extends BaseController {
 	}
 
 	@GetMapping("/getAllAciveFInYear")
-	public ResponseEntity<ResponseDTO> getAllFInYear(@RequestParam Long orgId) {
+	public ResponseEntity<ResponseDTO> getAllFInYear() {
 		String methodName = "getAllFInYear()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -673,7 +673,7 @@ public class CommonMasterController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<FinancialYearVO> financialYearVOs = new ArrayList<FinancialYearVO>();
 		try {
-			financialYearVOs = commonMasterService.getAllActiveFInYear(orgId);
+			financialYearVOs = commonMasterService.getAllActiveFInYear();
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);

@@ -29,6 +29,7 @@ import com.ebooks.elevate.dto.LedgerMappingDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.entity.CCoaVO;
 import com.ebooks.elevate.entity.CoaVO;
+import com.ebooks.elevate.entity.LedgerMappingVO;
 import com.ebooks.elevate.service.BusinessService;
 
 @CrossOrigin
@@ -431,5 +432,56 @@ public class BusinessController extends BaseController{
         return ResponseEntity.ok().body(responseDTO);
     }
 
+	@GetMapping("/getLedgerMappingbyId")
+	public ResponseEntity<ResponseDTO> getLedgerMappingbyId(@RequestParam(required =false) Long id) {
+		String methodName = "getLedgerMappingbyId()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		Optional<LedgerMappingVO> ledgerMappingVO =null;
+		try {
+			ledgerMappingVO = businessService.getLedgerMappingbyId(id);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "LedgerMapping information get successfully By Id");
+			responseObjectsMap.put("ledgerMappingVO", ledgerMappingVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "LedgerMapping information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getAllLedgerMapping")
+	public ResponseEntity<ResponseDTO> getAllLedgerMapping() {
+		String methodName = "getAllLedgerMapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<LedgerMappingVO> ledgerMappingVO =new ArrayList<LedgerMappingVO>();
+		try {
+			ledgerMappingVO = businessService.getAllLedgerMapping();
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "LedgerMapping information get successfully");
+			responseObjectsMap.put("ledgerMappingVO", ledgerMappingVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "LedgerMapping information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 	
 }
