@@ -22,6 +22,8 @@ public class CoaDTO {
 	private String natureOfAccount;
 
 	private String accountCode;
+	
+	private Long orgId;
 
 	private String createdBy;
 

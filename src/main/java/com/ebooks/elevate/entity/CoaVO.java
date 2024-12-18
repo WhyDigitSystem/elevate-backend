@@ -74,7 +74,7 @@ public class CoaVO {//coaVO
 	
 	private boolean active;
 	
-	@Column(name = "orgid", length = 50)
+	@Column(name = "orgid")
 	private Long orgId;
 
 	@Embedded

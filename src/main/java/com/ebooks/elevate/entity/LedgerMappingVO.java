@@ -51,6 +51,8 @@ public class LedgerMappingVO {
 	private boolean cancel;
 	@Column(name = "clientcode")
 	private String clientCode;
+	@Column(name = "clientname")
+	private String clientName;
 	
 	@Column(name = "orgid")
 	private Long orgId;

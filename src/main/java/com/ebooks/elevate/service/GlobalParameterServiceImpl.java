@@ -77,6 +77,7 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 	    if (existingRecord != null) {
 	        // Update the existing record
 	        existingRecord.setClientCode(globalParameterDTO.getClientCode());
+	        existingRecord.setClientName(globalParameterDTO.getClientName());
 	        existingRecord.setFinYear(globalParameterDTO.getFinYear());
 	        existingRecord.setMonth(globalParameterDTO.getMonth());
 
@@ -89,7 +90,7 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 	        globalParameterVO.setClientCode(globalParameterDTO.getClientCode());
 	        globalParameterVO.setUserid(globalParameterDTO.getUserId());
 	        globalParameterVO.setMonth(globalParameterDTO.getMonth());
-
+	        globalParameterVO.setClientName(globalParameterDTO.getClientName());
 	        globalParameterVO = globalParameterRepo.save(globalParameterVO);
 	        message = "GlobalParameter Creation Successfully";
 	    }

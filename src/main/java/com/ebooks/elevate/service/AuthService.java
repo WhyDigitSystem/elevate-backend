@@ -37,11 +37,11 @@ public interface AuthService {
 	
 	//Responsibility
 	
-	List<Map<String, Object>> getResponsibilityForRolesByOrgId();
+	List<Map<String, Object>> getResponsibilityForRolesByOrgId(Long orgId);
 	
-	public List<ResponsibilityVO> getAllResponsibility();
+	public List<ResponsibilityVO> getAllResponsibility(Long orgId);
 
-	public List<ResponsibilityVO> getAllActiveResponsibility();
+	public List<ResponsibilityVO> getAllActiveResponsibility(Long orgId);
 	
 	ResponsibilityVO getResponsibilityById(Long id) throws ApplicationException;
 	
@@ -51,9 +51,9 @@ public interface AuthService {
 	
 	Map<String, Object> createUpdateRoles(RolesDTO rolesDTO) throws ApplicationException;
 	
-	public List<RolesVO> getAllRoles();
+	public List<RolesVO> getAllRoles(Long orgId);
 
-	public List<RolesVO> getAllActiveRoles();
+	public List<RolesVO> getAllActiveRoles(Long orgId);
 	
 	RolesVO getRolesById(Long id) throws ApplicationException;
 	
@@ -64,6 +64,8 @@ public interface AuthService {
 	public UserVO getUserById(Long userId);
 
 	public UserVO getUserByUserName(String userName);
+
+	
 
 	
 

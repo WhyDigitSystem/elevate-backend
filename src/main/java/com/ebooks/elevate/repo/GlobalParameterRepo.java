@@ -23,6 +23,7 @@ public interface GlobalParameterRepo extends JpaRepository<GlobalParameterVO, Lo
 	@Query(nativeQuery = true,value="select * from globalparam g where g.userid=?1")
 	Optional<GlobalParameterVO> getGlobalParam(Long userId);
 
+
 	GlobalParameterVO findByUserid(Long userId);
 
 }

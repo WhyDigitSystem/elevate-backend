@@ -23,13 +23,13 @@ public interface BusinessService {
 
 	Map<String, Object> createUpdateCoa(CoaDTO coaDTO) throws ApplicationException;
 
-	List<CoaVO> getAllCao();
+	List<CoaVO> getAllCao(Long orgId);
 
 	Optional<CoaVO> getCaoById(Long id);
 
-	List<Map<String, Object>> getGroupName();
+	List<Map<String, Object>> getGroupName(Long orgId);
 	
-	void excelUploadForCoa(MultipartFile[] files, String createdBy) throws ApplicationException, EncryptedDocumentException, IOException;
+	void excelUploadForCoa(MultipartFile[] files, String createdBy,Long orgId) throws ApplicationException, EncryptedDocumentException, IOException;
 	
 	int getTotalRows();
 
@@ -39,32 +39,34 @@ public interface BusinessService {
 
 	Map<String, Object> createUpdateCCoa(CCoaDTO cCoaDTO) throws ApplicationException;
 
-	List<CCoaVO> getAllCCao();
+	List<CCoaVO> getAllCCao(Long orgId, String clientCode);
 
 	Optional<CCoaVO> getCCaoById(Long id);
 
 	List<Map<String, Object>> getGroupNameForCCoa();
 
-//	void excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode) throws EncryptedDocumentException, IOException, ApplicationException;
 
 	//LEDGER MAPPING
 	
 	Map<String, Object> createUpdateLedgerMapping(LedgerMappingDTO ledgerMappingDTO) throws ApplicationException;
 
-	List<Map<String, Object>> getCOAForLedgerMapping();
+	List<Map<String, Object>> getCOAForLedgerMapping(Long orgId);
 
 	List<Map<String, Object>> getLedgerMap();
 
-	List<Map<String, Object>> getFillGridForLedgerMapping(String clientCode);
+	List<Map<String, Object>> getFillGridForLedgerMapping(String clientCode,Long orgId);
 
 	Optional<LedgerMappingVO> getLedgerMappingbyId(Long id);
 
 	List<LedgerMappingVO> getAllLedgerMapping();
 
-	ExcelUploadResultDTO excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode)
+	ExcelUploadResultDTO excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode,
+			String clientName, Long orgId)
 			throws EncryptedDocumentException, io.jsonwebtoken.io.IOException, ApplicationException, IOException;
 
-	ExcelUploadResultDTO excelUploadForLedgerMapping(MultipartFile[] files, String createdBy, String clientCode,Long orgId) throws EncryptedDocumentException, IOException;
+	ExcelUploadResultDTO excelUploadForLedgerMapping(MultipartFile[] files, String createdBy, String clientCode,Long orgId,String clientName) throws EncryptedDocumentException, IOException;
+
+	
 
 	
 

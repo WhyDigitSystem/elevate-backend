@@ -220,7 +220,7 @@ public class AuthController extends BaseController {
 	}
 	
 	@GetMapping("/getResponsibility")
-	public ResponseEntity<ResponseDTO> getResponsibilityForRoles() {
+	public ResponseEntity<ResponseDTO> getResponsibilityForRoles(@RequestParam Long orgId ) {
 		String methodName = "getResponsibilityForRoles()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -228,7 +228,7 @@ public class AuthController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> responsibilityVO = new ArrayList<>();
 		try {
-			responsibilityVO = authService.getResponsibilityForRolesByOrgId();
+			responsibilityVO = authService.getResponsibilityForRolesByOrgId(orgId);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -267,7 +267,7 @@ public class AuthController extends BaseController {
 	}
 	
 	@GetMapping("/allRoles")
-	public ResponseEntity<ResponseDTO> getAllRoles() {
+	public ResponseEntity<ResponseDTO> getAllRoles(@RequestParam Long orgId) {
 		String methodName = "getAllScreenNames()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -275,7 +275,7 @@ public class AuthController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<RolesVO> rolesVO = new ArrayList<>();
 		try {
-			rolesVO = authService.getAllRoles();
+			rolesVO = authService.getAllRoles(orgId);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -294,7 +294,7 @@ public class AuthController extends BaseController {
 	}
 	
 	@GetMapping("/allActiveRoles")
-	public ResponseEntity<ResponseDTO> getAllActiveRoles() {
+	public ResponseEntity<ResponseDTO> getAllActiveRoles(@RequestParam Long orgId) {
 		String methodName = "getAllActiveRoles()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -302,7 +302,7 @@ public class AuthController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<RolesVO> rolesVO = new ArrayList<>();
 		try {
-			rolesVO = authService.getAllActiveRoles();
+			rolesVO = authService.getAllActiveRoles(orgId);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -349,7 +349,7 @@ public class AuthController extends BaseController {
 	
 	
 	@GetMapping("/allActiveResponsibility")
-	public ResponseEntity<ResponseDTO> getAllActiveResponsibility() {
+	public ResponseEntity<ResponseDTO> getAllActiveResponsibility(@RequestParam Long orgId) {
 		String methodName = "getAllActiveResponsibility()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -357,7 +357,7 @@ public class AuthController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<ResponsibilityVO> resposResponsibilityVO = new ArrayList<>();
 		try {
-			resposResponsibilityVO = authService.getAllActiveResponsibility();
+			resposResponsibilityVO = authService.getAllActiveResponsibility(orgId);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -376,7 +376,7 @@ public class AuthController extends BaseController {
 	}
 	
 	@GetMapping("/allResponsibility")
-	public ResponseEntity<ResponseDTO> getAllResponsibility() {
+	public ResponseEntity<ResponseDTO> getAllResponsibility(@RequestParam Long orgId) {
 		String methodName = "getAllResponsibility()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -384,7 +384,7 @@ public class AuthController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<ResponsibilityVO> responsibilityVO = new ArrayList<>();
 		try {
-			responsibilityVO = authService.getAllResponsibility();
+			responsibilityVO = authService.getAllResponsibility(orgId);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);

@@ -14,7 +14,7 @@ public class ResponsibilityDTO {
 	private Long id;
 	private String responsibility;
 	private List<ScreensDTO>screensDTO;
-	//private Long orgId;
+	private Long orgId;
 	private String createdBy;
 	private boolean active;
 	

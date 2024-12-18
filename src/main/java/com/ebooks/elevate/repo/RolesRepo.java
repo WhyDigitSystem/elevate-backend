@@ -14,8 +14,11 @@ public interface RolesRepo extends JpaRepository<com.ebooks.elevate.entity.Roles
 	
 //	List<RolesVO> findAllActiveRolesByOrgId(Long orgId);
 
-	@Query(value = "select a from RolesVO a where a.active=true ")
-	List<RolesVO> findAllActiveRoles();
+	@Query(value = "select a from RolesVO a where a.active=true and a.orgId=?1 ")
+	List<RolesVO> findAllActiveRoles(Long orgId);
+
+	@Query(value = "select a from RolesVO a where a.orgId=?1")
+	List<RolesVO> findAllByOrgId(Long orgId);
 
 //	@Query(value = "select a from RolesVO a where  a.orgId=?1")
 //	List<RolesVO> findAllRolesByOrgId(Long orgId);

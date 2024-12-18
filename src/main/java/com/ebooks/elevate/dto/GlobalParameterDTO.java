@@ -13,6 +13,7 @@ public class GlobalParameterDTO {
 	private Long userId;
 	private String finYear;
 	private String clientCode;
+	private String clientName;
 	private String month;
 
 }

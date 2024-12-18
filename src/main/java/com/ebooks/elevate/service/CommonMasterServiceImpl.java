@@ -31,10 +31,11 @@ import com.ebooks.elevate.dto.ScreenNamesDTO;
 import com.ebooks.elevate.dto.StateDTO;
 import com.ebooks.elevate.entity.CityVO;
 import com.ebooks.elevate.entity.ClientVO;
+import com.ebooks.elevate.entity.CompanyEmployeeVO;
 import com.ebooks.elevate.entity.CompanyVO;
 import com.ebooks.elevate.entity.CountryVO;
 import com.ebooks.elevate.entity.CurrencyVO;
-import com.ebooks.elevate.entity.EmployeeVO;
+import com.ebooks.elevate.entity.EltCompanyVO;
 import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.entity.RegionVO;
 import com.ebooks.elevate.entity.ScreenNamesVO;
@@ -43,9 +44,11 @@ import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.CityRepo;
 import com.ebooks.elevate.repo.ClientRepo;
+import com.ebooks.elevate.repo.CompanyEmployeeRepo;
 import com.ebooks.elevate.repo.CompanyRepo;
 import com.ebooks.elevate.repo.CountryRepo;
 import com.ebooks.elevate.repo.CurrencyRepo;
+import com.ebooks.elevate.repo.EltCompanyRepo;
 import com.ebooks.elevate.repo.EmployeeRepo;
 import com.ebooks.elevate.repo.FinScreenRepo;
 import com.ebooks.elevate.repo.FinancialYearRepo;
@@ -67,6 +70,12 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 
 	@Autowired
 	CurrencyRepo currencyRepo;
+	
+	@Autowired
+	EltCompanyRepo eltCompanyRepo;
+	
+	@Autowired
+	CompanyEmployeeRepo companyEmployeeRepo;
 
 	@Autowired
 	StateRepo stateRepo;
@@ -177,6 +186,34 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 //		employeeVO.setActive(true);
 //		employeeVO.setOrgId(companyVO.getId());
 //		employeeRepo.save(employeeVO);
+		
+		CompanyEmployeeVO companyEmployeeVO= new CompanyEmployeeVO();
+		companyEmployeeVO.setActive(true);
+		
+		if(companyEmployeeRepo.existsByOrgIdAndEmployeeCode(companyVO.getId(),companyVO.getEmployeeCode()))
+		{
+			throw new ApplicationContextException("This Employee Code Already Exist for This Company");
+		}
+		companyEmployeeVO.setEmployeeCode(companyVO.getEmployeeCode());
+		companyEmployeeVO.setEmployeeName(companyVO.getEmployeeName());
+		companyEmployeeVO.setEmail(companyVO.getEmail());
+		companyEmployeeVO.setOrgId(companyVO.getId());
+		companyEmployeeVO.setCreatedBy(companyVO.getCreatedBy());
+		companyEmployeeVO.setUpdatedBy(companyVO.getUpdatedBy());
+		companyEmployeeRepo.save(companyEmployeeVO);
+		
+		EltCompanyVO eltCompanyVO= new EltCompanyVO();
+		eltCompanyVO.setId(companyVO.getId());
+		eltCompanyVO.setCompanyCode(companyVO.getCompanyCode());
+		eltCompanyVO.setCompanyName(companyVO.getCompanyName());
+		eltCompanyVO.setActive(true);
+		eltCompanyVO.setCancel(false);
+		eltCompanyVO.setPhone(companyVO.getPhone());
+		eltCompanyVO.setWebSite(companyVO.getWebSite());
+		eltCompanyVO.setUpdatedBy(companyVO.getUpdatedBy());
+		eltCompanyVO.setCreatedBy(companyVO.getCreatedBy());
+		eltCompanyRepo.save(eltCompanyVO);	
+		
 
 		UserVO userVO = new UserVO();
 		userVO.setUserName(companyVO.getEmployeeCode());
@@ -185,7 +222,7 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		userVO.setEmail(companyVO.getEmail());
 		userVO.setMobileNo(companyVO.getPhone());
 		userVO.setRole(companyVO.getRole());
-		userVO.setUserType("customer");
+		userVO.setUserType("ADMIN");
 		userVO.setOrgId(companyVO.getId());
 		userVO.setCreatedby(companyVO.getCreatedBy());
 		userVO.setUpdatedby(companyVO.getCreatedBy());
@@ -1042,8 +1079,8 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 	}
 
 	@Override
-	public List<FinancialYearVO> getAllActiveFInYear() {
-		return financialYearRepo.findAllActiveFinYear();
+	public List<FinancialYearVO> getAllActiveFInYear(Long orgId) {
+		return financialYearRepo.findAllActiveFinYear(orgId);
 	}
 
 	@Override
