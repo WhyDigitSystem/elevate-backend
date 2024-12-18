@@ -51,6 +51,9 @@ public class LedgerMappingVO {
 	private boolean cancel;
 	@Column(name = "clientcode")
 	private String clientCode;
+	
+	@Column(name = "orgid")
+	private Long orgId;
 
 	@Embedded
 	@Builder.Default

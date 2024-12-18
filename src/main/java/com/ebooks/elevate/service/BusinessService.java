@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.CoaDTO;
+import com.ebooks.elevate.dto.ExcelUploadResultDTO;
 import com.ebooks.elevate.dto.LedgerMappingDTO;
 import com.ebooks.elevate.entity.CCoaVO;
 import com.ebooks.elevate.entity.CoaVO;
@@ -44,11 +45,11 @@ public interface BusinessService {
 
 	List<Map<String, Object>> getGroupNameForCCoa();
 
-	void excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode) throws EncryptedDocumentException, IOException, ApplicationException;
+//	void excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode) throws EncryptedDocumentException, IOException, ApplicationException;
 
 	//LEDGER MAPPING
 	
-	Map<String, Object> createUpdateLedgerMapping(List<LedgerMappingDTO> ledgerMappingDTO) throws ApplicationException;
+	Map<String, Object> createUpdateLedgerMapping(LedgerMappingDTO ledgerMappingDTO) throws ApplicationException;
 
 	List<Map<String, Object>> getCOAForLedgerMapping();
 
@@ -59,6 +60,11 @@ public interface BusinessService {
 	Optional<LedgerMappingVO> getLedgerMappingbyId(Long id);
 
 	List<LedgerMappingVO> getAllLedgerMapping();
+
+	ExcelUploadResultDTO excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode)
+			throws EncryptedDocumentException, io.jsonwebtoken.io.IOException, ApplicationException, IOException;
+
+	ExcelUploadResultDTO excelUploadForLedgerMapping(MultipartFile[] files, String createdBy, String clientCode,Long orgId) throws EncryptedDocumentException, IOException;
 
 	
 
