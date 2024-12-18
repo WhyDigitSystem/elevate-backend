@@ -23,6 +23,8 @@ public interface CoaRepo extends JpaRepository<CoaVO, Long>{
 			+ "group by a.accountgroupname,b.accountgroupname,c.accountgroupname,a.accountcode,b.accountcode,c.accountcode order by a.accountcode,b.accountcode,c.accountcode asc")
 	Set<Object[]> findAccountMap();
 
+	CoaVO findByOrgIdAndAccountCode(Long orgId, String elAccountCode);
+
 
 
 

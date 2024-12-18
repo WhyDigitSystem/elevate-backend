@@ -15,7 +15,7 @@ import com.ebooks.elevate.entity.LedgerMappingVO;
 @Repository
 public interface LedgerMappingRepo extends JpaRepository<LedgerMappingVO, Long>{
 
-	@Query(nativeQuery =true,value ="select c.accountgroupname,c.accountcode from ccoa c where c.type='Account' and c.active=1")
+	@Query(nativeQuery =true,value ="select c.accountgroupname,c.accountcode from coa c where c.type='Account' and c.active=1")
 	Set<Object[]> getCOA();
 
 
@@ -24,9 +24,15 @@ public interface LedgerMappingRepo extends JpaRepository<LedgerMappingVO, Long>{
 	@Query("DELETE FROM LedgerMappingVO l WHERE l.clientCode = :clientCode")
 	void deleteByClientCode(@Param("clientCode") String clientCode);
 
-	@Query(nativeQuery =true,value ="SELECT ccoa.accountgroupname,ccoa.accountcode,lm.coa,lm.coacode FROM ccoa\r\n"
-			+ "LEFT OUTER JOIN ledgermapping lm ON ccoa.accountcode = lm.clientcoacode and ccoa.clientid=lm.clientcode\r\n"
-			+ "WHERE ccoa.clientid = ?1 AND ccoa.type = 'Account'")
+	@Query(nativeQuery =true,value ="select a.accountname, a.accountcode from ccoa a where a.accountcode not in(\r\n"
+			+ "select clientcoacode from ledgermapping where clientcode=?1 group by \r\n"
+			+ "clientcoacode) and a.clientcode=?1 and a.active=1 group by a.accountname, a.accountcode")
 	Set<Object[]> getFillGridForLedgerMapping(String clientCode);
+
+
+	boolean existsByClientCoaCodeAndClientCode(String clientCoaCode, String clientCode);
+
+
+	boolean existsByClientCoaAndClientCode(String clientCoa, String clientCode);
 
 }

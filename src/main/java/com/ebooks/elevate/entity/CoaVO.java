@@ -73,6 +73,9 @@ public class CoaVO {//coaVO
 	private boolean cancel=false;
 	
 	private boolean active;
+	
+	@Column(name = "orgid", length = 50)
+	private Long orgId;
 
 	@Embedded
 	@Builder.Default

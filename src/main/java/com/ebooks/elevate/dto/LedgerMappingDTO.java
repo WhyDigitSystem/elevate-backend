@@ -17,6 +17,7 @@ public class LedgerMappingDTO {
 	private String clientCoaCode;
 	private String coaCode;
 	private String coa;
+	private Long orgId;
 	private String createdBy;
 	private boolean active;
 	private String clientCode;

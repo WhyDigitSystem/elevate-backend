@@ -58,6 +58,9 @@ public class CCoaVO {
 	private boolean cancel=false;
 	
 	private boolean active;
+	
+	@Column(name = "orgid")
+	private Long orgId;
 
 	@Embedded
 	@Builder.Default

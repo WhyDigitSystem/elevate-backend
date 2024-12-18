@@ -25,6 +25,7 @@ import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
 import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.CoaDTO;
+import com.ebooks.elevate.dto.ExcelUploadResultDTO;
 import com.ebooks.elevate.dto.LedgerMappingDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.entity.CCoaVO;
@@ -35,15 +36,15 @@ import com.ebooks.elevate.service.BusinessService;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/businesscontroller")
-public class BusinessController extends BaseController{
-	
+public class BusinessController extends BaseController {
+
 	@Autowired
 	BusinessService businessService;
-	
+
 	public static final Logger LOGGER = LoggerFactory.getLogger(BusinessController.class);
 
-	//COA
-	
+	// COA
+
 	@PutMapping("/createUpdateCoa")
 	public ResponseEntity<ResponseDTO> createUpdateCoa(@RequestBody CoaDTO coaDTO) {
 		String methodName = "createUpdateCoa()";
@@ -53,19 +54,18 @@ public class BusinessController extends BaseController{
 		ResponseDTO responseDTO = null;
 		try {
 			Map<String, Object> coaVO = businessService.createUpdateCoa(coaDTO);
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE,coaVO.get("message") );
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, coaVO.get("message"));
 			responseObjectsMap.put("coaVO", coaVO.get("coaVO"));
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg,
-					errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getAllCao")
 	public ResponseEntity<ResponseDTO> getAllCao() {
 		String methodName = "getAllCao()";
@@ -85,13 +85,12 @@ public class BusinessController extends BaseController{
 			responseObjectsMap.put("coaVO", coaVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "coa information receive failed",
-					errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "coa information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getCaoById")
 	public ResponseEntity<ResponseDTO> getCaoById(@RequestParam Long id) {
 		String methodName = "getCaoById()";
@@ -111,13 +110,12 @@ public class BusinessController extends BaseController{
 			responseObjectsMap.put("coaVO", coaVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "coa information receive failed",
-					errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "coa information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getGroupName")
 	public ResponseEntity<ResponseDTO> getGroupName() {
 		String methodName = "getGroupName()";
@@ -125,7 +123,7 @@ public class BusinessController extends BaseController{
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
-		List<Map<String, Object>> coaVO=new ArrayList<Map<String,Object>>();
+		List<Map<String, Object>> coaVO = new ArrayList<Map<String, Object>>();
 		try {
 			coaVO = businessService.getGroupName();
 		} catch (Exception e) {
@@ -137,15 +135,15 @@ public class BusinessController extends BaseController{
 			responseObjectsMap.put("coaVO", coaVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "Group information receive failed",
-					errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Group information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@PostMapping("/excelUploadForCoa")
-	public ResponseEntity<ResponseDTO> excelUploadForCoa(@RequestParam MultipartFile[] files,@RequestParam(required = false) String createdBy) {
+	public ResponseEntity<ResponseDTO> excelUploadForCoa(@RequestParam MultipartFile[] files,
+			@RequestParam(required = false) String createdBy) {
 		String methodName = "excelUploadForCoa()";
 		int totalRows = 0;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
@@ -153,33 +151,33 @@ public class BusinessController extends BaseController{
 		ResponseDTO responseDTO = null;
 		try {
 			// Call service method to process Excel upload
-			businessService.excelUploadForCoa(files,createdBy);
+			businessService.excelUploadForCoa(files, createdBy);
 
 			// Retrieve the counts after processing
 			totalRows = businessService.getTotalRows(); // Get total rows processed
 			successfulUploads = businessService.getSuccessfulUploads(); // Get successful uploads count
 			responseObjectsMap.put("statusFlag", "Ok");
-	        responseObjectsMap.put("status", true);
-	        responseObjectsMap.put("totalRows", totalRows);
-	        responseObjectsMap.put("successfulUploads", successfulUploads);
-	        responseObjectsMap.put("message", "Excel Upload For Coa successful"); // Directly include the message here
-	        responseDTO = createServiceResponse(responseObjectsMap);
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("totalRows", totalRows);
+			responseObjectsMap.put("successfulUploads", successfulUploads);
+			responseObjectsMap.put("message", "Excel Upload For Coa successful"); // Directly include the message here
+			responseDTO = createServiceResponse(responseObjectsMap);
 
-	    } catch (Exception e) {
-	        String errorMsg = e.getMessage();
-	        LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
-	        responseObjectsMap.put("statusFlag", "Error");
-	        responseObjectsMap.put("status", false);
-	        responseObjectsMap.put("errorMessage", errorMsg);
+		} catch (Exception e) {
+			String errorMsg = e.getMessage();
+			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
+			responseObjectsMap.put("statusFlag", "Error");
+			responseObjectsMap.put("status", false);
+			responseObjectsMap.put("errorMessage", errorMsg);
 
-	        responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Coa Failed", errorMsg);
-	    }
-	    LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-	    return ResponseEntity.ok().body(responseDTO);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Coa Failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
 	}
-	
-	//CCoaVO
-	
+
+	// CCoaVO
+
 	@PutMapping("/createUpdateCCoa")
 	public ResponseEntity<ResponseDTO> createUpdateCCoa(@RequestBody CCoaDTO cCoaDTO) {
 		String methodName = "createUpdateCCoa()";
@@ -189,19 +187,18 @@ public class BusinessController extends BaseController{
 		ResponseDTO responseDTO = null;
 		try {
 			Map<String, Object> cCoaVO = businessService.createUpdateCCoa(cCoaDTO);
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE,cCoaVO.get("message") );
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, cCoaVO.get("message"));
 			responseObjectsMap.put("cCoaVO", cCoaVO.get("cCoaVO"));
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg,
-					errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getAllCCao")
 	public ResponseEntity<ResponseDTO> getAllCCao() {
 		String methodName = "getAllCCao()";
@@ -221,13 +218,12 @@ public class BusinessController extends BaseController{
 			responseObjectsMap.put("cCoaVO", cCoaVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "CCoa information receive failed",
-					errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "CCoa information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getCCaoById")
 	public ResponseEntity<ResponseDTO> getCCaoById(@RequestParam Long id) {
 		String methodName = "getCCaoById()";
@@ -247,8 +243,7 @@ public class BusinessController extends BaseController{
 			responseObjectsMap.put("cCoaVO", cCoaVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "CCoa information receive failed",
-					errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "CCoa information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
@@ -261,7 +256,7 @@ public class BusinessController extends BaseController{
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
-		List<Map<String, Object>> cCoaVO=new ArrayList<Map<String,Object>>();
+		List<Map<String, Object>> cCoaVO = new ArrayList<Map<String, Object>>();
 		try {
 			cCoaVO = businessService.getGroupNameForCCoa();
 		} catch (Exception e) {
@@ -273,74 +268,75 @@ public class BusinessController extends BaseController{
 			responseObjectsMap.put("cCoaVO", cCoaVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "Group information receive failed",
-					errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Group information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
-	@PostMapping("/excelUploadForCCoa")
-	public ResponseEntity<ResponseDTO> excelUploadForCCoa(@RequestParam MultipartFile[] files,@RequestParam(required = false) String createdBy,
-			@RequestParam(required=false) String clientCode) {
+
+	@PostMapping("/excelUploadForCCoa ")
+	public ResponseEntity<ResponseDTO> excelUploadForCCoa(@RequestParam MultipartFile[] files,
+			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode) {
+
 		String methodName = "excelUploadForCCoa()";
-		int totalRows = 0;
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+
+		ResponseDTO responseDTO;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
-		int successfulUploads = 0;
+
+		try {
+			// Call the service method and get the result
+			ExcelUploadResultDTO uploadResult = businessService.excelUploadForCCoa(files, createdBy, clientCode);
+
+			// Populate success response
+			responseObjectsMap.put("statusFlag", "Ok");
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("uploadResult",uploadResult);
+			responseDTO = createServiceResponse(responseObjectsMap);
+
+		} catch (Exception e) {
+			// Handle any exceptions and populate error response
+			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
+
+			responseObjectsMap.put("statusFlag", "Error");
+			responseObjectsMap.put("status", false);
+			responseObjectsMap.put("errorMessage", e.getMessage());
+
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
+					e.getMessage());
+		}
+
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	// LEDGER MAPPING
+
+	@PutMapping("/createUpdateLedgerMapping")
+	public ResponseEntity<ResponseDTO> createUpdateLedgerMapping(@RequestBody LedgerMappingDTO ledgerMappingDTO) {
+		String methodName = "createUpdateLedgerMapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
 		try {
-			// Call service method to process Excel upload
-			businessService.excelUploadForCCoa(files,createdBy,clientCode);
+			// Call the service and get the response
+			Map<String, Object> ledgerMappingVO = businessService.createUpdateLedgerMapping(ledgerMappingDTO);
 
-			// Retrieve the counts after processing
-			totalRows = businessService.getTotalRows(); // Get total rows processed
-			successfulUploads = businessService.getSuccessfulUploads(); // Get successful uploads count
-			responseObjectsMap.put("statusFlag", "Ok");
-	        responseObjectsMap.put("status", true);
-	        responseObjectsMap.put("totalRows", totalRows);
-	        responseObjectsMap.put("successfulUploads", successfulUploads);
-	        responseObjectsMap.put("message", "Excel Upload For Client Coa successful"); // Directly include the message here
-	        responseDTO = createServiceResponse(responseObjectsMap);
+			// Set response map values
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, ledgerMappingVO.get("message"));
+			responseObjectsMap.put("ledgerMappingVOList", ledgerMappingVO.get("ledgerMappingVOList")); // Ensure correct
+																										// key
 
-	    } catch (Exception e) {
-	        String errorMsg = e.getMessage();
-	        LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
-	        responseObjectsMap.put("statusFlag", "Error");
-	        responseObjectsMap.put("status", false);
-	        responseObjectsMap.put("errorMessage", errorMsg);
-
-	        responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client Coa Failed", errorMsg);
-	    }
-	    LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-	    return ResponseEntity.ok().body(responseDTO);
-	}
-	
-	//LEDGER MAPPING
-	
-	@PutMapping("/createUpdateLedgerMapping")
-	public ResponseEntity<ResponseDTO> createUpdateLedgerMapping(@RequestBody List<LedgerMappingDTO> ledgerMappingDTO) {
-	    String methodName = "createUpdateLedgerMapping()";
-	    LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-	    String errorMsg = null;
-	    Map<String, Object> responseObjectsMap = new HashMap<>();
-	    ResponseDTO responseDTO = null;
-	    try {
-	        // Call the service and get the response
-	        Map<String, Object> ledgerMappingVO = businessService.createUpdateLedgerMapping(ledgerMappingDTO);
-
-	        // Set response map values
-	        responseObjectsMap.put(CommonConstant.STRING_MESSAGE, ledgerMappingVO.get("message"));
-	        responseObjectsMap.put("ledgerMappingVOList", ledgerMappingVO.get("ledgerMappingVOList")); // Ensure correct key
-
-	        // Create success response
-	        responseDTO = createServiceResponse(responseObjectsMap);
-	    } catch (Exception e) {
-	        errorMsg = e.getMessage();
-	        LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-	        responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
-	    }
-	    LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-	    return ResponseEntity.ok().body(responseDTO);
+			// Create success response
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
 	}
 
 	@GetMapping("/getCOAForLedgerMapping")
@@ -350,7 +346,7 @@ public class BusinessController extends BaseController{
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
-		List<Map<String, Object>> ledgerMappingVO =new  ArrayList<Map<String,Object>>();
+		List<Map<String, Object>> ledgerMappingVO = new ArrayList<Map<String, Object>>();
 		try {
 			ledgerMappingVO = businessService.getCOAForLedgerMapping();
 		} catch (Exception e) {
@@ -358,88 +354,88 @@ public class BusinessController extends BaseController{
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
 		}
 		if (StringUtils.isBlank(errorMsg)) {
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "FullGridForLedgerMapping information get successfully");
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE,
+					"FullGridForLedgerMapping information get successfully");
 			responseObjectsMap.put("ledgerMappingVO", ledgerMappingVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "FullGridForLedgerMapping information receive failed",
-					errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					"FullGridForLedgerMapping information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
-	
+
 	@GetMapping("/getCOAMap")
-    public ResponseEntity<ResponseDTO> getCOAMap() {
-        String methodName = "getCOAMap()";
-        LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-        
-        String errorMsg = null;
-        Map<String, Object> responseObjectsMap = new HashMap<>();
-        ResponseDTO responseDTO = null;
-        List<Map<String, Object>> COA = null;
-        try {
-            // Call the method to get the ledger map (i.e., the required group data)
-            COA = businessService.getLedgerMap();
-        } catch (Exception e) {
-            errorMsg = e.getMessage();
-            LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-        }
+	public ResponseEntity<ResponseDTO> getCOAMap() {
+		String methodName = "getCOAMap()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
-        // If no errors, create the successful response
-        if (errorMsg == null) {
-            responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "COA information retrieved successfully for CCoa");
-            responseObjectsMap.put("COA", COA);
-            responseDTO = createServiceResponse(responseObjectsMap);
-        } else {
-            // If there was an error, create an error response
-            responseDTO = createServiceResponseError(responseObjectsMap, "COA information retrieval failed", errorMsg);
-        }
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> COA = null;
+		try {
+			// Call the method to get the ledger map (i.e., the required group data)
+			COA = businessService.getLedgerMap();
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
 
-        LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-        return ResponseEntity.ok().body(responseDTO);
-    }
-	
+		// If no errors, create the successful response
+		if (errorMsg == null) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "COA information retrieved successfully for CCoa");
+			responseObjectsMap.put("COA", COA);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			// If there was an error, create an error response
+			responseDTO = createServiceResponseError(responseObjectsMap, "COA information retrieval failed", errorMsg);
+		}
+
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
 	@GetMapping("/getFillGridForLedgerMapping")
-    public ResponseEntity<ResponseDTO> getFillGridForLedgerMapping(@RequestParam String clientCode) {
-        String methodName = "getFillGridForLedgerMapping()";
-        LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-        
-        String errorMsg = null;
-        Map<String, Object> responseObjectsMap = new HashMap<>();
-        ResponseDTO responseDTO = null;
-        List<Map<String, Object>> COA = null;
-        try {
-            // Call the method to get the ledger map (i.e., the required group data)
-            COA = businessService.getFillGridForLedgerMapping(clientCode);
-        } catch (Exception e) {
-            errorMsg = e.getMessage();
-            LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-        }
+	public ResponseEntity<ResponseDTO> getFillGridForLedgerMapping(@RequestParam String clientCode) {
+		String methodName = "getFillGridForLedgerMapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
-        // If no errors, create the successful response
-        if (errorMsg == null) {
-            responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "COA information retrieved successfully for CCoa");
-            responseObjectsMap.put("COA", COA);
-            responseDTO = createServiceResponse(responseObjectsMap);
-        } else {
-            // If there was an error, create an error response
-            responseDTO = createServiceResponseError(responseObjectsMap, "COA information retrieval failed", errorMsg);
-        }
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> COA = null;
+		try {
+			// Call the method to get the ledger map (i.e., the required group data)
+			COA = businessService.getFillGridForLedgerMapping(clientCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
 
-        LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-        return ResponseEntity.ok().body(responseDTO);
-    }
+		// If no errors, create the successful response
+		if (errorMsg == null) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "COA information retrieved successfully for CCoa");
+			responseObjectsMap.put("COA", COA);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			// If there was an error, create an error response
+			responseDTO = createServiceResponseError(responseObjectsMap, "COA information retrieval failed", errorMsg);
+		}
+
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 
 	@GetMapping("/getLedgerMappingbyId")
-	public ResponseEntity<ResponseDTO> getLedgerMappingbyId(@RequestParam(required =false) Long id) {
+	public ResponseEntity<ResponseDTO> getLedgerMappingbyId(@RequestParam(required = false) Long id) {
 		String methodName = "getLedgerMappingbyId()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
-		Optional<LedgerMappingVO> ledgerMappingVO =null;
+		Optional<LedgerMappingVO> ledgerMappingVO = null;
 		try {
 			ledgerMappingVO = businessService.getLedgerMappingbyId(id);
 		} catch (Exception e) {
@@ -457,7 +453,7 @@ public class BusinessController extends BaseController{
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getAllLedgerMapping")
 	public ResponseEntity<ResponseDTO> getAllLedgerMapping() {
 		String methodName = "getAllLedgerMapping()";
@@ -465,7 +461,7 @@ public class BusinessController extends BaseController{
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
-		List<LedgerMappingVO> ledgerMappingVO =new ArrayList<LedgerMappingVO>();
+		List<LedgerMappingVO> ledgerMappingVO = new ArrayList<LedgerMappingVO>();
 		try {
 			ledgerMappingVO = businessService.getAllLedgerMapping();
 		} catch (Exception e) {
@@ -484,4 +480,42 @@ public class BusinessController extends BaseController{
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	
+	@PostMapping("/excelUploadForLedgerMapping ")
+	public ResponseEntity<ResponseDTO> excelUploadForLedgerMapping(@RequestParam MultipartFile[] files,
+			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,@RequestParam Long orgId) {
+
+		String methodName = "excelUploadForLedgerMapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+
+		ResponseDTO responseDTO;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+
+		try {
+			// Call the service method and get the result
+			ExcelUploadResultDTO uploadResult = businessService.excelUploadForLedgerMapping(files, createdBy, clientCode,orgId);
+
+			// Populate success response
+			responseObjectsMap.put("statusFlag", "Ok");
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("uploadResult",uploadResult);
+			responseDTO = createServiceResponse(responseObjectsMap);
+
+		} catch (Exception e) {
+			// Handle any exceptions and populate error response
+			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
+
+			responseObjectsMap.put("statusFlag", "Error");
+			responseObjectsMap.put("status", false);
+			responseObjectsMap.put("errorMessage", e.getMessage());
+
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
+					e.getMessage());
+		}
+
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+
 }
