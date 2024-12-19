@@ -1,5 +1,7 @@
 package com.ebooks.elevate.dto;
 
+import javax.persistence.Column;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +13,6 @@ public class ClientCompanyDTO {
 
 	private Long id;
 	private Long orgId;
-	private String companyCode;
 	private String clientName;
 	private String clientCode;
 	private String phone;
@@ -19,6 +20,10 @@ public class ClientCompanyDTO {
 	private String webSite;
 	private String createdBy;
 	private boolean active;
+	private String bussinessType;
+	private String turnOver;
+	private String levelOfService;
+	private String repPerson;
 
 	
 }

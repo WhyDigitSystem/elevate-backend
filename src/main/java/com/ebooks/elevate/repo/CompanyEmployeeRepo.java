@@ -22,4 +22,6 @@ public interface CompanyEmployeeRepo extends JpaRepository<CompanyEmployeeVO, Lo
 
 	boolean existsByEmployeeCodeAndOrgId(String employeeCode, Long orgId);
 
+	boolean existsByOrgIdAndEmployeeCode(Long id, String employeeCode);
+
 }

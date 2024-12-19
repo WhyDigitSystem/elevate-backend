@@ -52,8 +52,8 @@ public class CCoaVO {
 	@Column(name = "clientcode", length = 50)
 	private String clientCode;
 	
-	@Column(name = "clientid", length = 50)
-	private String clientId;
+	@Column(name = "clientname", length = 100)
+	private String clientName;
 	
 	private boolean cancel=false;
 	

@@ -497,14 +497,14 @@ public class AuthServiceImpl implements AuthService {
 	private void mapResponsibilityDtoToResponsibilityVo(ResponsibilityDTO responsibilityDTO,
 			ResponsibilityVO responsibilityVO) {
 		responsibilityVO.setResponsibility(responsibilityDTO.getResponsibility().toUpperCase());
-		//responsibilityVO.setOrgId(responsibilityDTO.getOrgId());
+		responsibilityVO.setOrgId(responsibilityDTO.getOrgId());
 		responsibilityVO.setActive(responsibilityDTO.isActive());
 		if (responsibilityDTO.getScreensDTO() != null) {
 			List<ScreensVO> screensVOList = new ArrayList<>();
 			for (ScreensDTO screensDTO : responsibilityDTO.getScreensDTO()) {
 				ScreensVO screensVO = new ScreensVO();
 				screensVO.setScreenName(screensDTO.getScreenName().toUpperCase());
-				//screensVO.setOrgId(responsibilityDTO.getOrgId());
+				screensVO.setOrgId(responsibilityDTO.getOrgId());
 				screensVO.setResponsibilityVO(responsibilityVO);
 				screensVOList.add(screensVO);
 			}
@@ -513,8 +513,8 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getResponsibilityForRolesByOrgId() {
-		Set<Object[]> activeResponsibility = responsibilityRepo.findActiveResponsibility();
+	public List<Map<String, Object>> getResponsibilityForRolesByOrgId(Long orgId) {
+		Set<Object[]> activeResponsibility = responsibilityRepo.findActiveResponsibility(orgId);
 		return getActiveResponsibile(activeResponsibility);
 	}
 
@@ -581,7 +581,7 @@ public class AuthServiceImpl implements AuthService {
 	// Helper method to map RolesDTO to RolesVO
 	private void mapRolesDtoToRolesVo(RolesDTO rolesDTO, RolesVO rolesVO) {
 		rolesVO.setRole(rolesDTO.getRole().toUpperCase());
-	//	rolesVO.setOrgId(rolesDTO.getOrgId());
+		rolesVO.setOrgId(rolesDTO.getOrgId());
 		rolesVO.setActive(rolesDTO.isActive());
 		if (rolesDTO.getRolesResponsibilityDTO() != null) {
 			List<RolesResponsibilityVO> rolesResponsibilityVOList = new ArrayList<>();
@@ -598,15 +598,15 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<RolesVO> getAllRoles() {
+	public List<RolesVO> getAllRoles(Long orgId) {
 
-		return rolesRepo.findAll();
+		return rolesRepo.findAllByOrgId(orgId);
 	}
 
 	@Override
-	public List<RolesVO> getAllActiveRoles() {
+	public List<RolesVO> getAllActiveRoles(Long orgId) {
 
-		return rolesRepo.findAllActiveRoles();
+		return rolesRepo.findAllActiveRoles(orgId);
 	}
 
 	@Override
@@ -636,15 +636,15 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<ResponsibilityVO> getAllResponsibility() {
+	public List<ResponsibilityVO> getAllResponsibility(Long orgId) {
 
-		return responsibilityRepo.findAll();
+		return responsibilityRepo.findAllByOrgId(orgId);
 	}
 
 	@Override
-	public List<ResponsibilityVO> getAllActiveResponsibility() {
+	public List<ResponsibilityVO> getAllActiveResponsibility(Long orgId) {
 		// TODO Auto-generated method stub
-		return responsibilityRepo.findAllActiveResponsibility();
+		return responsibilityRepo.findAllActiveResponsibility(orgId);
 	}
 
 	public List<UserVO> getAllUsersByOrgId(Long orgId) {

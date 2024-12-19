@@ -67,7 +67,7 @@ public class BusinessController extends BaseController {
 	}
 
 	@GetMapping("/getAllCao")
-	public ResponseEntity<ResponseDTO> getAllCao() {
+	public ResponseEntity<ResponseDTO> getAllCao(@RequestParam Long orgId) {
 		String methodName = "getAllCao()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -75,7 +75,7 @@ public class BusinessController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<CoaVO> coaVO = new ArrayList<>();
 		try {
-			coaVO = businessService.getAllCao();
+			coaVO = businessService.getAllCao(orgId);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -117,7 +117,7 @@ public class BusinessController extends BaseController {
 	}
 
 	@GetMapping("/getGroupName")
-	public ResponseEntity<ResponseDTO> getGroupName() {
+	public ResponseEntity<ResponseDTO> getGroupName(@RequestParam Long orgId) {
 		String methodName = "getGroupName()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -125,7 +125,7 @@ public class BusinessController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> coaVO = new ArrayList<Map<String, Object>>();
 		try {
-			coaVO = businessService.getGroupName();
+			coaVO = businessService.getGroupName(orgId);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -143,7 +143,7 @@ public class BusinessController extends BaseController {
 
 	@PostMapping("/excelUploadForCoa")
 	public ResponseEntity<ResponseDTO> excelUploadForCoa(@RequestParam MultipartFile[] files,
-			@RequestParam(required = false) String createdBy) {
+			@RequestParam(required = false) String createdBy,@RequestParam Long orgId) {
 		String methodName = "excelUploadForCoa()";
 		int totalRows = 0;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
@@ -151,7 +151,7 @@ public class BusinessController extends BaseController {
 		ResponseDTO responseDTO = null;
 		try {
 			// Call service method to process Excel upload
-			businessService.excelUploadForCoa(files, createdBy);
+			businessService.excelUploadForCoa(files, createdBy,orgId);
 
 			// Retrieve the counts after processing
 			totalRows = businessService.getTotalRows(); // Get total rows processed
@@ -200,7 +200,7 @@ public class BusinessController extends BaseController {
 	}
 
 	@GetMapping("/getAllCCao")
-	public ResponseEntity<ResponseDTO> getAllCCao() {
+	public ResponseEntity<ResponseDTO> getAllCCao(@RequestParam Long orgId,@RequestParam String clientCode) {
 		String methodName = "getAllCCao()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -208,7 +208,7 @@ public class BusinessController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<CCoaVO> cCoaVO = new ArrayList<>();
 		try {
-			cCoaVO = businessService.getAllCCao();
+			cCoaVO = businessService.getAllCCao(orgId,clientCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -276,7 +276,8 @@ public class BusinessController extends BaseController {
 
 	@PostMapping("/excelUploadForCCoa ")
 	public ResponseEntity<ResponseDTO> excelUploadForCCoa(@RequestParam MultipartFile[] files,
-			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode) {
+			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
+			@RequestParam String clientName, @RequestParam Long orgId) {
 
 		String methodName = "excelUploadForCCoa()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
@@ -286,12 +287,12 @@ public class BusinessController extends BaseController {
 
 		try {
 			// Call the service method and get the result
-			ExcelUploadResultDTO uploadResult = businessService.excelUploadForCCoa(files, createdBy, clientCode);
+			ExcelUploadResultDTO uploadResult = businessService.excelUploadForCCoa(files, createdBy, clientCode, clientName, orgId);
 
 			// Populate success response
 			responseObjectsMap.put("statusFlag", "Ok");
 			responseObjectsMap.put("status", true);
-			responseObjectsMap.put("uploadResult",uploadResult);
+			responseObjectsMap.put("uploadResult", uploadResult);
 			responseDTO = createServiceResponse(responseObjectsMap);
 
 		} catch (Exception e) {
@@ -340,7 +341,7 @@ public class BusinessController extends BaseController {
 	}
 
 	@GetMapping("/getCOAForLedgerMapping")
-	public ResponseEntity<ResponseDTO> getCOAForLedgerMapping() {
+	public ResponseEntity<ResponseDTO> getCOAForLedgerMapping(@RequestParam Long orgId) {
 		String methodName = "getCOAForLedgerMapping()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -348,7 +349,7 @@ public class BusinessController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> ledgerMappingVO = new ArrayList<Map<String, Object>>();
 		try {
-			ledgerMappingVO = businessService.getCOAForLedgerMapping();
+			ledgerMappingVO = businessService.getCOAForLedgerMapping(orgId);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -398,7 +399,8 @@ public class BusinessController extends BaseController {
 	}
 
 	@GetMapping("/getFillGridForLedgerMapping")
-	public ResponseEntity<ResponseDTO> getFillGridForLedgerMapping(@RequestParam String clientCode) {
+	public ResponseEntity<ResponseDTO> getFillGridForLedgerMapping(@RequestParam String clientCode,
+			@RequestParam Long orgId) {
 		String methodName = "getFillGridForLedgerMapping()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
@@ -408,7 +410,7 @@ public class BusinessController extends BaseController {
 		List<Map<String, Object>> COA = null;
 		try {
 			// Call the method to get the ledger map (i.e., the required group data)
-			COA = businessService.getFillGridForLedgerMapping(clientCode);
+			COA = businessService.getFillGridForLedgerMapping(clientCode, orgId);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -479,11 +481,11 @@ public class BusinessController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
-	
+
 	@PostMapping("/excelUploadForLedgerMapping ")
 	public ResponseEntity<ResponseDTO> excelUploadForLedgerMapping(@RequestParam MultipartFile[] files,
-			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,@RequestParam Long orgId) {
+			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
+			@RequestParam Long orgId, @RequestParam String clientName) {
 
 		String methodName = "excelUploadForLedgerMapping()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
@@ -493,12 +495,13 @@ public class BusinessController extends BaseController {
 
 		try {
 			// Call the service method and get the result
-			ExcelUploadResultDTO uploadResult = businessService.excelUploadForLedgerMapping(files, createdBy, clientCode,orgId);
+			ExcelUploadResultDTO uploadResult = businessService.excelUploadForLedgerMapping(files, createdBy,
+					clientCode, orgId, clientName);
 
 			// Populate success response
 			responseObjectsMap.put("statusFlag", "Ok");
 			responseObjectsMap.put("status", true);
-			responseObjectsMap.put("uploadResult",uploadResult);
+			responseObjectsMap.put("uploadResult", uploadResult);
 			responseDTO = createServiceResponse(responseObjectsMap);
 
 		} catch (Exception e) {
@@ -516,6 +519,5 @@ public class BusinessController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
 
 }

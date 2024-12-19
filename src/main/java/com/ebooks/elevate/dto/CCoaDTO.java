@@ -29,4 +29,6 @@ public class CCoaDTO {
 
 	private String clientId;
 
+	public String clientName;
+
 }

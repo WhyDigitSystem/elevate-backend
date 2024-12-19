@@ -96,9 +96,6 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 				throw new ApplicationException(errorMessage);
 			}
 			}
-			
-			clientCompanyVO.setCompanyCode(clientCompanyDTO.getCompanyCode());
-
 			if (!clientCompanyVO.getClientName().equalsIgnoreCase(clientCompanyDTO.getClientName())) {
 			if (clientCompanyRepo.existsByClientNameAndOrgId(clientCompanyDTO.getClientName(), clientCompanyDTO.getOrgId())) {
 				String errorMessage = String.format("The ClientName: %s  already exists This Organization.",
@@ -152,12 +149,15 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 
 		clientCompanyVO.setClientCode(clientCompanyDTO.getClientCode());
 		clientCompanyVO.setClientName(clientCompanyDTO.getClientName());
-		clientCompanyVO.setCompanyCode(clientCompanyDTO.getCompanyCode());
 		clientCompanyVO.setEmail(clientCompanyDTO.getEmail());
 		clientCompanyVO.setPhone(clientCompanyDTO.getPhone());
 		clientCompanyVO.setWebSite(clientCompanyDTO.getWebSite());
 		clientCompanyVO.setOrgId(clientCompanyDTO.getOrgId());
 		clientCompanyVO.setActive(clientCompanyDTO.isActive());
+		clientCompanyVO.setBussinessType(clientCompanyDTO.getBussinessType());
+		clientCompanyVO.setTurnOver(clientCompanyDTO.getTurnOver());
+		clientCompanyVO.setLevelOfService(clientCompanyDTO.getLevelOfService());
+		clientCompanyVO.setRepPerson(clientCompanyDTO.getRepPerson());
 
 
 		return clientCompanyVO;

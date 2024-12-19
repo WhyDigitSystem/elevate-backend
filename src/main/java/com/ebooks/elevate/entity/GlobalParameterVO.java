@@ -34,6 +34,8 @@ public class GlobalParameterVO {
 	private String finYear;
 	@Column(name = "clientcode")
 	private String clientCode;
+	@Column(name = "clientname")
+	private String clientName;
 	private String month;
 
 	@Embedded

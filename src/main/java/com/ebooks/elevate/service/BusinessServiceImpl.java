@@ -65,16 +65,9 @@ public class BusinessServiceImpl implements BusinessService {
 		if (ObjectUtils.isEmpty(coaDTO.getId())) {
 			// Create operation
 
-			if (coaRepo.existsByAccountCode(coaDTO.getAccountCode())) {
+			if (coaRepo.existsByOrgIdAndAccountCode(coaDTO.getOrgId(), coaDTO.getAccountCode())) {
 
 				String errorMessage = String.format("This AccountCode: %s Already Exists", coaDTO.getAccountCode());
-				throw new ApplicationException(errorMessage);
-			}
-
-			if (coaRepo.existsByAccountGroupName(coaDTO.getAccountGroupName())) {
-
-				String errorMessage = String.format("This AccountGroupName: %s Already Exists",
-						coaDTO.getAccountGroupName());
 				throw new ApplicationException(errorMessage);
 			}
 
@@ -91,7 +84,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 			if (!coaVO.getAccountCode().equalsIgnoreCase(coaDTO.getAccountCode())) {
 
-				if (coaRepo.existsByAccountCode(coaDTO.getAccountCode())) {
+				if (coaRepo.existsByOrgIdAndAccountCode(coaDTO.getOrgId(), coaDTO.getAccountCode())) {
 
 					String errorMessage = String.format("This AccountCode: %s Already Exists", coaDTO.getAccountCode());
 					throw new ApplicationException(errorMessage);
@@ -100,17 +93,7 @@ public class BusinessServiceImpl implements BusinessService {
 				coaVO.setAccountCode(coaDTO.getAccountCode());
 			}
 
-			if (!coaVO.getAccountGroupName().equalsIgnoreCase(coaDTO.getAccountGroupName())) {
-
-				if (coaRepo.existsByAccountGroupName(coaDTO.getAccountGroupName())) {
-
-					String errorMessage = String.format("This AccountGroupName: %s Already Exists",
-							coaDTO.getAccountGroupName());
-					throw new ApplicationException(errorMessage);
-				}
-
-				coaVO.setAccountGroupName(coaDTO.getAccountGroupName());
-			}
+			coaVO.setAccountGroupName(coaDTO.getAccountGroupName());
 
 			message = "Chart Of Account Updation Successful";
 		}
@@ -137,6 +120,7 @@ public class BusinessServiceImpl implements BusinessService {
 		coaVO.setAccountGroupName(coaDTO.getAccountGroupName());
 		coaVO.setNatureOfAccount(coaDTO.getNatureOfAccount());
 		coaVO.setAccountCode(coaDTO.getAccountCode());
+		coaVO.setOrgId(coaDTO.getOrgId());
 		coaVO.setCreatedBy(coaDTO.getCreatedBy());
 		coaVO.setInterBranchAc(coaDTO.isInterBranchAc());
 		coaVO.setControllAc(coaDTO.isControllAc());
@@ -151,7 +135,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 		else {
 			// Fetch the parent record
-			CoaVO coaVO2 = coaRepo.findByAccountGroupName(coaDTO.getGroupName());
+			CoaVO coaVO2 = coaRepo.findByOrgIdAndAccountGroupName(coaDTO.getOrgId(), coaDTO.getGroupName());
 
 			if (coaVO2 == null) {
 				// Handle the case where the parent record is not found
@@ -167,8 +151,8 @@ public class BusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
-	public List<CoaVO> getAllCao() {
-		return coaRepo.findAll();
+	public List<CoaVO> getAllCao(Long orgId) {
+		return coaRepo.findAllByOrgId(orgId);
 	}
 
 	@Override
@@ -177,8 +161,8 @@ public class BusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getGroupName() {
-		Set<Object[]> getActiveGroup = coaRepo.findGroups();
+	public List<Map<String, Object>> getGroupName(Long orgId) {
+		Set<Object[]> getActiveGroup = coaRepo.findGroups(orgId);
 		return getGroup(getActiveGroup);
 	}
 
@@ -202,13 +186,15 @@ public class BusinessServiceImpl implements BusinessService {
 		if (ObjectUtils.isEmpty(cCoaDTO.getId())) {
 			// Create operation
 
-			if (cCoaRepo.existsByAccountCodeAndClientCode(cCoaDTO.getAccountCode(), cCoaDTO.getClientCode())) {
+			if (cCoaRepo.existsByOrgIdAndAccountCodeAndClientCode(cCoaDTO.getOrgId(), cCoaDTO.getAccountCode(),
+					cCoaDTO.getClientCode())) {
 
 				String errorMessage = String.format("This AccountCode: %s Already Exists", cCoaDTO.getAccountCode());
 				throw new ApplicationException(errorMessage);
 			}
 
-			if (cCoaRepo.existsByAccountNameAndClientCode(cCoaDTO.getAccountName(), cCoaDTO.getClientCode())) {
+			if (cCoaRepo.existsByOrgIdAndAccountNameAndClientCode(cCoaDTO.getOrgId(), cCoaDTO.getAccountName(),
+					cCoaDTO.getClientCode())) {
 
 				String errorMessage = String.format("This AccountGroupName: %s Already Exists",
 						cCoaDTO.getAccountName());
@@ -228,7 +214,8 @@ public class BusinessServiceImpl implements BusinessService {
 
 			if (!cCoaVO.getAccountCode().equalsIgnoreCase(cCoaDTO.getAccountCode())) {
 
-				if (cCoaRepo.existsByAccountCodeAndClientCode(cCoaDTO.getAccountCode(),cCoaDTO.getClientCode())) {
+				if (cCoaRepo.existsByOrgIdAndAccountCodeAndClientCode(cCoaDTO.getOrgId(), cCoaDTO.getAccountCode(),
+						cCoaDTO.getClientCode())) {
 
 					String errorMessage = String.format("This AccountCode: %s Already Exists",
 							cCoaDTO.getAccountCode());
@@ -240,7 +227,8 @@ public class BusinessServiceImpl implements BusinessService {
 
 			if (!cCoaVO.getAccountName().equalsIgnoreCase(cCoaDTO.getAccountName())) {
 
-				if (cCoaRepo.existsByAccountNameAndClientCode(cCoaDTO.getAccountName(), cCoaDTO.getClientCode())) {
+				if (cCoaRepo.existsByOrgIdAndAccountNameAndClientCode(cCoaDTO.getOrgId(), cCoaDTO.getAccountName(),
+						cCoaDTO.getClientCode())) {
 
 					String errorMessage = String.format("This AccountGroupName: %s Already Exists",
 							cCoaDTO.getAccountName());
@@ -255,7 +243,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 		// Map fields from DTO to VO
 		cCoaVO = getCCoaVOFromCCoaDTO(cCoaVO, cCoaDTO);
- 
+
 		// Save the entity to the repository
 		cCoaRepo.save(cCoaVO);
 
@@ -274,15 +262,16 @@ public class BusinessServiceImpl implements BusinessService {
 		cCoaVO.setCreatedBy(cCoaDTO.getCreatedBy());
 		cCoaVO.setCurrency(cCoaDTO.getCurrency());
 		cCoaVO.setActive(cCoaDTO.isActive());
-		cCoaVO.setClientId(cCoaDTO.getClientId());
+		cCoaVO.setOrgId(cCoaDTO.getOrgId());
+		cCoaVO.setClientName(cCoaDTO.getClientName());
 		cCoaVO.setClientCode(cCoaDTO.getClientCode());
 
 		return cCoaVO;
 	}
 
 	@Override
-	public List<CCoaVO> getAllCCao() {
-		return cCoaRepo.findAll();
+	public List<CCoaVO> getAllCCao(Long orgId, String clientCode) {
+		return cCoaRepo.findAllByOrgIdAndClientCode(orgId, clientCode);
 	}
 
 	@Override
@@ -322,7 +311,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 	@Transactional
 	@Override
-	public void excelUploadForCoa(MultipartFile[] files, String createdBy)
+	public void excelUploadForCoa(MultipartFile[] files, String createdBy, Long orgId)
 			throws ApplicationException, EncryptedDocumentException, java.io.IOException {
 		List<CoaVO> mainGroupList = new ArrayList<>(); // List to store main group records
 		List<CoaVO> subGroupList = new ArrayList<>(); // List to store subgroup records
@@ -375,6 +364,7 @@ public class BusinessServiceImpl implements BusinessService {
 						// Create CoaVO and add to appropriate list
 						CoaVO coaVO = new CoaVO();
 						coaVO.setType(type);
+						coaVO.setOrgId(orgId);
 						coaVO.setGroupName(groupName);
 						coaVO.setAccountGroupName(accountName);
 						coaVO.setNatureOfAccount(natureOfAccount);
@@ -395,7 +385,7 @@ public class BusinessServiceImpl implements BusinessService {
 								mainGroupList.add(coaVO);
 								coaRepo.saveAll(mainGroupList);
 							} else {
-								CoaVO vo = coaRepo.findByAccountGroupName(groupName);
+								CoaVO vo = coaRepo.findByOrgIdAndAccountCode(orgId, groupName);
 								coaVO.setParentCode(vo.getAccountCode());
 								coaVO.setParentId(vo.getId().toString());
 								// Subgroup (groupName is not null)
@@ -404,7 +394,7 @@ public class BusinessServiceImpl implements BusinessService {
 							}
 						} else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
 							// Account (groupName is not null)
-							CoaVO vo = coaRepo.findByAccountGroupName(groupName);
+							CoaVO vo = coaRepo.findByOrgIdAndAccountGroupName(orgId, groupName);
 							coaVO.setParentCode(vo.getAccountCode());
 							coaVO.setParentId(vo.getId().toString());
 							accountList.add(coaVO);
@@ -592,8 +582,6 @@ public class BusinessServiceImpl implements BusinessService {
 //		}
 //	}
 
-	
-
 	private String getStringCellValue(Cell cell) {
 		if (cell == null) {
 			return "";
@@ -631,80 +619,83 @@ public class BusinessServiceImpl implements BusinessService {
 		}
 		return true;
 	}
-	
+
 	@Transactional
 	@Override
-	public ExcelUploadResultDTO excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode)
-	        throws EncryptedDocumentException, IOException, ApplicationException, java.io.IOException {
+	public ExcelUploadResultDTO excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode,
+			String clientName, Long orgId)
+			throws EncryptedDocumentException, IOException, ApplicationException, java.io.IOException {
 
 		ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result Object
 
-	    List<CCoaVO> mainGroupList = new ArrayList<>();
-	    result.setTotalExcelRows(0);
-	    result.setSuccessfulUploads(0);
-	    result.setUnsuccessfulUploads(0);
+		List<CCoaVO> mainGroupList = new ArrayList<>();
+		result.setTotalExcelRows(0);
+		result.setSuccessfulUploads(0);
+		result.setUnsuccessfulUploads(0);
 
-	    for (MultipartFile file : files) {
-	        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-	            Sheet sheet = workbook.getSheetAt(0);
-	            Row headerRow = sheet.getRow(0);
+		for (MultipartFile file : files) {
+			try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+				Sheet sheet = workbook.getSheetAt(0);
+				Row headerRow = sheet.getRow(0);
 
-	            // Validate header
-	           
+				// Validate header
 
-	            for (Row row : sheet) {
-	                if (row.getRowNum() == 0 || isRowEmpty(row)) {
-	                    continue; // Skip header and empty rows
-	                }
+				for (Row row : sheet) {
+					if (row.getRowNum() == 0 || isRowEmpty(row)) {
+						continue; // Skip header and empty rows
+					}
 
-	                result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment totalRows
-	                try {
-	                    // Parse cell values
-	                    String accountCode = getStringCellValue(row.getCell(0));
-	                    String accountName = getStringCellValue(row.getCell(1));
-	                    String activeString = getStringCellValue(row.getCell(2));
+					result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment totalRows
+					try {
+						// Parse cell values
+						String accountCode = getStringCellValue(row.getCell(0));
+						String accountName = getStringCellValue(row.getCell(1));
+						String activeString = getStringCellValue(row.getCell(2));
 
-	                    boolean active = "1".equals(activeString); // Convert "1"/"0" to boolean
+						boolean active = "1".equals(activeString); // Convert "1"/"0" to boolean
 
-	                    // Business Validations
-	                    if (cCoaRepo.existsByAccountCodeAndClientCode(accountCode, clientCode)) {
-	                        throw new ApplicationException(String.format("Account Code '%s' already exists for this Client", accountCode));
-	                    }
+						// Business Validations
+						if (cCoaRepo.existsByOrgIdAndAccountCodeAndClientCode(orgId, accountCode, clientCode)) {
+							throw new ApplicationException(
+									String.format("Account Code '%s' already exists for this Client", accountCode));
+						}
 
-	                    if (cCoaRepo.existsByAccountNameAndClientCode(accountName, clientCode)) {
-	                        throw new ApplicationException(String.format("Account Name '%s' already exists for this Client", accountName));
-	                    }
+						if (cCoaRepo.existsByOrgIdAndAccountNameAndClientCode(orgId, accountName, clientCode)) {
+							throw new ApplicationException(
+									String.format("Account Name '%s' already exists for this Client", accountName));
+						}
 
-	                    // Create and add CCoaVO
-	                    CCoaVO cCoaVO = new CCoaVO();
-	                    cCoaVO.setAccountName(accountName);
-	                    cCoaVO.setAccountCode(accountCode);
-	                    cCoaVO.setCreatedBy(createdBy);
-	                    cCoaVO.setCurrency("INR");
-	                    cCoaVO.setActive(active);
-	                    cCoaVO.setUpdatedBy(createdBy);
-	                    cCoaVO.setClientCode(clientCode);
+						// Create and add CCoaVO
+						CCoaVO cCoaVO = new CCoaVO();
+						cCoaVO.setAccountName(accountName);
+						cCoaVO.setAccountCode(accountCode);
+						cCoaVO.setCreatedBy(createdBy);
+						cCoaVO.setOrgId(orgId);
+						cCoaVO.setClientName(clientName);
+						cCoaVO.setCurrency("INR");
+						cCoaVO.setActive(active);
+						cCoaVO.setUpdatedBy(createdBy);
+						cCoaVO.setClientCode(clientCode);
 
-	                    mainGroupList.add(cCoaVO);
-	                    result.setSuccessfulUploads(result.getSuccessfulUploads() + 1);
+						mainGroupList.add(cCoaVO);
+						result.setSuccessfulUploads(result.getSuccessfulUploads() + 1);
 
-	                } catch (Exception e) {
-	                	result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
-	                    String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
-	                    result.addFailureReason(error); // Capture failure reason
-	                }
-	            }
-	        }
-	    }
+					} catch (Exception e) {
+						result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
+						String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
+						result.addFailureReason(error); // Capture failure reason
+					}
+				}
+			}
+		}
 
-	    // Save the successfully processed records
-	    if (!mainGroupList.isEmpty()) {
-	        cCoaRepo.saveAll(mainGroupList);
-	    }
+		// Save the successfully processed records
+		if (!mainGroupList.isEmpty()) {
+			cCoaRepo.saveAll(mainGroupList);
+		}
 
-	    return result; // Return the result summary
+		return result; // Return the result summary
 	}
-
 
 	@Override
 	public Map<String, Object> createUpdateLedgerMapping(LedgerMappingDTO ledgerMappingDTO)
@@ -715,83 +706,87 @@ public class BusinessServiceImpl implements BusinessService {
 
 		// Iterate over the list of LedgerMappingDTO objects
 
-			LedgerMappingVO ledgerMappingVO = new LedgerMappingVO();
+		LedgerMappingVO ledgerMappingVO = new LedgerMappingVO();
 
-			if (ObjectUtils.isEmpty(ledgerMappingDTO.getId())) {
+		if (ObjectUtils.isEmpty(ledgerMappingDTO.getId())) {
 
-				// New record
-				ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
-				ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
-				ledgerMappingVO.setClientCoa(ledgerMappingDTO.getClientCoa());
-				ledgerMappingVO.setClientCoaCode(ledgerMappingDTO.getClientCoaCode());
-				ledgerMappingVO.setCoa(ledgerMappingDTO.getCoa());
-				ledgerMappingVO.setOrgId(ledgerMappingDTO.getOrgId());
-				ledgerMappingVO.setCoaCode(ledgerMappingDTO.getCoaCode());
-				ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
-				ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
-				ledgerMappingVO.setClientCode(ledgerMappingDTO.getClientCode());
-				
-				if (ledgerMappingRepo.existsByClientCoaCodeAndClientCode(ledgerMappingDTO.getClientCoaCode(),ledgerMappingDTO.getClientCode())) {
+			// New record
+			ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
+			ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
+			ledgerMappingVO.setClientCoa(ledgerMappingDTO.getClientCoa());
+			ledgerMappingVO.setClientCoaCode(ledgerMappingDTO.getClientCoaCode());
+			ledgerMappingVO.setCoa(ledgerMappingDTO.getCoa());
+			ledgerMappingVO.setClientName(ledgerMappingDTO.getClientName());
+			ledgerMappingVO.setOrgId(ledgerMappingDTO.getOrgId());
+			ledgerMappingVO.setCoaCode(ledgerMappingDTO.getCoaCode());
+			ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
+			ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
+			ledgerMappingVO.setClientCode(ledgerMappingDTO.getClientCode());
+
+			if (ledgerMappingRepo.existsByOrgIdAndClientCoaCodeAndClientCode(ledgerMappingDTO.getOrgId(),
+					ledgerMappingDTO.getClientCoaCode(), ledgerMappingDTO.getClientCode())) {
+
+				String errorMessage = String.format("This Client Account Code: %s Already Exists",
+						ledgerMappingDTO.getClientCoaCode());
+				throw new ApplicationException(errorMessage);
+			}
+
+			if (ledgerMappingRepo.existsByOrgIdAndClientCoaAndClientCode(ledgerMappingDTO.getOrgId(),
+					ledgerMappingDTO.getClientCoa(), ledgerMappingDTO.getClientCode())) {
+
+				String errorMessage = String.format("This Client Account Name: %s Already Exists",
+						ledgerMappingDTO.getClientCoa());
+				throw new ApplicationException(errorMessage);
+			}
+
+			ledgerMappingRepo.save(ledgerMappingVO);
+			// Set the message for creation
+			message = "LedgerMapping Creation Successful";
+			ledgerMappingVOList.add(ledgerMappingVO);
+		}
+
+		else {
+			// Existing record, update it
+			ledgerMappingVO = ledgerMappingRepo.findById(ledgerMappingDTO.getId()).orElseThrow(
+					() -> new ApplicationException("LedgerMapping not found with id: " + ledgerMappingDTO.getId()));
+
+			if (!ledgerMappingVO.getClientCoaCode().equalsIgnoreCase(ledgerMappingDTO.getClientCoaCode())) {
+
+				if (ledgerMappingRepo.existsByOrgIdAndClientCoaCodeAndClientCode(ledgerMappingDTO.getOrgId(),
+						ledgerMappingDTO.getClientCoaCode(), ledgerMappingDTO.getClientCode())) {
 
 					String errorMessage = String.format("This Client Account Code: %s Already Exists",
 							ledgerMappingDTO.getClientCoaCode());
 					throw new ApplicationException(errorMessage);
 				}
-				
-				if (ledgerMappingRepo.existsByClientCoaAndClientCode(ledgerMappingDTO.getClientCoa(),ledgerMappingDTO.getClientCode())) {
+
+				ledgerMappingVO.setClientCoaCode(ledgerMappingDTO.getClientCoaCode());
+			}
+
+			if (!ledgerMappingVO.getClientCoa().equalsIgnoreCase(ledgerMappingDTO.getClientCoa())) {
+
+				if (ledgerMappingRepo.existsByOrgIdAndClientCoaAndClientCode(ledgerMappingDTO.getOrgId(),
+						ledgerMappingDTO.getClientCoa(), ledgerMappingDTO.getClientCode())) {
 
 					String errorMessage = String.format("This Client Account Name: %s Already Exists",
 							ledgerMappingDTO.getClientCoa());
 					throw new ApplicationException(errorMessage);
 				}
-				
 
-				ledgerMappingRepo.save(ledgerMappingVO);
-				// Set the message for creation
-				message = "LedgerMapping Creation Successful";
-				ledgerMappingVOList.add(ledgerMappingVO);
+				ledgerMappingVO.setClientCoa(ledgerMappingDTO.getClientCoa());
 			}
 
-			else {
-				// Existing record, update it
-				ledgerMappingVO = ledgerMappingRepo.findById(ledgerMappingDTO.getId()).orElseThrow(
-						() -> new ApplicationException("LedgerMapping not found with id: " + ledgerMappingDTO.getId()));
-				
-				if (!ledgerMappingVO.getClientCoaCode().equalsIgnoreCase(ledgerMappingDTO.getClientCoaCode())) {
-
-					if (ledgerMappingRepo.existsByClientCoaCodeAndClientCode(ledgerMappingDTO.getClientCoaCode(),ledgerMappingDTO.getClientCode())) {
-
-						String errorMessage = String.format("This Client Account Code: %s Already Exists",
-								ledgerMappingDTO.getClientCoaCode());
-						throw new ApplicationException(errorMessage);
-					}
-
-					ledgerMappingVO.setClientCoaCode(ledgerMappingDTO.getClientCoaCode());
-				}
-
-				if (!ledgerMappingVO.getClientCoa().equalsIgnoreCase(ledgerMappingDTO.getClientCoa())) {
-
-					if (ledgerMappingRepo.existsByClientCoaAndClientCode(ledgerMappingDTO.getClientCoa(),ledgerMappingDTO.getClientCode())) {
-
-						String errorMessage = String.format("This Client Account Name: %s Already Exists",
-								ledgerMappingDTO.getClientCoa());
-						throw new ApplicationException(errorMessage);
-					}
-
-					ledgerMappingVO.setClientCoa(ledgerMappingDTO.getClientCoa());
-				}
-				
-				ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
-				ledgerMappingVO.setCoa(ledgerMappingDTO.getCoa());
-				ledgerMappingVO.setOrgId(ledgerMappingDTO.getOrgId());
-				ledgerMappingVO.setCoaCode(ledgerMappingDTO.getCoaCode());
-				ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
-				ledgerMappingRepo.save(ledgerMappingVO);
-				message = "LedgerMapping Updation Successful";
-				ledgerMappingVOList.add(ledgerMappingVO);
-			}
-
-		
+			ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
+			ledgerMappingVO.setCoa(ledgerMappingDTO.getCoa());
+			ledgerMappingVO.setClientName(ledgerMappingDTO.getClientName());
+			ledgerMappingVO.setClientCode(ledgerMappingDTO.getClientCode());
+			ledgerMappingVO.setOrgId(ledgerMappingDTO.getOrgId());
+			ledgerMappingVO.setCoaCode(ledgerMappingDTO.getCoaCode());
+			ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
+			ledgerMappingRepo.save(ledgerMappingVO);
+			message = "LedgerMapping Updation Successful";
+			ledgerMappingVOList.add(ledgerMappingVO);
+		}
 
 		Map<String, Object> response = new HashMap<>();
 		response.put("message", message);
@@ -858,8 +853,8 @@ public class BusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getFillGridForLedgerMapping(String clientCode) {
-		Set<Object[]> getFullGrid = ledgerMappingRepo.getFillGridForLedgerMapping(clientCode);
+	public List<Map<String, Object>> getFillGridForLedgerMapping(String clientCode, Long orgId) {
+		Set<Object[]> getFullGrid = ledgerMappingRepo.getFillGridForLedgerMapping(clientCode, orgId);
 		return getFillGridForLedger(getFullGrid);
 	}
 
@@ -867,16 +862,16 @@ public class BusinessServiceImpl implements BusinessService {
 		List<Map<String, Object>> List1 = new ArrayList<>();
 		for (Object[] ch : getFullGrid) {
 			Map<String, Object> map = new HashMap<>();
-			map.put("clientCOA", ch[0] != null ? ch[0].toString() : ""); // Map accountGroupName
-			map.put("clientCoaCode", ch[1] != null ? ch[1].toString() : ""); // Map accountCode
+			map.put("clientAccountName", ch[0] != null ? ch[0].toString() : ""); // Map accountGroupName
+			map.put("clientAccountCode", ch[1] != null ? ch[1].toString() : ""); // Map accountCode
 			List1.add(map);
 		}
 		return List1;
 	}
 
 	@Override
-	public List<Map<String, Object>> getCOAForLedgerMapping() {
-		Set<Object[]> getCoa = ledgerMappingRepo.getCOA();
+	public List<Map<String, Object>> getCOAForLedgerMapping(Long orgId) {
+		Set<Object[]> getCoa = ledgerMappingRepo.getCOA(orgId);
 		return getCOAForLedgerMapping(getCoa);
 	}
 
@@ -902,86 +897,96 @@ public class BusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
-	public ExcelUploadResultDTO excelUploadForLedgerMapping(MultipartFile[] files, String createdBy,
-			String clientCode,Long orgId) throws EncryptedDocumentException, java.io.IOException {
-		
+	public ExcelUploadResultDTO excelUploadForLedgerMapping(MultipartFile[] files, String createdBy, String clientCode,
+			Long orgId, String clientName) throws EncryptedDocumentException, java.io.IOException {
+
 		ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result Object
 
-	    List<LedgerMappingVO> mainGroupList = new ArrayList<>();
-	    result.setTotalExcelRows(0);
-	    result.setSuccessfulUploads(0);
-	    result.setUnsuccessfulUploads(0);
+		List<LedgerMappingVO> mainGroupList = new ArrayList<>();
+		result.setTotalExcelRows(0);
+		result.setSuccessfulUploads(0);
+		result.setUnsuccessfulUploads(0);
 
-	    for (MultipartFile file : files) {
-	        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-	            Sheet sheet = workbook.getSheetAt(0);
-	            Row headerRow = sheet.getRow(0);
+		for (MultipartFile file : files) {
+			try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+				Sheet sheet = workbook.getSheetAt(0);
+				Row headerRow = sheet.getRow(0);
 
-	            // Validate header
-	           
+				// Validate header
 
-	            for (Row row : sheet) {
-	                if (row.getRowNum() == 0 || isRowEmpty(row)) {
-	                    continue; // Skip header and empty rows
-	                }
+				for (Row row : sheet) {
+					if (row.getRowNum() == 0 || isRowEmpty(row)) {
+						continue; // Skip header and empty rows
+					}
 
-	                result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment totalRows
-	                try {
-	                    // Parse cell values
-	                    String clientAccountName = getStringCellValue(row.getCell(0));
-	                    String clientAccountCode = getStringCellValue(row.getCell(1));
-	                    String elAccountCode = getStringCellValue(row.getCell(2));
-	                    String activeString = getStringCellValue(row.getCell(3));
-	                    
+					result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment totalRows
+					try {
+						// Parse cell values
+						String clientAccountCodes = getStringCellValue(row.getCell(1));
+						String elAccountCodes = getStringCellValue(row.getCell(2));
+						String activeString = getStringCellValue(row.getCell(3));
 
-	                    boolean active = "1".equals(activeString); // Convert "1"/"0" to boolean
+						CCoaVO cCoaVO = cCoaRepo.findByOrgIdAndAccountCode(orgId, clientAccountCodes);
 
-	                    // Business Validations
-	                    if (ledgerMappingRepo.existsByClientCoaCodeAndClientCode(clientAccountCode,clientCode)) {
+						String clientAccountName = cCoaVO.getAccountName();
+						String clientAccountCode = cCoaVO.getAccountCode();
 
-	    					String errorMessage = String.format("This Client Account Code: %s Already Exists",
-	    							clientAccountCode);
-	    					throw new ApplicationException(errorMessage);
-	    				}
-	    				
-	    				if (ledgerMappingRepo.existsByClientCoaAndClientCode(clientAccountName,clientCode)) {
+						boolean active = "1".equals(activeString); // Convert "1"/"0" to boolean
 
-	    					String errorMessage = String.format("This Client Account Name: %s Already Exists",
-	    							clientAccountName);
-	    					throw new ApplicationException(errorMessage);
-	    				}
+						// Business Validations
+						if (ledgerMappingRepo.existsByOrgIdAndClientCoaCodeAndClientCode(orgId, clientAccountCode,
+								clientCode)) {
 
-	    				CoaVO coa= coaRepo.findByOrgIdAndAccountCode(orgId,elAccountCode);
-	    				
-	    				LedgerMappingVO ledgerMappingVO = new LedgerMappingVO();
+							String errorMessage = String.format("This Client Account Code: %s Already Exists",
+									clientAccountCode);
+							throw new ApplicationException(errorMessage);
+						}
 
-	    					ledgerMappingVO.setCreatedBy(createdBy);
-	    					ledgerMappingVO.setUpdatedBy(createdBy);
-	    					ledgerMappingVO.setClientCoa(clientAccountName);
-	    					ledgerMappingVO.setClientCoaCode(clientAccountCode);
-	    					ledgerMappingVO.setCoa(elAccountCode);
-	    					ledgerMappingVO.setCoaCode(coa.getAccountGroupName());
-	    					ledgerMappingVO.setActive(active);
-	    					ledgerMappingVO.setClientCode(clientCode);
+						if (ledgerMappingRepo.existsByOrgIdAndClientCoaAndClientCode(orgId, clientAccountName,
+								clientCode)) {
 
-	                    mainGroupList.add(ledgerMappingVO);
-	                    result.setSuccessfulUploads(result.getSuccessfulUploads() + 1);
+							String errorMessage = String.format("This Client Account Name: %s Already Exists",
+									clientAccountName);
+							throw new ApplicationException(errorMessage);
+						}
 
-	                } catch (Exception e) {
-	                	result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
-	                    String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
-	                    result.addFailureReason(error); // Capture failure reason
-	                }
-	            }
-	        }
-	    }
+						CoaVO coa = coaRepo.findByOrgIdAndAccountCode(orgId, elAccountCodes);
+						if (coa.getAccountCode() == null) {
+							String errorMessage = String.format("This EL Account Code: %s Not Found", elAccountCodes);
+						}
 
-	    // Save the successfully processed records
-	    if (!mainGroupList.isEmpty()) {
-	        ledgerMappingRepo.saveAll(mainGroupList);
-	    }
+						LedgerMappingVO ledgerMappingVO = new LedgerMappingVO();
 
-	    return result; // Return the result summary
+						ledgerMappingVO.setCreatedBy(createdBy);
+						ledgerMappingVO.setUpdatedBy(createdBy);
+						ledgerMappingVO.setClientCoa(clientAccountName);
+						ledgerMappingVO.setClientCoaCode(clientAccountCode);
+						ledgerMappingVO.setClientName(clientName);
+						ledgerMappingVO.setClientCode(clientCode);
+						ledgerMappingVO.setOrgId(orgId);
+						ledgerMappingVO.setCoa(coa.getAccountGroupName());
+						ledgerMappingVO.setCoaCode(coa.getAccountCode());
+						ledgerMappingVO.setActive(active);
+						ledgerMappingVO.setClientCode(clientCode);
+
+						mainGroupList.add(ledgerMappingVO);
+						result.setSuccessfulUploads(result.getSuccessfulUploads() + 1);
+
+					} catch (Exception e) {
+						result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
+						String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
+						result.addFailureReason(error); // Capture failure reason
+					}
+				}
+			}
+		}
+
+		// Save the successfully processed records
+		if (!mainGroupList.isEmpty()) {
+			ledgerMappingRepo.saveAll(mainGroupList);
+		}
+
+		return result; // Return the result summary
 	}
 
 }

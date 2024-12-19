@@ -31,26 +31,40 @@ public class ClientCompanyVO {
 	
 	@Column(name = "orgid")
 	private Long orgId;
-	@Column(name = "code")
+	@Column(name = "code", length = 10)
 	private String companyCode;
-	@Column(name = "name")
+	@Column(name = "name" , length = 100)
 	private String clientName;
-	@Column(name = "clientcode")
+	@Column(name = "clientcode",length = 10)
 	private String clientCode;
-	@Column(name = "phone")
+	@Column(name = "phone",length = 25)
 	private String phone;
-	@Column(name = "email")
+	@Column(name = "email",length = 100)
 	private String email;
-	@Column(name = "website")
+	@Column(name = "website",length = 100)
 	private String webSite;
 	@Column(name = "active")
 	private boolean active;
-	@Column(name = "createdby")
+	@Column(name = "createdby",length = 50)
 	private String createdBy;
-	@Column(name = "modifiedby")
+	@Column(name = "modifiedby",length = 50)
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
+	
+	@Column(name = "bussinesstype",length = 100)
+	private String bussinessType;
+	
+	@Column(name = "turnover",length = 100)
+	private String turnOver;
+	
+	@Column(name = "levelofservice",length = 100)
+	private String levelOfService;
+	
+	@Column(name = "repperson",length = 100)
+	private String repPerson;
+	
+	
 
 	@JsonGetter("active")
 	public String getActive() {
