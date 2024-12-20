@@ -482,7 +482,7 @@ public class BusinessController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	@PostMapping("/excelUploadForLedgerMapping ")
+	@PostMapping("/excelUploadForLedgerMapping")
 	public ResponseEntity<ResponseDTO> excelUploadForLedgerMapping(@RequestParam MultipartFile[] files,
 			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
 			@RequestParam Long orgId, @RequestParam String clientName) {

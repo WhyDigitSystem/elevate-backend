@@ -24,4 +24,6 @@ public interface ELReportService {
 
 	void excelUploadForElMfr(MultipartFile[] files, String createdBy, Long orgId) throws ApplicationException, IOException;
 
+	List<Map<String, Object>> getMisMatchClientTb(Long orgId, String clientCode, String accountCode);
+
 }
