@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -285,9 +286,25 @@ public class ELReportServiceImpl implements ELReportService {
 	            return null; // Return null if parsing fails
 	        }
 	    }
- 
-	
-	
+
+		@Override
+		public List<Map<String, Object>> getMisMatchClientTb(Long orgId, String clientCode, String accountCode) {
+			// TODO Auto-generated method stub
+			Set<Object[]> getTb = elMfrRepo.getMisMatchClientTb(orgId,clientCode,accountCode);
+			return getMisMatch(getTb);
+		}
+
+		private List<Map<String, Object>> getMisMatch(Set<Object[]> chCode) {
+			List<Map<String, Object>> List1 = new ArrayList<>();
+			for (Object[] ch : chCode) {
+				Map<String, Object> map = new HashMap<>();
+				map.put("accountCode", ch[0] != null ? ch[0].toString() : "");
+				map.put("accountName", ch[1] != null ? ch[1].toString() : "");
+				List1.add(map);
+			}
+			return List1;
+
+		}
 	
 
 }

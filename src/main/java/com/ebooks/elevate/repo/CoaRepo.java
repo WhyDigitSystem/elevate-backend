@@ -24,8 +24,8 @@ public interface CoaRepo extends JpaRepository<CoaVO, Long>{
 
 	boolean existsByOrgIdAndAccountCode(Long orgId, String accountCode);
 
-	@Query(value = "select a from CoaVO a where a.orgId=?1")
-	List<CoaVO> findAllByOrgId(Long orgId);
+	@Query(value = "select * from coa a where a.orgid=?1",nativeQuery = true)
+	List<CoaVO> getAllCaoByOrgId(Long orgId);
 
 	@Query(nativeQuery =true,value ="select * from  coa where active=1 and orgid=?1 and accountgroupname=?2 and type='group'")
 	CoaVO findByOrgIdAndAccountGroupName(Long orgId, String groupName);

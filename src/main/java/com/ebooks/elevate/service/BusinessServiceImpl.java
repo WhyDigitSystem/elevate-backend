@@ -152,7 +152,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 	@Override
 	public List<CoaVO> getAllCao(Long orgId) {
-		return coaRepo.findAllByOrgId(orgId);
+		return coaRepo.getAllCaoByOrgId(orgId);
 	}
 
 	@Override
