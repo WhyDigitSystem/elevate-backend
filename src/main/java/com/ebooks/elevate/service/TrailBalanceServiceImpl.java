@@ -2,15 +2,11 @@ package com.ebooks.elevate.service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.EncryptedDocumentException;
@@ -25,12 +21,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ebooks.elevate.dto.ExcelUploadResultDTO;
+import com.ebooks.elevate.dto.TbDetailsDTO;
 import com.ebooks.elevate.dto.TbHeaderDTO;
+import com.ebooks.elevate.entity.DocumentTypeMappingDetailsVO;
+import com.ebooks.elevate.entity.TbDetailsVO;
 import com.ebooks.elevate.entity.TbHeaderVO;
-import com.ebooks.elevate.entity.TrailBalanceVO;
+import com.ebooks.elevate.entity.TrialBalanceVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.DocumentTypeMappingDetailsRepo;
 import com.ebooks.elevate.repo.TbHeaderRepo;
-import com.ebooks.elevate.repo.TrailBalanceRepo;
+import com.ebooks.elevate.repo.TrialBalanceRepo;
 
 import io.jsonwebtoken.io.IOException;
 
@@ -38,10 +39,13 @@ import io.jsonwebtoken.io.IOException;
 public class TrailBalanceServiceImpl implements TrailBalanceService {
 
 	@Autowired
-	TrailBalanceRepo trailBalanceRepo;
+	TrialBalanceRepo trialBalanceRepo;
 
 	@Autowired
-	TbHeaderRepo headerRepo;
+	TbHeaderRepo tbHeaderRepo;
+	
+	@Autowired
+	DocumentTypeMappingDetailsRepo documentTypeMappingDetailsRepo;
 
 	@Override
 	public int getTotalRows() {
@@ -55,116 +59,91 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 		return 0;
 	}
 
-	@Transactional
+	
 	@Override
-	public void excelUploadForTb(MultipartFile[] files, String createdBy, String clientCode, String finYear,
-			String month) throws ApplicationException {
-		List<TrailBalanceVO> dataToSave = new ArrayList<>();
-		int totalRows = 0;
-		int successfulUploads = 0;
+	public ExcelUploadResultDTO excelUploadForTb(MultipartFile[] files, String createdBy, String clientCode, 
+	        String finYear, String month, String clientName, Long orgId) throws ApplicationException, java.io.IOException {
 
-		for (MultipartFile file : files) {
-			try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-				Sheet sheet = workbook.getSheetAt(0); // Assuming only one sheet
-				List<String> errorMessages = new ArrayList<>();
-				System.out.println("Processing file: " + file.getOriginalFilename()); // Debug statement
-				Row headerRow = sheet.getRow(0);
-				if (!isHeaderValid(headerRow)) {
-					throw new ApplicationException("Invalid Excel format. Please refer to the Tb file.");
-				}
+	    ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result object
+	    List<TrialBalanceVO> dataToSave = new ArrayList<>();
+	    result.setTotalExcelRows(0);
+	    result.setSuccessfulUploads(0);
+	    result.setUnsuccessfulUploads(0);
 
-				// Check all rows for validity first
-				for (Row row : sheet) {
-					if (row.getRowNum() == 0 || isRowEmpty(row)) {
-						continue; // Skip header row and empty rows
-					}
+	    for (MultipartFile file : files) {
+	        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+	            Sheet sheet = workbook.getSheetAt(0); // Assuming only one sheet
+	            Row headerRow = sheet.getRow(0);
 
-					totalRows++; // Increment totalRows
-					System.out.println("Validating row: " + (row.getRowNum() + 1)); // Debug statement
+	            // Validate header
+	            for (Row row : sheet) {
+	            	
+	            	if (row.getRowNum() == 0) {
+	                    continue; // Skip this iteration
+	                }
+	
+	                
+	                result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment total rows
 
-					try {
-						// Retrieve cell values based on the provided order
-						String accountName = getStringCellValue(row.getCell(1)); // Account Name is in column 1
-						String accountCode = getStringCellValue(row.getCell(0)); // Account Code is in column 0
-						BigDecimal credit = parseBigDecimal(getStringCellValue(row.getCell(2))); // Credit is in column
-																									// 2
-						BigDecimal debit = parseBigDecimal(getStringCellValue(row.getCell(3))); // Debit is in column 3
+	                try {
+	                    // Parse cell values
+	                	String accountCode = getStringCellValue(row.getCell(0)); // Account Code is in column 0
+	                    String accountName = getStringCellValue(row.getCell(1)); // Account Name is in column 1
+	                    BigDecimal debit = parseBigDecimal(getStringCellValue(row.getCell(2))); // Debit Amount in column 3
+	                    BigDecimal credit = parseBigDecimal(getStringCellValue(row.getCell(3))); // Credit in column 4
+	                    // Debit in column 3
 
-						// Validate credit and debit fields (optional)
-						if (credit == null || debit == null) {
-							errorMessages.add("Invalid Credit/Debit value at row " + (row.getRowNum() + 1));
-							continue; // Skip this row if Credit/Debit is invalid
-						}
+	                   
 
-						// Create TrailBalanceVO and add to list for batch saving
-						TrailBalanceVO dataVO = new TrailBalanceVO();
-						dataVO.setAccountName(accountName);
-						dataVO.setAccountCode(accountCode);
-						dataVO.setClientCode(clientCode);
-						dataVO.setCredit(credit);
-						dataVO.setDebit(debit);
-						dataVO.setClientCode(clientCode);
-						dataVO.setFinYear(finYear);
-						dataVO.setMonth(month);
-						dataVO.setCreatedBy(createdBy);
-						dataVO.setUpdatedBy(createdBy);
 
-						dataToSave.add(dataVO);
-						successfulUploads++; // Increment successfulUploads
+	                    // Create and populate TrailBalanceVO object
+	                    TrialBalanceVO dataVO = new TrialBalanceVO();
+	                    dataVO.setAccountName(accountName);
+	                    dataVO.setAccountCode(accountCode);
+	                    dataVO.setClientCode(clientCode);	                    
+	                    dataVO.setCredit(credit);
+	                    dataVO.setDebit(debit);
+	                    dataVO.setFinYear(finYear);
+	                    dataVO.setMonth(month);
+	                    dataVO.setOrgId(orgId);
+	                    dataVO.setClient(clientName);
+	                    dataVO.setCreatedBy(createdBy);
+	                    dataVO.setUpdatedBy(createdBy);
+	                    dataToSave.add(dataVO);
+	                    result.setSuccessfulUploads(result.getSuccessfulUploads() + 1); // Increment successful uploads
+	                } catch (Exception e) {
+	                    result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
+	                    String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
+	                    result.addFailureReason(error); // Capture failure reason
+	                }
+	            }
+	        } catch (IOException | EncryptedDocumentException e) {
+	            throw new ApplicationException(
+	                "Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
+	        }
+	    }
 
-					} catch (Exception e) {
-						errorMessages.add("Error processing row " + (row.getRowNum() + 1) + ": " + e.getMessage());
-					}
-				}
+	    // Save all valid rows
+	    if (!dataToSave.isEmpty()) {
+	        trialBalanceRepo.saveAll(dataToSave);
+	    }
 
-				// Save all valid rows
-				trailBalanceRepo.saveAll(dataToSave);
-
-				if (!errorMessages.isEmpty()) {
-					throw new ApplicationException(
-							"Excel upload validation failed. Errors: " + String.join(", ", errorMessages));
-				}
-
-			} catch (IOException e) {
-				throw new ApplicationException(
-						"Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
-			} catch (EncryptedDocumentException e1) {
-				e1.printStackTrace();
-			} catch (java.io.IOException e1) {
-				e1.printStackTrace();
-			}
-		}
+	    return result; // Return the result summary
+	}
+	
+	
+	private BigDecimal parseBigDecimal(String value) throws ApplicationException {
+	    if (value == null || value.trim().isEmpty()) {
+	        return BigDecimal.ZERO; // Return 0.00 for empty or null cells
+	    }
+	    try {
+	        BigDecimal parsedValue = new BigDecimal(value.trim());
+	        return parsedValue.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : parsedValue; // Ensure zero is set as 0.00
+	    } catch (NumberFormatException e) {
+	        throw new ApplicationException("Invalid number format: " + value, e);
+	    }
 	}
 
-	private LocalDate parseDate(String stringCellValue) {
-		try {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-			return LocalDate.parse(stringCellValue, formatter);
-		} catch (Exception e) {
-			System.err.println("Error parsing date: " + stringCellValue);
-			return null;
-		}
-	}
-
-	private boolean isRowEmpty(Row row) {
-		for (Cell cell : row) {
-			if (cell.getCellType() != CellType.BLANK) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private boolean isHeaderValid(Row headerRow) {
-		if (headerRow == null) {
-			return false;
-		}
-		// Adjusted to match the new column names from the sample
-		return "Account Code".equalsIgnoreCase(getStringCellValue(headerRow.getCell(0)))
-				&& "Account Name".equalsIgnoreCase(getStringCellValue(headerRow.getCell(1)))
-				&& "Credit".equalsIgnoreCase(getStringCellValue(headerRow.getCell(2)))
-				&& "Debit".equalsIgnoreCase(getStringCellValue(headerRow.getCell(3)));
-	}
 
 	private String getStringCellValue(Cell cell) {
 		if (cell == null) {
@@ -194,55 +173,41 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 		}
 	}
 
-	private Long parseLong(String stringCellValue) {
-		try {
-			return Long.parseLong(stringCellValue);
-		} catch (NumberFormatException e) {
-			System.err.println("Error parsing long: " + stringCellValue);
-			return null;
+	private boolean isRowEmpty(Row row) {
+		for (int cellNum = row.getFirstCellNum(); cellNum < row.getLastCellNum(); cellNum++) {
+			Cell cell = row.getCell(cellNum);
+			if (cell != null && cell.getCellType() != CellType.BLANK) {
+				return false;
+			}
 		}
+		return true;
 	}
 
-	private BigDecimal parseBigDecimal(String stringCellValue) {
-		try {
-			return new BigDecimal(stringCellValue);
-		} catch (NumberFormatException e) {
-			System.err.println("Error parsing BigDecimal: " + stringCellValue);
-			return null;
-		}
-	}
 
-	@Override
-	public List<Map<String, Object>> getFillGridForTbExcelUpload(String finYear, String clientCode, String month) {
-
-		Set<Object[]> getDetails = trailBalanceRepo.getFillGridForTbExcelUpload(finYear, clientCode, month);
-		return getFillGrid(getDetails);
-	}
-
-	private List<Map<String, Object>> getFillGrid(Set<Object[]> getCoa) {
-		List<Map<String, Object>> List1 = new ArrayList<>();
-		for (Object[] ch : getCoa) {
-			Map<String, Object> map = new HashMap<>();
-			map.put("accountCode", ch[0] != null ? ch[0].toString() : "");
-			map.put("accountName", ch[1] != null ? ch[1].toString() : "");
-			map.put("credit", ch[2] != null ? new BigDecimal(ch[2].toString()) : BigDecimal.ZERO);
-			map.put("debit", ch[3] != null ? new BigDecimal(ch[3].toString()) : BigDecimal.ZERO);
-
-			List1.add(map);
-		}
-		return List1;
-	}
+	
 
 	@Override
 	public Map<String, Object> createUpdateTrailBalance(TbHeaderDTO tbHeaderDTO) throws ApplicationException {
 
-		TbHeaderVO tbHeaderVO = null;
+		String screenCode="TB";
+		TbHeaderVO tbHeaderVO = new TbHeaderVO();
 
 		String message = null;
 
 		if (ObjectUtils.isEmpty(tbHeaderDTO.getId())) {
+			
+		
+			
+			String docId = tbHeaderRepo.getTBDocId(tbHeaderDTO.getOrgId(), tbHeaderDTO.getFinYear(),screenCode);
+			tbHeaderVO.setDocId(docId);
 
-			tbHeaderVO = new TbHeaderVO();
+			// GETDOCID LASTNO +1
+			DocumentTypeMappingDetailsVO documentTypeMappingDetailsVO = documentTypeMappingDetailsRepo
+					.findByOrgIdAndFinYearAndScreenCode(tbHeaderDTO.getOrgId(), tbHeaderDTO.getFinYear(),screenCode);
+			documentTypeMappingDetailsVO.setLastno(documentTypeMappingDetailsVO.getLastno() + 1);
+			documentTypeMappingDetailsRepo.save(documentTypeMappingDetailsVO);
+
+			
 
 			tbHeaderVO.setCreatedBy(tbHeaderDTO.getCreatedBy());
 			tbHeaderVO.setUpdatedBy(tbHeaderDTO.getCreatedBy());
@@ -251,7 +216,7 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 
 		} else {
 
-			tbHeaderVO = headerRepo.findById(tbHeaderDTO.getId())
+			tbHeaderVO = tbHeaderRepo.findById(tbHeaderDTO.getId())
 					.orElseThrow(() -> new ApplicationException("HeaderDTO not found with id: " + tbHeaderDTO.getId()));
 			tbHeaderVO.setUpdatedBy(tbHeaderDTO.getCreatedBy());
 			
@@ -259,7 +224,7 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 		}
 		
 		tbHeaderVO=getTbHeaderVOromTbHeaderDTO(tbHeaderVO,tbHeaderDTO);
-		headerRepo.save(tbHeaderVO);
+		tbHeaderRepo.save(tbHeaderVO);
 		
 		Map<String, Object> response = new HashMap<>();
 		response.put("message", message);
@@ -270,9 +235,65 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	private TbHeaderVO getTbHeaderVOromTbHeaderDTO(TbHeaderVO tbHeaderVO, TbHeaderDTO tbHeaderDTO) {
 
 		tbHeaderVO.setClientCode(tbHeaderDTO.getClientCode());
-	    tbHeaderVO.setMonth(tbHeaderDTO.getMonth());
+		tbHeaderVO.setClient(tbHeaderDTO.getClient());
+		tbHeaderVO.setOrgId(tbHeaderDTO.getOrgId());
+		tbHeaderVO.setClientCode(tbHeaderDTO.getClientCode());
+	    tbHeaderVO.setTbMonth(tbHeaderDTO.getTbMonth());
 	    tbHeaderVO.setFinYear(tbHeaderDTO.getFinYear());
-
+	    
+	    List<TbDetailsVO> tbDetailsVO= new ArrayList<>();
+	    List<TbDetailsDTO>tbDetailsDTO= tbHeaderDTO.getTbDetailsDTO();
+	    for(TbDetailsDTO detailsDTO:tbDetailsDTO)
+	    {
+	    	TbDetailsVO tbDetailsVOs=new TbDetailsVO();
+	    	tbDetailsVOs.setOrgId(tbHeaderDTO.getOrgId());
+	    	tbDetailsVOs.setClient(tbHeaderDTO.getClient());
+	    	tbDetailsVOs.setClientCode(tbHeaderDTO.getClientCode());
+	    	tbDetailsVOs.setTbMonth(tbHeaderDTO.getTbMonth());
+	    	tbDetailsVOs.setFinYear(tbHeaderDTO.getFinYear());
+	    	tbDetailsVOs.setCoa(detailsDTO.getCoa());
+	    	tbDetailsVOs.setCoaCode(detailsDTO.getCoaCode());
+	    	tbDetailsVOs.setClientAccountName(detailsDTO.getClientAccountName());
+	    	tbDetailsVOs.setClientAccountCode(detailsDTO.getClientAccountCode());
+	    	tbDetailsVOs.setDebit(detailsDTO.getDebit());
+	    	tbDetailsVOs.setCredit(detailsDTO.getCredit());
+	    	tbDetailsVOs.setRemarks(detailsDTO.getRemarks());
+	    	tbDetailsVOs.setTbHeaderVO(tbHeaderVO);
+	    	tbDetailsVO.add(tbDetailsVOs);
+	    }
+	    tbHeaderVO.setTbDetailsVO(tbDetailsVO);
 	    return tbHeaderVO;
 	}
+	
+	@Override
+	public String getTBDocId(Long orgId, String finYear) {
+		String ScreenCode = "TB";
+		String result = tbHeaderRepo.getTBDocId(orgId, finYear, ScreenCode);
+		return result;
+	}
+	
+	
+	@Override
+	public List<Map<String, Object>> getFillGridForTB(Long orgId,String finYear, String clientCode, String tbMonth) {
+
+		Set<Object[]> getDetails = trialBalanceRepo.getFillGridForTbExcelUpload(orgId, finYear, clientCode, tbMonth);
+		return getFillGrid(getDetails);
+	}
+
+	private List<Map<String, Object>> getFillGrid(Set<Object[]> getDetails) {
+		List<Map<String, Object>> List1 = new ArrayList<>();
+		for (Object[] ch : getDetails) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("coaCode", ch[0] != null ? ch[0].toString() : "");
+			map.put("coa", ch[1] != null ? ch[1].toString() : "");
+			map.put("clientAccountCode", ch[2] != null ? ch[2].toString() : "");
+			map.put("clientAccountName", ch[3] != null ? ch[3].toString() : "");
+			map.put("credit", ch[4] != null ? new BigDecimal(ch[4].toString()) : BigDecimal.ZERO);
+			map.put("debit", ch[5] != null ? new BigDecimal(ch[5].toString()) : BigDecimal.ZERO);
+
+			List1.add(map);
+		}
+		return List1;
+	}
+	
 }

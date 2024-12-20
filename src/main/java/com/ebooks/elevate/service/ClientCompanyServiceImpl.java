@@ -11,12 +11,15 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.ClientCompanyDTO;
 import com.ebooks.elevate.entity.ClientCompanyVO;
+import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.ClientCompanyRepo;
+import com.ebooks.elevate.util.CryptoUtils;
 
 @Service
 public class ClientCompanyServiceImpl implements ClientCompanyService{
@@ -25,6 +28,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 
 	@Autowired
 	ClientCompanyRepo clientCompanyRepo;
+	
+	@Autowired
+	PasswordEncoder passwordEncoder;
 	
 	@Override
 	public List<ClientCompanyVO> getClientCompanyByOrgId(Long orgId) {
@@ -38,7 +44,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 	}
 	
 	@Override
-	public Map<String, Object> updateCreateClientCompany(@Valid ClientCompanyDTO clientCompanyDTO) throws ApplicationException {
+	public Map<String, Object> updateCreateClientCompany(@Valid ClientCompanyDTO clientCompanyDTO) throws Exception {
 
 		ClientCompanyVO clientCompanyVO;
 
@@ -136,6 +142,16 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		}
 		clientCompanyVO = getClientCompanyVOFromClientCompanyDTO(clientCompanyVO, clientCompanyDTO);
 		clientCompanyRepo.save(clientCompanyVO);
+		
+		UserVO userVO= new UserVO();
+		userVO.setOrgId(clientCompanyVO.getOrgId());
+		userVO.setActive(true);
+		userVO.setClient(clientCompanyVO.getClientName());
+		userVO.setClientId(clientCompanyVO.getId());
+		userVO.setEmail(clientCompanyVO.getUserName());
+		userVO.setUserName(clientCompanyVO.getUserName());
+		userVO.setUserType("GUEST");
+		userVO.setPassword(passwordEncoder.encode(CryptoUtils.getDecrypt(clientCompanyDTO.getPassword())));
 
 		Map<String, Object> response = new HashMap<>();
 		response.put("message", message);
@@ -158,8 +174,8 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		clientCompanyVO.setTurnOver(clientCompanyDTO.getTurnOver());
 		clientCompanyVO.setLevelOfService(clientCompanyDTO.getLevelOfService());
 		clientCompanyVO.setRepPerson(clientCompanyDTO.getRepPerson());
-
-
+		clientCompanyVO.setUserName(clientCompanyDTO.getUserName());
+		clientCompanyVO.setPassword(clientCompanyDTO.getPassword());
 		return clientCompanyVO;
 	}
 

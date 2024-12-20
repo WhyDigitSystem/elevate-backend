@@ -121,7 +121,7 @@ public class ELReportController extends BaseController{
 	}
 	
 	@GetMapping("/getMisMatchClientTb")
-	public ResponseEntity<ResponseDTO> getMisMatchClientTb(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String accountCode) {
+	public ResponseEntity<ResponseDTO> getMisMatchClientTb(@RequestParam Long orgId,@RequestParam String clientCode) {
 		String methodName = "getMisMatchClientTb()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -129,7 +129,7 @@ public class ELReportController extends BaseController{
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> coaVO = new ArrayList<Map<String, Object>>();
 		try {
-			coaVO = elReportService.getMisMatchClientTb(orgId,clientCode,accountCode);
+			coaVO = elReportService.getMisMatchClientTb(orgId,clientCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);

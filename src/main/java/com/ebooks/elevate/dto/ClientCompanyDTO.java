@@ -24,6 +24,9 @@ public class ClientCompanyDTO {
 	private String turnOver;
 	private String levelOfService;
 	private String repPerson;
+	
+	private String userName;
+	private String password;
 
 	
 }

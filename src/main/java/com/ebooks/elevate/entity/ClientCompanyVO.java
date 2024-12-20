@@ -36,7 +36,7 @@ public class ClientCompanyVO {
 	@Column(name = "name" , length = 100)
 	private String clientName;
 	@Column(name = "clientcode",length = 10)
-	private String clientCode;
+	private String clientCode; 
 	@Column(name = "phone",length = 25)
 	private String phone;
 	@Column(name = "email",length = 100)
@@ -63,6 +63,12 @@ public class ClientCompanyVO {
 	
 	@Column(name = "repperson",length = 100)
 	private String repPerson;
+	
+	@Column(name = "username",length = 100)
+	private String userName;
+	
+	@Column(name = "password")
+	private String password;
 	
 	
 

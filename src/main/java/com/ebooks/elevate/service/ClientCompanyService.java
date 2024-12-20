@@ -16,6 +16,6 @@ public interface ClientCompanyService {
 
 	Optional<ClientCompanyVO> getClientCompanyById(Long id);
 
-	Map<String, Object> updateCreateClientCompany(@Valid ClientCompanyDTO clientCompanyDTO) throws ApplicationException;
+	Map<String, Object> updateCreateClientCompany(@Valid ClientCompanyDTO clientCompanyDTO) throws ApplicationException, Exception;
 
 }

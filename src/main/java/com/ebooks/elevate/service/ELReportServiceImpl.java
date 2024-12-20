@@ -288,9 +288,9 @@ public class ELReportServiceImpl implements ELReportService {
 	    }
 
 		@Override
-		public List<Map<String, Object>> getMisMatchClientTb(Long orgId, String clientCode, String accountCode) {
+		public List<Map<String, Object>> getMisMatchClientTb(Long orgId, String clientCode) {
 			// TODO Auto-generated method stub
-			Set<Object[]> getTb = elMfrRepo.getMisMatchClientTb(orgId,clientCode,accountCode);
+			Set<Object[]> getTb = elMfrRepo.getMisMatchClientTb(orgId,clientCode);
 			return getMisMatch(getTb);
 		}
 
@@ -300,6 +300,7 @@ public class ELReportServiceImpl implements ELReportService {
 				Map<String, Object> map = new HashMap<>();
 				map.put("accountCode", ch[0] != null ? ch[0].toString() : "");
 				map.put("accountName", ch[1] != null ? ch[1].toString() : "");
+				map.put("action", ch[2] != null ? ch[2].toString() : "");
 				List1.add(map);
 			}
 			return List1;
