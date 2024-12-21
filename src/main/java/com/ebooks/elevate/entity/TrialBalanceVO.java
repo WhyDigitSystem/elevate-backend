@@ -27,37 +27,37 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TrailBalanceVO {
+public class TrialBalanceVO {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "tbgen")
 	@SequenceGenerator(name = "tbgen", sequenceName = "tbseq", initialValue = 1000000001, allocationSize = 1)
 	@Column(name = "tbid")
 	private Long id;
-
-	@Column(name = "accountname")
+	@Column(name = "orgid")
+	private Long orgId;
+	@Column(name = "accountname",length = 150)
 	private String accountName;
-	@Column(name = "accountcode")
+	@Column(name = "accountcode",length = 20)
 	private String accountCode;
-	@Column(name = "clientcode")
+	@Column(name = "clientcode",length = 10)
 	private String clientCode;
+	@Column(name = "client",length =100 )
+	private String client;
+	@Column(name = "month",length =30 )
 	private String month;
+	@Column(name = "credit",precision = 10,scale = 2)
 	private BigDecimal credit;
+	@Column(name = "debit",precision = 10,scale = 2)
 	private BigDecimal debit;
-	@Column(name = "finyear")
+	@Column(name = "finyear",length =10)
 	private String finYear;
-	@Column(name = "createdby")
+	@Column(name = "createdby",length =50)
 	private String createdBy;
-	@Column(name = "modifiedby")
+	@Column(name = "modifiedby",length =50)
 	private String updatedBy;
 	private boolean cancel = false;
 	private boolean active;
-
-	@ManyToOne
-	@JoinColumn(name = "tbheaderid")
-	@JsonBackReference
-	private TbHeaderVO tbHeaderVO;
-
 	@Embedded
 	@Builder.Default
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();

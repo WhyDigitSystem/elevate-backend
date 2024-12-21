@@ -12,6 +12,9 @@ public interface DocumentTypeMappingDetailsRepo extends JpaRepository<DocumentTy
 	@Query(nativeQuery = true, value = "select * from documenttypemappingdetails where orgid=?1 and finyear=?2 and branchcode=?3 and screencode=?4")
 	DocumentTypeMappingDetailsVO findByOrgIdAndFinYearAndBranchCodeAndScreenCode(Long orgId, String finYear,
 			String branchCode, String screenCode);
+	
+	@Query(nativeQuery = true, value = "select * from documenttypemappingdetails where orgid=?1 and finyear=?2 and screencode=?3")
+	DocumentTypeMappingDetailsVO findByOrgIdAndFinYearAndScreenCode(Long orgId, String finYear, String screenCode);
 
 
 

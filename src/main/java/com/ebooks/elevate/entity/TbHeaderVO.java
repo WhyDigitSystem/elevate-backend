@@ -36,27 +36,36 @@ public class TbHeaderVO {
 	@SequenceGenerator(name = "tbheadergen", sequenceName = "tbheaderseq", initialValue = 1000000001, allocationSize = 1)
 	@Column(name = "tbheaderid")
 	private Long id;
-	
-	@Column(name="docid")
+	@Column(name="docid",length = 50)
 	private String docId;
 	@Column(name="docdate")
 	private LocalDate docDate=LocalDate.now();
-	@Column(name="clientcode")
+	@Column(name="clientcode",length = 50)
 	private String clientCode;
-	private String month;
-	@Column(name="finyear")
+	@Column(name="client",length = 100)
+	private String client;
+	@Column(name="orgid",length = 50)
+	private Long orgId;
+	
+	@Column(name="screencode",length = 10)
+	private String screenCode="TB";
+	@Column(name="screenname",length = 50)
+	private String screenName="TRIAL BALANCE";
+	@Column(name="tbmonth",length = 50)
+	private String tbMonth;
+	@Column(name="finyear",length = 10)
 	private String finYear;
-	@Column(name="createdby")
+	@Column(name="createdby",length = 50)
 	private String createdBy;
-	@Column(name="modifiedby")
+	@Column(name="modifiedby",length = 50)
 	private String updatedBy;
 	private boolean cancel = false;
-	private boolean active;
+	private boolean active=true;
 	
 	
 	@OneToMany(mappedBy ="tbHeaderVO",cascade =CascadeType.ALL)
 	@JsonManagedReference
-	private List<TrailBalanceVO> trailBalanceVO;
+	private List<TbDetailsVO> tbDetailsVO;
 	
 
 	@Embedded

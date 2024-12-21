@@ -498,9 +498,9 @@ public class BusinessController extends BaseController {
 			ExcelUploadResultDTO uploadResult = businessService.excelUploadForLedgerMapping(files, createdBy,
 					clientCode, orgId, clientName);
 
+			responseObjectsMap.put("status", uploadResult.getFailureReasons().isEmpty());
 			// Populate success response
 			responseObjectsMap.put("statusFlag", "Ok");
-			responseObjectsMap.put("status", true);
 			responseObjectsMap.put("uploadResult", uploadResult);
 			responseDTO = createServiceResponse(responseObjectsMap);
 
