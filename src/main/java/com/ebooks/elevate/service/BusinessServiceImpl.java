@@ -135,7 +135,12 @@ public class BusinessServiceImpl implements BusinessService {
 
 		else {
 			// Fetch the parent record
-			CoaVO coaVO2 = coaRepo.findByOrgIdAndAccountGroupName(coaDTO.getOrgId(), coaDTO.getGroupName());
+			CoaVO coaVO2 = new CoaVO();
+			if (coaDTO.getType().equalsIgnoreCase("group")) {
+				coaVO2 = coaRepo.getOrgIdAndMainAccountGroupName(coaDTO.getOrgId(), coaDTO.getGroupName());
+			} else {
+				coaVO2 = coaRepo.getOrgIdAndSubAccountGroupName(coaDTO.getOrgId(), coaDTO.getGroupName());
+			}
 
 			if (coaVO2 == null) {
 				// Handle the case where the parent record is not found
@@ -365,7 +370,11 @@ public class BusinessServiceImpl implements BusinessService {
 						CoaVO coaVO = new CoaVO();
 						coaVO.setType(type);
 						coaVO.setOrgId(orgId);
-						coaVO.setGroupName(groupName);
+						if (groupName == null || groupName.trim().isEmpty()) {
+							coaVO.setGroupName(null);
+						} else {
+							coaVO.setGroupName(groupName);
+						}
 						coaVO.setAccountGroupName(accountName);
 						coaVO.setNatureOfAccount(natureOfAccount);
 						coaVO.setAccountCode(accountCode);
@@ -385,7 +394,8 @@ public class BusinessServiceImpl implements BusinessService {
 								mainGroupList.add(coaVO);
 								coaRepo.saveAll(mainGroupList);
 							} else {
-								CoaVO vo = coaRepo.findByOrgIdAndAccountCode(orgId, groupName);
+
+								CoaVO vo = coaRepo.getOrgIdAndMainAccountGroupName(orgId, groupName);
 								coaVO.setParentCode(vo.getAccountCode());
 								coaVO.setParentId(vo.getId().toString());
 								// Subgroup (groupName is not null)
@@ -394,7 +404,7 @@ public class BusinessServiceImpl implements BusinessService {
 							}
 						} else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
 							// Account (groupName is not null)
-							CoaVO vo = coaRepo.findByOrgIdAndAccountGroupName(orgId, groupName);
+							CoaVO vo = coaRepo.getOrgIdAndSubAccountGroupName(orgId, groupName);
 							coaVO.setParentCode(vo.getAccountCode());
 							coaVO.setParentId(vo.getId().toString());
 							accountList.add(coaVO);
@@ -471,116 +481,6 @@ public class BusinessServiceImpl implements BusinessService {
 		}
 		return true;
 	}
-
-	// EXCEL UPLOAD FOR CLIENT COA
-//	
-//	 private int totalRows1=0;
-//	    private int successfulUploads1=0;
-//
-//	    @Override
-//	    public int getTotalRows1() {
-//	        return totalRows;
-//	    }
-//
-//	    @Override
-//	    public int getSuccessfulUploads1() {
-//	        return successfulUploads;
-//	    }
-
-//	@Transactional
-//	@Override
-//	public void excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode)
-//			throws EncryptedDocumentException, java.io.IOException, ApplicationException {
-//		List<CCoaVO> mainGroupList = new ArrayList<>(); // List to store main group records
-//
-//		// Reset counters at the start of each upload
-//		totalRows = 0;
-//		successfulUploads = 0;
-//
-//		for (MultipartFile file : files) {
-//			try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-//				Sheet sheet = workbook.getSheetAt(0); // Assuming only one sheet
-//				List<String> errorMessages = new ArrayList<>();
-//
-//				System.out.println("Processing file: " + file.getOriginalFilename()); // Debug statement
-//
-//				Row headerRow = sheet.getRow(0);
-//				if (!isHeaderValid1(headerRow)) {
-//					throw new ApplicationException("Invalid Excel format. Please refer to the sample file.");
-//				}
-//
-//				// Check all rows for validity first
-//				for (Row row : sheet) {
-//					if (row.getRowNum() == 0 || isRowEmpty1(row)) {
-//						continue; // Skip header row and empty rows
-//					}
-//
-//					totalRows++; // Increment totalRows
-//
-//					try {
-//						// Retrieve cell values based on the provided order
-////						String type = getStringCellValue1(row.getCell(0));
-////						String groupName = getStringCellValue1(row.getCell(1));
-//						String accountCode = getStringCellValue1(row.getCell(0));
-//						String accountName = getStringCellValue1(row.getCell(1));
-////						String natureOfAccount = getStringCellValue1(row.getCell(4));
-//						String activeString = getStringCellValue1(row.getCell(2)); // Get value from the cell
-//
-//						// Convert activeString to integer and handle the conditions
-//						boolean active;
-//						if ("1".equals(activeString)) {
-//							active = true; // If the value is '1', set active to true
-//						} else if ("0".equals(activeString)) {
-//							active = false; // If the value is '0', set active to false
-//						} else {
-//							throw new ApplicationException(
-//									"Invalid value for 'active' field. Expected '1' or '0', but got: " + activeString);
-//						}
-//
-//						// Create CoaVO and add to appropriate list
-//						CCoaVO cCoaVO = new CCoaVO();
-//						
-//						if (cCoaRepo.existsByAccountCodeAndClientCode(accountCode, clientCode)) {
-//
-//							String errorMessage = String.format("This AccountCode: %s Already Exists", accountCode);
-//							throw new ApplicationException(errorMessage);
-//						}
-//
-//						if (cCoaRepo.existsByAccountNameAndClientCode(accountName, clientCode)) {
-//
-//							String errorMessage = String.format("This AccountGroupName: %s Already Exists",
-//									accountName);
-//							throw new ApplicationException(errorMessage);
-//						}
-//
-//						cCoaVO.setAccountName(accountName);
-//						cCoaVO.setAccountCode(accountCode);
-//						cCoaVO.setCreatedBy(createdBy);
-//						cCoaVO.setCurrency("INR");
-//						cCoaVO.setActive(active);
-//						cCoaVO.setUpdatedBy(createdBy);
-//						cCoaVO.setClientId(clientCode);
-//
-//						mainGroupList.add(cCoaVO);
-//
-//						successfulUploads++; // Increment successfulUploads
-//
-//					} catch (Exception e) {
-//						errorMessages.add("Error processing row " + (row.getRowNum() + 1) + ": " + e.getMessage());
-//					}
-//				}
-//
-//				if (!errorMessages.isEmpty()) {
-//					throw new ApplicationException(
-//							"Excel upload validation failed. Errors: " + String.join(", ", errorMessages));
-//				}
-//
-//			} catch (IOException e) {
-//				throw new ApplicationException(
-//						"Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
-//			}
-//		}
-//	}
 
 	private String getStringCellValue(Cell cell) {
 		if (cell == null) {
@@ -795,8 +695,8 @@ public class BusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getLedgerMap() {
-		Set<Object[]> getActiveGroup = coaRepo.findAccountMap();
+	public List<Map<String, Object>> getLedgerMap(Long orgId) {
+		Set<Object[]> getActiveGroup = coaRepo.findAccountMap(orgId);
 		return getLedgerGroup(getActiveGroup);
 	}
 
@@ -988,7 +888,5 @@ public class BusinessServiceImpl implements BusinessService {
 
 		return result; // Return the result summary
 	}
-	
-	
 
 }

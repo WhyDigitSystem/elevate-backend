@@ -274,7 +274,7 @@ public class BusinessController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	@PostMapping("/excelUploadForCCoa ")
+	@PostMapping("/excelUploadForCCoa")
 	public ResponseEntity<ResponseDTO> excelUploadForCCoa(@RequestParam MultipartFile[] files,
 			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
 			@RequestParam String clientName, @RequestParam Long orgId) {
@@ -368,7 +368,7 @@ public class BusinessController extends BaseController {
 	}
 
 	@GetMapping("/getCOAMap")
-	public ResponseEntity<ResponseDTO> getCOAMap() {
+	public ResponseEntity<ResponseDTO> getCOAMap(@RequestParam Long orgId) {
 		String methodName = "getCOAMap()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
@@ -378,7 +378,7 @@ public class BusinessController extends BaseController {
 		List<Map<String, Object>> COA = null;
 		try {
 			// Call the method to get the ledger map (i.e., the required group data)
-			COA = businessService.getLedgerMap();
+			COA = businessService.getLedgerMap(orgId);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);

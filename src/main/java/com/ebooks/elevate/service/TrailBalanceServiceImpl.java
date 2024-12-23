@@ -89,8 +89,10 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                    // Parse cell values
 	                	String accountCode = getStringCellValue(row.getCell(0)); // Account Code is in column 0
 	                    String accountName = getStringCellValue(row.getCell(1)); // Account Name is in column 1
-	                    BigDecimal debit = parseBigDecimal(getStringCellValue(row.getCell(2))); // Debit Amount in column 3
-	                    BigDecimal credit = parseBigDecimal(getStringCellValue(row.getCell(3))); // Credit in column 4
+	                    BigDecimal opBalance = parseBigDecimal(getStringCellValue(row.getCell(2))); 
+	                    BigDecimal debit = parseBigDecimal(getStringCellValue(row.getCell(3))); // Debit Amount in column 3
+	                    BigDecimal credit = parseBigDecimal(getStringCellValue(row.getCell(4))); // Credit in column 4
+	                    BigDecimal clBalance = parseBigDecimal(getStringCellValue(row.getCell(5)));
 	                    // Debit in column 3
 
 	                   
@@ -100,9 +102,11 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                    TrialBalanceVO dataVO = new TrialBalanceVO();
 	                    dataVO.setAccountName(accountName);
 	                    dataVO.setAccountCode(accountCode);
-	                    dataVO.setClientCode(clientCode);	                    
+	                    dataVO.setClientCode(clientCode);	 
+	                    dataVO.setOpBalance(opBalance);
 	                    dataVO.setCredit(credit);
 	                    dataVO.setDebit(debit);
+	                    dataVO.setClBalance(clBalance);
 	                    dataVO.setFinYear(finYear);
 	                    dataVO.setMonth(month);
 	                    dataVO.setOrgId(orgId);
@@ -110,10 +114,12 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                    dataVO.setCreatedBy(createdBy);
 	                    dataVO.setUpdatedBy(createdBy);
 	                    dataToSave.add(dataVO);
+	                    System.out.println("closing balance"+clBalance);
 	                    result.setSuccessfulUploads(result.getSuccessfulUploads() + 1); // Increment successful uploads
 	                } catch (Exception e) {
 	                    result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
 	                    String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
+	                   
 	                    result.addFailureReason(error); // Capture failure reason
 	                }
 	            }

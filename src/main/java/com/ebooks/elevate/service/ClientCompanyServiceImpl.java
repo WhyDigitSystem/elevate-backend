@@ -171,9 +171,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		clientCompanyVO.setOrgId(clientCompanyDTO.getOrgId());
 		clientCompanyVO.setActive(clientCompanyDTO.isActive());
 		clientCompanyVO.setBussinessType(clientCompanyDTO.getBussinessType());
-		clientCompanyVO.setTurnOver(clientCompanyDTO.getTurnOver());
 		clientCompanyVO.setLevelOfService(clientCompanyDTO.getLevelOfService());
 		clientCompanyVO.setRepPerson(clientCompanyDTO.getRepPerson());
+		clientCompanyVO.setTurnOver(clientCompanyDTO.getTurnOver());
 		clientCompanyVO.setUserName(clientCompanyDTO.getUserName());
 		clientCompanyVO.setPassword(clientCompanyDTO.getPassword());
 		return clientCompanyVO;
