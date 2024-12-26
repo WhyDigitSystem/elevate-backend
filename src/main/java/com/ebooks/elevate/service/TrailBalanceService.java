@@ -25,9 +25,9 @@ public interface TrailBalanceService {
 	ExcelUploadResultDTO excelUploadForTb(MultipartFile[] files, String createdBy, String clientCode, String finYear, String month,
 			String clientName, Long orgId) throws ApplicationException, IOException;
 
-	String getTBDocId(Long orgId, String finYear);
+	String getTBDocId(Long orgId, String finYear,String clientCode);
 
-	List<Map<String, Object>> getFillGridForTB(Long orgId, String finYear, String clientCode, String tbMonth);
+	List<Map<String, Object>> getFillGridForTB(Long orgId, String finYear,String tbMonth, String client,String clientCode);
 	
 	
 

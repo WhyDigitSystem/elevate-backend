@@ -40,7 +40,8 @@ public class TrailBalanceController extends BaseController {
 	@PostMapping("/excelUploadForTb")
 	public ResponseEntity<ResponseDTO> excelUploadForTb(@RequestParam MultipartFile[] files,
 			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
-			@RequestParam Long orgId, @RequestParam String clientName,@RequestParam String month,@RequestParam String finYear) {
+			@RequestParam Long orgId, @RequestParam String clientName, @RequestParam String month,
+			@RequestParam String finYear) {
 
 		String methodName = "excelUploadForTb()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
@@ -50,7 +51,8 @@ public class TrailBalanceController extends BaseController {
 
 		try {
 			// Call the service method and get the result
-			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForTb(files, createdBy, clientCode, finYear, month, clientName, orgId);
+			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForTb(files, createdBy, clientCode,
+					finYear, month, clientName, orgId);
 
 			responseObjectsMap.put("status", uploadResult.getFailureReasons().isEmpty());
 			// Populate success response
@@ -75,8 +77,9 @@ public class TrailBalanceController extends BaseController {
 	}
 
 	@GetMapping("/getFillGridForTbFromExcelUpload")
-	public ResponseEntity<ResponseDTO> getFillGridForTbFromExcelUpload(@RequestParam Long orgId,@RequestParam String finYear,
-			@RequestParam String clientCode, @RequestParam String tbMonth) {
+	public ResponseEntity<ResponseDTO> getFillGridForTbFromExcelUpload(@RequestParam Long orgId,
+			@RequestParam String finYear, @RequestParam String tbMonth, @RequestParam String client,
+			@RequestParam String clientCode) {
 		String methodName = "getFillGridForTbFromExcelUpload()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
@@ -86,7 +89,7 @@ public class TrailBalanceController extends BaseController {
 		List<Map<String, Object>> excelUpload = null;
 		try {
 			// Call the method to get the ledger map (i.e., the required group data)
-			excelUpload = trailBalanceService.getFillGridForTB(orgId, finYear, clientCode, tbMonth);
+			excelUpload = trailBalanceService.getFillGridForTB(orgId, finYear, tbMonth, client, clientCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -127,9 +130,9 @@ public class TrailBalanceController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getTBDocId")
-	public ResponseEntity<ResponseDTO> getTBDocId(@RequestParam Long orgId, @RequestParam String finYear) {
+	public ResponseEntity<ResponseDTO> getTBDocId(@RequestParam Long orgId, @RequestParam String finYear,@RequestParam String clientCode) {
 
 		String methodName = "getTBDocId()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
@@ -139,7 +142,7 @@ public class TrailBalanceController extends BaseController {
 		String mapp = "";
 
 		try {
-			mapp = trailBalanceService.getTBDocId(orgId, finYear);
+			mapp = trailBalanceService.getTBDocId(orgId, finYear,clientCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -150,8 +153,8 @@ public class TrailBalanceController extends BaseController {
 			responseObjectsMap.put("tbDocId", mapp);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap,
-					"Failed to retrieve TB DocId information", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Failed to retrieve TB DocId information",
+					errorMsg);
 		}
 
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);

@@ -9,7 +9,7 @@ import com.ebooks.elevate.entity.TbHeaderVO;
 @Repository
 public interface TbHeaderRepo extends JpaRepository<TbHeaderVO, Long>{
 
-	@Query(nativeQuery = true,value="select concat(prefixfield,lpad(lastno,5,0)) AS docid from documenttypemappingdetails where orgid=?1 and finyear=?2  and screencode=?3")
-	String getTBDocId(Long orgId, String finYear, String screenCode);
+	@Query(nativeQuery = true,value="select concat(prefixfield,lpad(lastno,5,0)) AS docid from documenttypemappingdetails where orgid=?1 and finyear=?2  and screencode=?3 and  clientcode=?4")
+	String getTBDocId(Long orgId, String finYear, String screenCode,String clientCode);
 
 }

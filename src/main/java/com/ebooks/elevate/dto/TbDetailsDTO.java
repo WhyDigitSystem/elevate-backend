@@ -15,8 +15,10 @@ public class TbDetailsDTO {
 	private String coaCode;
 	private String clientAccountName;
 	private String clientAccountCode;
+	private BigDecimal openingBalance;
 	private BigDecimal credit;
 	private BigDecimal debit;
+	private BigDecimal closingBalance;
 	private String remarks;
 
 }
