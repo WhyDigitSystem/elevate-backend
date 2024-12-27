@@ -1,5 +1,6 @@
 package com.ebooks.elevate.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,8 @@ import com.ebooks.elevate.dto.CoaDTO;
 import com.ebooks.elevate.dto.ExcelUploadResultDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.dto.TbHeaderDTO;
+import com.ebooks.elevate.entity.CoaVO;
+import com.ebooks.elevate.entity.TbHeaderVO;
 import com.ebooks.elevate.service.TrailBalanceService;
 
 @CrossOrigin
@@ -157,6 +160,31 @@ public class TrailBalanceController extends BaseController {
 					errorMsg);
 		}
 
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getAllTrialBalanceByClient")
+	public ResponseEntity<ResponseDTO> getAllTrialBalanceByClient(@RequestParam Long orgId,@RequestParam String finYear,@RequestParam String client) {
+		String methodName = "getAllTrialBalanceByClient()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<TbHeaderVO> tbHeaderVO = new ArrayList<>();
+		try {
+			tbHeaderVO = trailBalanceService.getAllTbByClient(orgId,finYear,client);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Trial Balance information get successfully");
+			responseObjectsMap.put("tbHeaderVO", tbHeaderVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Trial Balance information receive failed", errorMsg);
+		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}

@@ -15,8 +15,25 @@ public interface CoaRepo extends JpaRepository<CoaVO, Long>{
 	@Query(nativeQuery =true,value ="select accountgroupname from  coa where active=1 and orgid=?1 and type='group'")
 	Set<Object[]> findGroups(Long orgId);
 
-	@Query(nativeQuery = true,value = "select a.accountgroupname maingroup,a.accountcode maingroupaccountcode,b.accountgroupname subgroup,b.accountcode subgroupaccountcode,c.accountgroupname account,c.accountcode accountcode from coa a, coa b,coa c where b.parentcode=a.accountcode and b.orgid=a.orgid and c.parentcode= b.accountcode and c.orgid=b.orgid  \r\n"
-			+ " and a.orgid=?1 group by a.accountgroupname,b.accountgroupname,c.accountgroupname,a.accountcode,b.accountcode,c.accountcode ORDER BY CAST(a.accountcode AS UNSIGNED) ASC,CAST(b.accountcode AS UNSIGNED) ASC, CAST(c.accountcode AS UNSIGNED) ASC")
+	@Query(nativeQuery = true,value = "SELECT \r\n"
+			+ "    a.accountgroupname AS maingroup,\r\n"
+			+ "    a.accountcode AS maingroupaccountcode,\r\n"
+			+ "    b.accountgroupname AS subgroup,\r\n"
+			+ "    b.accountcode AS subgroupaccountcode,\r\n"
+			+ "    c.accountgroupname AS account,\r\n"
+			+ "    c.accountcode AS accountcode\r\n"
+			+ "FROM \r\n"
+			+ "    coa a\r\n"
+			+ "LEFT JOIN \r\n"
+			+ "    coa b ON b.parentcode = a.accountcode AND b.orgid = a.orgid\r\n"
+			+ "LEFT JOIN \r\n"
+			+ "    coa c ON c.parentcode = b.accountcode AND c.orgid = b.orgid\r\n"
+			+ "WHERE \r\n"
+			+ "    a.orgid = ?1 and a.accountcode<1000\r\n"
+			+ "ORDER BY \r\n"
+			+ "    CAST(a.accountcode AS UNSIGNED) ASC,\r\n"
+			+ "    CAST(b.accountcode AS UNSIGNED) ASC,\r\n"
+			+ "    CAST(c.accountcode AS UNSIGNED) ASC")
 	Set<Object[]> findAccountMap(Long orgId);
 
 	CoaVO findByOrgIdAndAccountCode(Long orgId, String elAccountCode);

@@ -305,6 +305,12 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 			List1.add(map);
 		}
 		return List1;
+	}
+
+	@Override
+	public List<TbHeaderVO> getAllTbByClient(Long orgId, String finYear, String client) {
+		List<TbHeaderVO> headerVO= tbHeaderRepo.getAllTrialBalance(orgId,finYear,client);
+		return headerVO;
 	}	
 	
 }
