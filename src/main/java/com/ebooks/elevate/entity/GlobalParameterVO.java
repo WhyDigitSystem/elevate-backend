@@ -28,17 +28,16 @@ public class GlobalParameterVO {
 	@Column(name = "globalparamid")
 	private Long id;
 
-	@Column(name = "orgid")
-	private Long orgId;
 	@Column(name = "userid")
-	private String userid;
-	@Column(name = "branch")
-	private String branch;
-	@Column(name = "branchcode")
-	private String branchcode;
+	private Long userid;
 	@Column(name = "finyear")
 	private String finYear;
-	
+	@Column(name = "clientcode")
+	private String clientCode;
+	@Column(name = "clientname")
+	private String clientName;
+	private String month;
+
 	@Embedded
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
 }

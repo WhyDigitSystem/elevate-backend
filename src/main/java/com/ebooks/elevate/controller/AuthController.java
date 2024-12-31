@@ -219,9 +219,9 @@ public class AuthController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/getResponsibilityForRolesByOrgId")
-	public ResponseEntity<ResponseDTO> getResponsibilityForRolesByOrgId(@RequestParam Long orgId) {
-		String methodName = "getResponsibilityForRolesByOrgId()";
+	@GetMapping("/getResponsibility")
+	public ResponseEntity<ResponseDTO> getResponsibilityForRoles(@RequestParam Long orgId ) {
+		String methodName = "getResponsibilityForRoles()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
@@ -266,8 +266,8 @@ public class AuthController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/allRolesByOrgId")
-	public ResponseEntity<ResponseDTO> getAllRolesByOrgId(@RequestParam Long orgId) {
+	@GetMapping("/allRoles")
+	public ResponseEntity<ResponseDTO> getAllRoles(@RequestParam Long orgId) {
 		String methodName = "getAllScreenNames()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -293,9 +293,9 @@ public class AuthController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/allActiveRolesByOrgId")
-	public ResponseEntity<ResponseDTO> getAllActiveRolesByOrgId(@RequestParam Long orgId) {
-		String methodName = "getAllActiveRolesByOrgId()";
+	@GetMapping("/allActiveRoles")
+	public ResponseEntity<ResponseDTO> getAllActiveRoles(@RequestParam Long orgId) {
+		String methodName = "getAllActiveRoles()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
@@ -348,9 +348,9 @@ public class AuthController extends BaseController {
 	}
 	
 	
-	@GetMapping("/allActiveResponsibilityByOrgId")
-	public ResponseEntity<ResponseDTO> getAllActiveResponsibilityByOrgId(@RequestParam Long orgId) {
-		String methodName = "getAllActiveResponsibilityByOrgId()";
+	@GetMapping("/allActiveResponsibility")
+	public ResponseEntity<ResponseDTO> getAllActiveResponsibility(@RequestParam Long orgId) {
+		String methodName = "getAllActiveResponsibility()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
@@ -375,9 +375,9 @@ public class AuthController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/allResponsibilityByOrgId")
-	public ResponseEntity<ResponseDTO> getAllResponsibilityByOrgId(@RequestParam Long orgId) {
-		String methodName = "getAllResponsibilityByOrgId()";
+	@GetMapping("/allResponsibility")
+	public ResponseEntity<ResponseDTO> getAllResponsibility(@RequestParam Long orgId) {
+		String methodName = "getAllResponsibility()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
