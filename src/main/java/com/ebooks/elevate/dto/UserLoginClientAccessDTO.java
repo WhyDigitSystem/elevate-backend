@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserLoginClientAccessDTO {
 
-	private String client;
-    private String customer;
+	private Long ID;
+	private String clientCode;
+    private String clientName;
     
 }

@@ -12,8 +12,8 @@ public class GlobalParameterDTO {
 
 	private Long userId;
 	private String finYear;
-	private String branch;
-	private String branchCode;
-	private String company;
+	private String clientCode;
+	private String clientName;
+	private String month;
 
 }

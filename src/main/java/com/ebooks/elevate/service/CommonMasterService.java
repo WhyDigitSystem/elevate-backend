@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.CityDTO;
+import com.ebooks.elevate.dto.ClientDTO;
 import com.ebooks.elevate.dto.CompanyDTO;
 import com.ebooks.elevate.dto.CountryDTO;
 import com.ebooks.elevate.dto.CurrencyDTO;
@@ -18,6 +19,7 @@ import com.ebooks.elevate.dto.RegionDTO;
 import com.ebooks.elevate.dto.ScreenNamesDTO;
 import com.ebooks.elevate.dto.StateDTO;
 import com.ebooks.elevate.entity.CityVO;
+import com.ebooks.elevate.entity.ClientVO;
 import com.ebooks.elevate.entity.CompanyVO;
 import com.ebooks.elevate.entity.CountryVO;
 import com.ebooks.elevate.entity.CurrencyVO;
@@ -125,5 +127,15 @@ public interface CommonMasterService {
 	ScreenNamesVO getScreenNamesById(Long id) throws ApplicationException;
 
 	List<Map<String, Object>> getAllCurrencyForExRate(Long orgId);
+	
+	//CLIENT
+
+	Map<String, Object> createUpdateClient(ClientDTO clientDTO) throws ApplicationException;
+
+	List<ClientVO> getAllClients(Long orgId);
+
+	Optional<ClientVO> getClientById(Long id);
+
+	
 
 }

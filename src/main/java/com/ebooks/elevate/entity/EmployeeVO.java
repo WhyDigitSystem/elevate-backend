@@ -12,6 +12,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.ebooks.elevate.dto.CreatedUpdatedDate;
+import com.ebooks.elevate.dto.Role;
 import com.fasterxml.jackson.annotation.JsonGetter;
 
 import lombok.AllArgsConstructor;
@@ -37,12 +38,12 @@ public class EmployeeVO {
 	private String employeeName;
 	@Column(name = "gender",length = 30)
 	private String gender;
-	@Column(name = "branch",length = 50)
-	private String branch;
+//	@Column(name = "branch",length = 50)
+//	private String branch;
 	@Column(name = "email",length = 150)
 	private String email;
-	@Column(name = "branchcode",length = 30)
-	private String branchCode;
+//	@Column(name = "branchcode",length = 30)
+//	private String branchCode;
 	@Column(name = "department",length = 30)
 	private String department;
 	@Column(name = "designation",length = 30)
@@ -51,10 +52,6 @@ public class EmployeeVO {
 	private LocalDate dateOfBirth;
 	@Column(name = "joiningdate")
 	private LocalDate joiningDate;
-	@Column(name = "createdby",length = 30)
-	private String createdBy;
-	@Column(name = "modifiedby",length = 30)
-	private String updatedBy;
 	@Column(name = "orgid")
 	private Long orgId;
 	@Column(name = "cancel")
@@ -63,6 +60,12 @@ public class EmployeeVO {
 	private String cancelRemark;
 	@Column(name = "active")
 	private boolean active;
+	private Role role;
+	private String type;   
+	@Column(name = "createdby")
+	private String createdBy;
+	@Column(name = "modifiedby")
+	private String updatedBy;
 
 	@JsonGetter("active")
 	public String getActive() {

@@ -143,6 +143,8 @@ public class DocumentTypeServiceImple  implements DocumentTypeService{
 						.setFinYearIdentifier(documentTypeMappingDetailsDTO.getFinYearIdentifier());
 				documentTypeMappingDetailsVO1.setConcatenation(documentTypeMappingDetailsDTO.getScreenCode()
 						+ documentTypeMappingDetailsDTO.getDocCode());
+				documentTypeMappingDetailsVO1.setClient(documentTypeMappingDetailsDTO.getClient());
+				documentTypeMappingDetailsVO1.setClientCode(documentTypeMappingDetailsDTO.getClientCode());
 				documentTypeMappingDetailsVO1.setOrgId(documentTypeMappingDTO.getOrgId());
 				documentTypeMappingDetailsVO1.setDocumentTypeMappingVO(documentTypeMappingVO);
 				documentTypeMappingDetailsVO.add(documentTypeMappingDetailsVO1);
@@ -178,6 +180,8 @@ public class DocumentTypeServiceImple  implements DocumentTypeService{
 			doctype.put("branchCode", sup[5] != null ? sup[5].toString() : "");
 			doctype.put("finYearIdentifier", sup[6] != null ? sup[6].toString() : "");
 			doctype.put("prefixField", sup[7] != null ? sup[7].toString() : "");
+			doctype.put("client", sup[8] != null ? sup[8].toString() : "");
+			doctype.put("clientCode", sup[9] != null ? sup[9].toString() : "");
 			doctypeMappingDetails.add(doctype);
 		}
 

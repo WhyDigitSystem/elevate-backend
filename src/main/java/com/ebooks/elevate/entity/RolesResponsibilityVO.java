@@ -35,8 +35,8 @@ public class RolesResponsibilityVO {
 	@Column(name="responsibility")
 	private String responsibility;
 	
-	@Column(name="orgid")
-	private Long orgId;
+//	@Column(name="orgid")
+//	private Long orgId;
 	
 	
 	
