@@ -298,9 +298,11 @@ public class ELReportServiceImpl implements ELReportService {
 			List<Map<String, Object>> List1 = new ArrayList<>();
 			for (Object[] ch : chCode) {
 				Map<String, Object> map = new HashMap<>();
-				map.put("accountCode", ch[0] != null ? ch[0].toString() : "");
-				map.put("accountName", ch[1] != null ? ch[1].toString() : "");
-				map.put("action", ch[2] != null ? ch[2].toString() : "");
+				map.put("id", Integer.parseInt(ch[0].toString()));
+				map.put("accountCode", ch[1] != null ? ch[1].toString() : "");
+				map.put("accountName", ch[2] != null ? ch[2].toString() : "");
+				map.put("action", ch[3] != null ? ch[3].toString() : "");
+				map.put("screen", Integer.parseInt(ch[4].toString()));
 				List1.add(map);
 			}
 			return List1;

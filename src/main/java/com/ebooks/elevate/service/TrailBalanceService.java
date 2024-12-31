@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ebooks.elevate.dto.ExcelUploadResultDTO;
 import com.ebooks.elevate.dto.TbHeaderDTO;
+import com.ebooks.elevate.entity.TbHeaderVO;
 import com.ebooks.elevate.exception.ApplicationException;
 
 @Repository
@@ -25,9 +26,11 @@ public interface TrailBalanceService {
 	ExcelUploadResultDTO excelUploadForTb(MultipartFile[] files, String createdBy, String clientCode, String finYear, String month,
 			String clientName, Long orgId) throws ApplicationException, IOException;
 
-	String getTBDocId(Long orgId, String finYear);
+	String getTBDocId(Long orgId, String finYear,String clientCode);
 
-	List<Map<String, Object>> getFillGridForTB(Long orgId, String finYear, String clientCode, String tbMonth);
+	List<Map<String, Object>> getFillGridForTB(Long orgId, String finYear,String tbMonth, String client,String clientCode);
+
+	List<TbHeaderVO> getAllTbByClient(Long orgId, String finYear, String client);
 	
 	
 

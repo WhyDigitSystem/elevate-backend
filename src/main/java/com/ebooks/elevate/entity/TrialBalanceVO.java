@@ -46,10 +46,14 @@ public class TrialBalanceVO {
 	private String client;
 	@Column(name = "month",length =30 )
 	private String month;
-	@Column(name = "credit",precision = 10,scale = 2)
+	@Column(name = "credit",precision = 20,scale = 2)
 	private BigDecimal credit;
-	@Column(name = "debit",precision = 10,scale = 2)
+	@Column(name = "debit",precision = 20,scale = 2)
 	private BigDecimal debit;
+	@Column(name = "opbalance",precision = 20,scale = 2)
+	private BigDecimal opBalance;
+	@Column(name = "clbalance",precision = 20,scale = 2)
+	private BigDecimal clBalance;
 	@Column(name = "finyear",length =10)
 	private String finYear;
 	@Column(name = "createdby",length =50)

@@ -34,7 +34,7 @@ public class CCoaVO {
 	@Column(name = "accountname", length = 150)
 	private String accountName;
 	
-	@Column(name = "accountcode", length = 10)
+	@Column(name = "accountcode", length = 50)
 	private String accountCode;
 	
 	@Column(name = "createdby", length = 50)
