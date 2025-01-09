@@ -89,10 +89,12 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                    // Parse cell values
 	                	String accountCode = getStringCellValue(row.getCell(0)); // Account Code is in column 0
 	                    String accountName = getStringCellValue(row.getCell(1)); // Account Name is in column 1
-	                    BigDecimal opBalance = parseBigDecimal(getStringCellValue(row.getCell(2))); 
-	                    BigDecimal debit = parseBigDecimal(getStringCellValue(row.getCell(3))); // Debit Amount in column 3
-	                    BigDecimal credit = parseBigDecimal(getStringCellValue(row.getCell(4))); // Credit in column 4
-	                    BigDecimal clBalance = parseBigDecimal(getStringCellValue(row.getCell(5)));
+	                    BigDecimal opBalanceDb = parseBigDecimal(getStringCellValue(row.getCell(2))); 
+	                    BigDecimal opBalanceCr = parseBigDecimal(getStringCellValue(row.getCell(3))); 
+	                    BigDecimal transDebit = parseBigDecimal(getStringCellValue(row.getCell(4))); // Debit Amount in column 3
+	                    BigDecimal transCredit = parseBigDecimal(getStringCellValue(row.getCell(5))); // Credit in column 4
+	                    BigDecimal clBalanceDb = parseBigDecimal(getStringCellValue(row.getCell(6)));
+	                    BigDecimal clBalanceCr = parseBigDecimal(getStringCellValue(row.getCell(7)));
 	                    // Debit in column 3
 
 	                   
@@ -103,10 +105,12 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                    dataVO.setAccountName(accountName);
 	                    dataVO.setAccountCode(accountCode);
 	                    dataVO.setClientCode(clientCode);	 
-	                    dataVO.setOpBalance(opBalance);
-	                    dataVO.setCredit(credit);
-	                    dataVO.setDebit(debit);
-	                    dataVO.setClBalance(clBalance);
+	                    dataVO.setOpBalanceDb(opBalanceDb);
+	                    dataVO.setOpBalanceCr(opBalanceCr);
+	                    dataVO.setTransCredit(transCredit);
+	                    dataVO.setTransDebit(transDebit);
+	                    dataVO.setClBalanceDb(clBalanceDb);
+	                    dataVO.setClBalanceCr(clBalanceCr);
 	                    dataVO.setFinYear(finYear);
 	                    dataVO.setMonth(month);
 	                    dataVO.setOrgId(orgId);
@@ -114,7 +118,6 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                    dataVO.setCreatedBy(createdBy);
 	                    dataVO.setUpdatedBy(createdBy);
 	                    dataToSave.add(dataVO);
-	                    System.out.println("closing balance"+clBalance);
 	                    result.setSuccessfulUploads(result.getSuccessfulUploads() + 1); // Increment successful uploads
 	                } catch (Exception e) {
 	                    result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
@@ -261,10 +264,12 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	    	tbDetailsVOs.setCoaCode(detailsDTO.getCoaCode());
 	    	tbDetailsVOs.setClientAccountName(detailsDTO.getClientAccountName());
 	    	tbDetailsVOs.setClientAccountCode(detailsDTO.getClientAccountCode());
-	    	tbDetailsVOs.setOpeningBalance(detailsDTO.getOpeningBalance());
-	    	tbDetailsVOs.setClosingBalance(detailsDTO.getClosingBalance());
-	    	tbDetailsVOs.setDebit(detailsDTO.getDebit());
-	    	tbDetailsVOs.setCredit(detailsDTO.getCredit());
+	    	tbDetailsVOs.setOpeningBalanceDb(detailsDTO.getOpeningBalanceDb());
+	    	tbDetailsVOs.setOpeningBalanceCr(detailsDTO.getOpeningBalanceCr());
+	    	tbDetailsVOs.setClosingBalanceDb(detailsDTO.getClosingBalanceDb());
+	    	tbDetailsVOs.setClosingBalanceCr(detailsDTO.getClosingBalanceCr());
+	    	tbDetailsVOs.setTransDebit(detailsDTO.getTransDebit());
+	    	tbDetailsVOs.setTransCredit(detailsDTO.getTransCredit());
 	    	tbDetailsVOs.setRemarks(detailsDTO.getRemarks());
 	    	tbDetailsVOs.setTbHeaderVO(tbHeaderVO);
 	    	tbDetailsVO.add(tbDetailsVOs);
@@ -296,11 +301,13 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 			map.put("clientAccountName", ch[1] != null ? ch[1].toString() : "");
 			map.put("coaCode", ch[2] != null ? ch[2].toString() : "");
 			map.put("coa", ch[3] != null ? ch[3].toString() : "");
-			map.put("openingBalance", ch[4] != null ? new BigDecimal(ch[4].toString()) : BigDecimal.ZERO);
-			map.put("debit", ch[5] != null ? new BigDecimal(ch[5].toString()) : BigDecimal.ZERO);
-			map.put("credit", ch[6] != null ? new BigDecimal(ch[6].toString()) : BigDecimal.ZERO);
-			map.put("closingBalance", ch[7] != null ? new BigDecimal(ch[7].toString()) : BigDecimal.ZERO);
-			map.put("id",Integer.parseInt(ch[8].toString()));
+			map.put("openingBalanceDb", ch[4] != null ? new BigDecimal(ch[4].toString()) : BigDecimal.ZERO);
+			map.put("openingBalanceCr", ch[5] != null ? new BigDecimal(ch[5].toString()) : BigDecimal.ZERO);
+			map.put("transDebit", ch[6] != null ? new BigDecimal(ch[6].toString()) : BigDecimal.ZERO);
+			map.put("transCredit", ch[7] != null ? new BigDecimal(ch[7].toString()) : BigDecimal.ZERO);
+			map.put("closingBalanceDb", ch[8] != null ? new BigDecimal(ch[8].toString()) : BigDecimal.ZERO);
+			map.put("closingBalanceCr", ch[9] != null ? new BigDecimal(ch[9].toString()) : BigDecimal.ZERO);
+			map.put("id",Integer.parseInt(ch[10].toString()));
 
 			List1.add(map);
 		}
@@ -311,6 +318,12 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	public List<TbHeaderVO> getAllTbByClient(Long orgId, String finYear, String client) {
 		List<TbHeaderVO> headerVO= tbHeaderRepo.getAllTrialBalance(orgId,finYear,client);
 		return headerVO;
+	}
+
+	@Override
+	public TbHeaderVO getTrialBalanceVOById(Long Id) {
+		
+		return tbHeaderRepo.findById(Id).get();
 	}	
 	
 }

@@ -32,6 +32,8 @@ public interface TrailBalanceService {
 
 	List<TbHeaderVO> getAllTbByClient(Long orgId, String finYear, String client);
 	
+	TbHeaderVO getTrialBalanceVOById(Long Id);
+	
 	
 
 }

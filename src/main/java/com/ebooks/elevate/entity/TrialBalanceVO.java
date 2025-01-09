@@ -46,14 +46,18 @@ public class TrialBalanceVO {
 	private String client;
 	@Column(name = "month",length =30 )
 	private String month;
-	@Column(name = "credit",precision = 20,scale = 2)
-	private BigDecimal credit;
-	@Column(name = "debit",precision = 20,scale = 2)
-	private BigDecimal debit;
-	@Column(name = "opbalance",precision = 20,scale = 2)
-	private BigDecimal opBalance;
-	@Column(name = "clbalance",precision = 20,scale = 2)
-	private BigDecimal clBalance;
+	@Column(name = "transcredit",precision = 20,scale = 2)
+	private BigDecimal transCredit;
+	@Column(name = "transdebit",precision = 20,scale = 2)
+	private BigDecimal transDebit;
+	@Column(name = "opbalancedb",precision = 20,scale = 2)
+	private BigDecimal opBalanceDb;
+	@Column(name = "opbalancecr",precision = 20,scale = 2)
+	private BigDecimal opBalanceCr;
+	@Column(name = "clbalancedb",precision = 20,scale = 2)
+	private BigDecimal clBalanceDb;
+	@Column(name = "clbalancecr",precision = 20,scale = 2)
+	private BigDecimal clBalanceCr;
 	@Column(name = "finyear",length =10)
 	private String finYear;
 	@Column(name = "createdby",length =50)

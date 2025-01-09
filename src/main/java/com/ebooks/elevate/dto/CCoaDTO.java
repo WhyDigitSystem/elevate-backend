@@ -29,6 +29,8 @@ public class CCoaDTO {
 
 	private String clientId;
 
-	public String clientName;
+	private String clientName;
+	
+	private String natureOfAccount;
 
 }

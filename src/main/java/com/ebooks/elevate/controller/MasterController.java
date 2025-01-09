@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.Valid;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,21 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
-import com.ebooks.elevate.dto.AccountDTO;
 import com.ebooks.elevate.dto.BranchDTO;
-import com.ebooks.elevate.dto.ChargeTypeRequestDTO;
-import com.ebooks.elevate.dto.ChequeBookDTO;
-import com.ebooks.elevate.dto.CostCenterDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
-import com.ebooks.elevate.dto.ListOfValuesDTO;
-import com.ebooks.elevate.dto.PartyMasterDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
-import com.ebooks.elevate.dto.SacCodeDTO;
-import com.ebooks.elevate.dto.SetTaxRateDTO;
-import com.ebooks.elevate.dto.SubLedgerAccountDTO;
-import com.ebooks.elevate.dto.TaxMasterDTO;
-import com.ebooks.elevate.dto.TcsMasterDTO;
-import com.ebooks.elevate.dto.TdsMasterDTO;
 import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.EmployeeVO;
 import com.ebooks.elevate.entity.SacCodeVO;
@@ -284,39 +270,7 @@ public class MasterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	@PutMapping("/updateCreateSetTaxRate")
-	public ResponseEntity<ResponseDTO> updateCreateSetTaxRate(@Valid @RequestBody SetTaxRateDTO setTaxRateDTO) {
-		String methodName = "updateCreateSetTaxRate()";
-		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-		String errorMsg = null;
-		Map<String, Object> responseObjectsMap = new HashMap<>();
-		ResponseDTO responseDTO = null;
-
-		try {
-			SetTaxRateVO setTaxRateVO = masterService.updateCreateSetTaxRate(setTaxRateDTO);
-			boolean isUpdate = setTaxRateDTO.getId() != null;
-			if (setTaxRateVO != null) {
-				responseObjectsMap.put(CommonConstant.STRING_MESSAGE,
-						isUpdate ? "SetTaxRate updated successfully" : "SetTaxRate created successfully");
-				responseObjectsMap.put("setTaxRateVO", setTaxRateVO);
-				responseDTO = createServiceResponse(responseObjectsMap);
-			} else {
-				errorMsg = isUpdate ? "SetTaxRate not found for ID: " + setTaxRateDTO.getId()
-						: "SetTaxRate creation failed";
-				responseDTO = createServiceResponseError(responseObjectsMap,
-						isUpdate ? "SetTaxRate update failed" : "SetTaxRate creation failed", errorMsg);
-			}
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			boolean isUpdate = setTaxRateDTO.getId() != null;
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-			responseDTO = createServiceResponseError(responseObjectsMap,
-					isUpdate ? "SetTaxRate update failed" : "SetTaxRate creation failed", errorMsg);
-		}
-
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
-	}
+	
 
 	@GetMapping("/getSetTaxRateByActive")
 	public ResponseEntity<ResponseDTO> getSetTaxRateByActive() {
@@ -427,38 +381,7 @@ public class MasterController extends BaseController {
 
 	}
 
-	@PutMapping("/updateCreateSacCode")
-	public ResponseEntity<ResponseDTO> updateCreateSacCode(@Valid @RequestBody SacCodeDTO sacCodeDTO) {
-		String methodName = "updateCreateSacCode()";
 
-		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-		String errorMsg = null;
-		Map<String, Object> responseObjectsMap = new HashMap<>();
-		ResponseDTO responseDTO = null;
-
-		try {
-			SacCodeVO sacCodeVO = masterService.updateCreateSacCode(sacCodeDTO);
-			boolean isUpdate = sacCodeDTO.getId() != null;
-			if (sacCodeVO != null) {
-				responseObjectsMap.put(CommonConstant.STRING_MESSAGE,
-						isUpdate ? "SacCode updated successfully" : "SacCode created successfully");
-				responseObjectsMap.put("sacCodeVO", sacCodeVO);
-				responseDTO = createServiceResponse(responseObjectsMap);
-			} else {
-				errorMsg = isUpdate ? "SacCode not found for ID: " + sacCodeDTO.getId() : "SacCode creation failed";
-				responseDTO = createServiceResponseError(responseObjectsMap,
-						isUpdate ? "SacCode update failed" : "SacCode creation failed", errorMsg);
-			}
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			boolean isUpdate = sacCodeDTO.getId() != null;
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-			responseDTO = createServiceResponseError(responseObjectsMap,
-					isUpdate ? "SacCode update failed" : "SacCode creation failed", errorMsg);
-		}
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
-	}
 
 	// SubLedgerAccount
 
@@ -517,40 +440,7 @@ public class MasterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	@PutMapping("/updateCreateSubLedgerAccount")
-	public ResponseEntity<ResponseDTO> updateCreateSubLedgerAccount(
-			@Valid @RequestBody SubLedgerAccountDTO subLedgerAccountDTO) {
-		String methodName = "updateCreateSubLedgerAccount()";
-
-		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-		String errorMsg = null;
-		Map<String, Object> responseObjectsMap = new HashMap<>();
-		ResponseDTO responseDTO = null;
-
-		try {
-			SubLedgerAccountVO subLedgerAccountVO = masterService.updateCreateSubLedgerAccount(subLedgerAccountDTO);
-			boolean isUpdate = subLedgerAccountDTO.getId() != null;
-			if (subLedgerAccountVO != null) {
-				responseObjectsMap.put(CommonConstant.STRING_MESSAGE,
-						isUpdate ? "SubLedgerAccount updated successfully" : "SubLedgerAccount created successfully");
-				responseObjectsMap.put("subLedgerAccountVO", subLedgerAccountVO);
-				responseDTO = createServiceResponse(responseObjectsMap);
-			} else {
-				errorMsg = isUpdate ? "SubLedgerAccount not found for ID: " + subLedgerAccountDTO.getId()
-						: "SubLedgerAccount creation failed";
-				responseDTO = createServiceResponseError(responseObjectsMap,
-						isUpdate ? "SubLedgerAccount update failed" : "SubLedgerAccount creation failed", errorMsg);
-			}
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			boolean isUpdate = subLedgerAccountDTO.getId() != null;
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-			responseDTO = createServiceResponseError(responseObjectsMap,
-					isUpdate ? "SubLedgerAccount update failed" : "SubLedgerAccount creation failed", errorMsg);
-		}
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
-	}
+	
 
 	@GetMapping("/getSubLedgerAccountByActive")
 	public ResponseEntity<ResponseDTO> getSubLedgerAccountByActive() {

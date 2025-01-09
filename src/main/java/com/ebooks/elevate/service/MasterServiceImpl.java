@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
-import javax.validation.Valid;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
@@ -17,9 +16,6 @@ import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
-import com.ebooks.elevate.dto.SacCodeDTO;
-import com.ebooks.elevate.dto.SetTaxRateDTO;
-import com.ebooks.elevate.dto.SubLedgerAccountDTO;
 import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.EmployeeVO;
 import com.ebooks.elevate.entity.SacCodeVO;
@@ -275,56 +271,7 @@ public class MasterServiceImpl implements MasterService {
 		return setTaxRateVO;
 	}
 
-	@Override
-	public SetTaxRateVO updateCreateSetTaxRate(@Valid SetTaxRateDTO setTaxRateDTO) throws Exception {
-		SetTaxRateVO setTaxRateVO = new SetTaxRateVO();
-		boolean isUpdate = false;
-		if (ObjectUtils.isNotEmpty(setTaxRateDTO.getId())) {
-			isUpdate = true;
-			setTaxRateVO = setTaxRateRepo.findById(setTaxRateDTO.getId())
-					.orElseThrow(() -> new ApplicationException("Invalid SetTaxRate details"));
-			setTaxRateVO.setUpdatedBy(setTaxRateDTO.getCreatedBy());
-
-		} else {
-			if (setTaxRateRepo.existsByChapterAndOrgId(setTaxRateDTO.getChapter(), setTaxRateDTO.getOrgId())) {
-				throw new ApplicationException("The given chapter already exists");
-			}
-			if (setTaxRateRepo.existsByHsnCodeAndOrgId(setTaxRateDTO.getHsnCode(), setTaxRateDTO.getOrgId())) {
-				throw new ApplicationException("The given Hsn Code already exists.");
-			}
-			setTaxRateVO.setUpdatedBy(setTaxRateDTO.getCreatedBy());
-			setTaxRateVO.setCreatedBy(setTaxRateDTO.getCreatedBy());
-		}
-
-		getSetTaxRateVOFromSetTaxRateDTO(setTaxRateDTO, setTaxRateVO);
-
-		if (ObjectUtils.isNotEmpty(setTaxRateDTO.getId())) {
-			SetTaxRateVO setTaxRate = setTaxRateRepo.findById(setTaxRateDTO.getId()).orElse(null);
-			if (!setTaxRate.getChapter().equalsIgnoreCase(setTaxRateDTO.getChapter())) {
-				if (setTaxRateRepo.existsByChapterAndOrgId(setTaxRateDTO.getChapter(), setTaxRateDTO.getOrgId())) {
-					throw new ApplicationException("The given chapter already exists.");
-				}
-			}
-			if (!setTaxRate.getHsnCode().equalsIgnoreCase(setTaxRateDTO.getHsnCode())) {
-				if (setTaxRateRepo.existsByHsnCodeAndOrgId(setTaxRateDTO.getHsnCode(), setTaxRateDTO.getOrgId())) {
-					throw new ApplicationException("The given Hsn Code already exists.");
-				}
-			}
-		}
-		return setTaxRateRepo.save(setTaxRateVO);
-	}
-
-	private void getSetTaxRateVOFromSetTaxRateDTO(@Valid SetTaxRateDTO setTaxRateDTO, SetTaxRateVO setTaxRateVO)
-			throws Exception {
-		setTaxRateVO.setOrgId(setTaxRateDTO.getOrgId());
-		setTaxRateVO.setChapter(setTaxRateDTO.getChapter());
-		setTaxRateVO.setSubChapter(setTaxRateDTO.getSubChapter());
-		setTaxRateVO.setHsnCode(setTaxRateDTO.getHsnCode());
-		setTaxRateVO.setBranch(setTaxRateDTO.getBranch());
-		setTaxRateVO.setNewRate(setTaxRateDTO.getNewRate());
-		setTaxRateVO.setExcepmted("e");
-		setTaxRateVO.setActive(setTaxRateDTO.isActive());
-	}
+	
 
 	@Override
 	public List<SetTaxRateVO> getSetTaxRateByActive() {
@@ -367,60 +314,7 @@ public class MasterServiceImpl implements MasterService {
 		return sacCodeVO;
 	}
 
-	@Override
-	public SacCodeVO updateCreateSacCode(@Valid SacCodeDTO sacCodeDTO) throws ApplicationException {
-		SacCodeVO sacCodeVO = new SacCodeVO();
-		if (ObjectUtils.isNotEmpty(sacCodeDTO.getId())) {
-			sacCodeVO = sacCodeRepo.findById(sacCodeDTO.getId())
-					.orElseThrow(() -> new ApplicationException("Invalid SacCode details"));
-			if (!sacCodeVO.getServiceAccountCode().equals(sacCodeDTO.getServiceAccountCode())) {
-				if (sacCodeRepo.existsByOrgIdAndServiceAccountCodeIgnoreCase(sacCodeDTO.getOrgId(),
-						sacCodeDTO.getServiceAccountCode())) {
-					throw new ApplicationException("This Service Account Code Already Exists.");
-				}
-			}
-			if (!sacCodeVO.getSacDescription().equals(sacCodeDTO.getSacDescription())) {
-				if (sacCodeRepo.existsByOrgIdAndSacDescriptionIgnoreCase(sacCodeDTO.getOrgId(),
-						sacCodeDTO.getSacDescription())) {
-					throw new ApplicationException("This SAC Descipition Already Exists.");
-				}
-			}
-			sacCodeVO.setUpdatedBy(sacCodeDTO.getCreatedBy());
-		} else {
-
-			if (sacCodeRepo.existsByOrgIdAndServiceAccountCodeIgnoreCase(sacCodeDTO.getOrgId(),
-					sacCodeDTO.getServiceAccountCode())) {
-				throw new ApplicationException("This Service Account Code Already Exists.");
-			}
-			if (sacCodeRepo.existsByOrgIdAndSacDescriptionIgnoreCase(sacCodeDTO.getOrgId(),
-					sacCodeDTO.getSacDescription())) {
-				throw new ApplicationException("This SAC Descipition Already Exists.");
-			}
-
-			sacCodeVO.setUpdatedBy(sacCodeDTO.getCreatedBy());
-			sacCodeVO.setCreatedBy(sacCodeDTO.getCreatedBy());
-		}
-		getSacCodeVOFromSacCodeDTO(sacCodeDTO, sacCodeVO);
-		return sacCodeRepo.save(sacCodeVO);
-	}
-
-	private void getSacCodeVOFromSacCodeDTO(@Valid SacCodeDTO sacCodeDTO, SacCodeVO sacCodeVO) {
-		sacCodeVO.setOrgId(sacCodeDTO.getOrgId());
-		sacCodeVO.setServiceAccountCode(sacCodeDTO.getServiceAccountCode().toUpperCase());
-		sacCodeVO.setSacDescription(sacCodeDTO.getSacDescription().toUpperCase());
-		sacCodeVO.setActive(sacCodeDTO.isActive());
-		sacCodeVO.setProduct(sacCodeDTO.getProduct().toUpperCase());
-	}
-
-//	@Override
-//	public List<SacCodeVO> getSacCodeByActive() {
-//		return sacCodeRepo.findsacCodeByActive();
-//
-//	}
-
-	// SubLedgerAccount
-
-	@Override
+		@Override
 	public List<SubLedgerAccountVO> getAllSubLedgerAccountById(Long id) {
 		List<SubLedgerAccountVO> subLedgerAccountVO = new ArrayList<>();
 		if (ObjectUtils.isNotEmpty(id)) {
@@ -446,76 +340,7 @@ public class MasterServiceImpl implements MasterService {
 		return subLedgerAccountVO;
 	}
 
-	@Override
-	public SubLedgerAccountVO updateCreateSubLedgerAccount(@Valid SubLedgerAccountDTO subLedgerAccountDTO)
-			throws ApplicationException {
-		SubLedgerAccountVO subLedgerAccountVO = new SubLedgerAccountVO();
-		boolean isUpdate = false;
-		if (ObjectUtils.isNotEmpty(subLedgerAccountDTO.getId())) {
-			isUpdate = true;
-			subLedgerAccountVO = subLedgerAccountRepo.findById(subLedgerAccountDTO.getId())
-					.orElseThrow(() -> new ApplicationException("Invalid SubLedgerAccount details"));
-			subLedgerAccountVO.setUpdatedBy(subLedgerAccountDTO.getCreatedBy());
-		} else {
-			if (subLedgerAccountRepo.existsByNewCodeAndOrgId(subLedgerAccountDTO.getNewCode(),
-					subLedgerAccountDTO.getOrgId())) {
-				throw new ApplicationException("The given code already exists.");
-			}
-			if (subLedgerAccountRepo.existsByOldCodeAndOrgId(subLedgerAccountDTO.getOldCode(),
-					subLedgerAccountDTO.getOrgId())) {
-				throw new ApplicationException("The given old code exists.");
-			}
-			if (subLedgerAccountRepo.existsBySubLedgerNameAndOrgId(subLedgerAccountDTO.getSubLedgerName(),
-					subLedgerAccountDTO.getOrgId())) {
-				throw new ApplicationException("The given sub ledger name exists.");
-			}
-			subLedgerAccountVO.setUpdatedBy(subLedgerAccountDTO.getCreatedBy());
-			subLedgerAccountVO.setCreatedBy(subLedgerAccountDTO.getCreatedBy());
-		}
-
-		if (isUpdate) {
-			SubLedgerAccountVO sub = subLedgerAccountRepo.findById(subLedgerAccountDTO.getId()).orElse(null);
-			if (!sub.getNewCode().equalsIgnoreCase(subLedgerAccountDTO.getNewCode())) {
-				if (subLedgerAccountRepo.existsByNewCodeAndOrgId(subLedgerAccountDTO.getNewCode(),
-						subLedgerAccountDTO.getOrgId())) {
-					throw new ApplicationException("The given new code already exists.");
-				}
-			}
-			if (!sub.getOldCode().equalsIgnoreCase(subLedgerAccountDTO.getOldCode())) {
-				if (subLedgerAccountRepo.existsByOldCodeAndOrgId(subLedgerAccountDTO.getOldCode(),
-						subLedgerAccountDTO.getOrgId())) {
-					throw new ApplicationException("The given old code exists.");
-				}
-			}
-			if (!sub.getSubLedgerName().equalsIgnoreCase(subLedgerAccountDTO.getSubLedgerName())) {
-				if (subLedgerAccountRepo.existsBySubLedgerNameAndOrgId(subLedgerAccountDTO.getSubLedgerName(),
-						subLedgerAccountDTO.getOrgId())) {
-					throw new ApplicationException("The given sub ledger name exists.");
-				}
-			}
-		}
-		getSubLedgerAccountVOFromSubLedgerAccountDTO(subLedgerAccountDTO, subLedgerAccountVO);
-		return subLedgerAccountRepo.save(subLedgerAccountVO);
-	}
-
-	private void getSubLedgerAccountVOFromSubLedgerAccountDTO(@Valid SubLedgerAccountDTO subLedgerAccountDTO,
-			SubLedgerAccountVO subLedgerAccountVO) {
-		subLedgerAccountVO.setAccountsCategory(subLedgerAccountDTO.getAccountsCategory());
-		subLedgerAccountVO.setSubLedgerType(subLedgerAccountDTO.getSubLedgerType());
-		subLedgerAccountVO.setSubLedgerName(subLedgerAccountDTO.getSubLedgerName());
-		subLedgerAccountVO.setNewCode(subLedgerAccountDTO.getNewCode());
-		subLedgerAccountVO.setOldCode(subLedgerAccountDTO.getOldCode());
-		subLedgerAccountVO.setControllAccount(subLedgerAccountDTO.getControllAccount());
-		subLedgerAccountVO.setCurrency(subLedgerAccountDTO.getCurrency());
-		subLedgerAccountVO.setCreditDays(subLedgerAccountDTO.getCreditDays());
-		subLedgerAccountVO.setCreditLimit(subLedgerAccountDTO.getCreditLimit());
-		subLedgerAccountVO.setVatno(subLedgerAccountDTO.getVatno());
-		subLedgerAccountVO.setStateJutisiction(subLedgerAccountDTO.getStateJutisiction());
-		subLedgerAccountVO.setInvoiceType(subLedgerAccountDTO.getInvoiceType());
-		subLedgerAccountVO.setOrgId(subLedgerAccountDTO.getOrgId());
-		subLedgerAccountVO.setActive(subLedgerAccountDTO.isActive());
-
-	}
+	
 
 	@Override
 	public List<SubLedgerAccountVO> getSubLedgerAccountByActive() {

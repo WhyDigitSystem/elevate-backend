@@ -270,6 +270,7 @@ public class BusinessServiceImpl implements BusinessService {
 		cCoaVO.setOrgId(cCoaDTO.getOrgId());
 		cCoaVO.setClientName(cCoaDTO.getClientName());
 		cCoaVO.setClientCode(cCoaDTO.getClientCode());
+		cCoaVO.setNatureOfAccount(cCoaDTO.getNatureOfAccount());
 
 		return cCoaVO;
 	}
@@ -550,7 +551,9 @@ public class BusinessServiceImpl implements BusinessService {
 						// Parse cell values
 						String accountCode = getStringCellValue(row.getCell(0));
 						String accountName = getStringCellValue(row.getCell(1));
-						String activeString = getStringCellValue(row.getCell(2));
+						String natureOfAccount = getStringCellValue1(row.getCell(2));
+						String activeString = getStringCellValue(row.getCell(3));
+						
 
 						boolean active = "1".equals(activeString); // Convert "1"/"0" to boolean
 
@@ -576,6 +579,7 @@ public class BusinessServiceImpl implements BusinessService {
 						cCoaVO.setActive(active);
 						cCoaVO.setUpdatedBy(createdBy);
 						cCoaVO.setClientCode(clientCode);
+						cCoaVO.setNatureOfAccount(natureOfAccount);
 
 						mainGroupList.add(cCoaVO);
 						result.setSuccessfulUploads(result.getSuccessfulUploads() + 1);

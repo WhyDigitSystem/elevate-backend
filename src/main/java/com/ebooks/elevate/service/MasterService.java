@@ -4,15 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.validation.Valid;
-
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
-import com.ebooks.elevate.dto.SacCodeDTO;
-import com.ebooks.elevate.dto.SetTaxRateDTO;
-import com.ebooks.elevate.dto.SubLedgerAccountDTO;
 import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.EmployeeVO;
 import com.ebooks.elevate.entity.SacCodeVO;
@@ -50,7 +45,6 @@ public interface MasterService {
 
 	List<SetTaxRateVO> getAllSetTaxRateById(Long id);
 
-	SetTaxRateVO updateCreateSetTaxRate(@Valid SetTaxRateDTO setTaxRateDTO) throws Exception;
 
 	List<SetTaxRateVO> getSetTaxRateByActive();
 
@@ -62,15 +56,12 @@ public interface MasterService {
 
 	List<SacCodeVO> getAllActiveSacCodeByOrgId(Long orgId);
 
-	SacCodeVO updateCreateSacCode(@Valid SacCodeDTO sacCodeDTO) throws ApplicationException;
 
 //	List<SacCodeVO> getSacCodeByActive();
 
 //	SubLedgerAccount
 	List<SubLedgerAccountVO> getAllSubLedgerAccountByOrgId(Long orgId);
 
-	SubLedgerAccountVO updateCreateSubLedgerAccount(@Valid SubLedgerAccountDTO subLedgerAccountDTO)
-			throws ApplicationException;
 
 	List<SubLedgerAccountVO> getAllSubLedgerAccountById(Long id);
 
