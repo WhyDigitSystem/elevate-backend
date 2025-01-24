@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -15,10 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.ClientCompanyDTO;
+import com.ebooks.elevate.entity.ClientCompanyReportAccessVO;
 import com.ebooks.elevate.entity.ClientCompanyVO;
 import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.ClientCompanyRepo;
+import com.ebooks.elevate.repo.ClientCompanyReportAccessRepo;
 import com.ebooks.elevate.util.CryptoUtils;
 
 @Service
@@ -31,6 +34,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 	
 	@Autowired
 	PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	ClientCompanyReportAccessRepo clientCompanyReportAccessRepo;
 	
 	@Override
 	public List<ClientCompanyVO> getClientCompanyByOrgId(Long orgId) {
@@ -140,22 +146,22 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 			message = "Client Company Updation Successfully";
 
 		}
-		clientCompanyVO = getClientCompanyVOFromClientCompanyDTO(clientCompanyVO, clientCompanyDTO);
-		clientCompanyRepo.save(clientCompanyVO);
+		ClientCompanyVO clientCompanyVOs = getClientCompanyVOFromClientCompanyDTO(clientCompanyVO, clientCompanyDTO);
+		clientCompanyRepo.save(clientCompanyVOs);
 		
 		UserVO userVO= new UserVO();
-		userVO.setOrgId(clientCompanyVO.getOrgId());
+		userVO.setOrgId(clientCompanyVOs.getOrgId());
 		userVO.setActive(true);
-		userVO.setClient(clientCompanyVO.getClientName());
-		userVO.setClientId(clientCompanyVO.getId());
-		userVO.setEmail(clientCompanyVO.getUserName());
-		userVO.setUserName(clientCompanyVO.getUserName());
+		userVO.setClient(clientCompanyVOs.getClientName());
+		userVO.setClientId(clientCompanyVOs.getId());
+		userVO.setEmail(clientCompanyVOs.getUserName());
+		userVO.setUserName(clientCompanyVOs.getUserName());
 		userVO.setUserType("GUEST");
 		userVO.setPassword(passwordEncoder.encode(CryptoUtils.getDecrypt(clientCompanyDTO.getPassword())));
 
 		Map<String, Object> response = new HashMap<>();
 		response.put("message", message);
-		response.put("clientCompanyVO", clientCompanyVO);
+		response.put("clientCompanyVO", clientCompanyVOs);
 		return response;
 
 	}
@@ -176,6 +182,30 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		clientCompanyVO.setTurnOver(clientCompanyDTO.getTurnOver());
 		clientCompanyVO.setUserName(clientCompanyDTO.getUserName());
 		clientCompanyVO.setPassword(clientCompanyDTO.getPassword());
+		clientCompanyVO.setCurrency(clientCompanyDTO.getCurrency());
+		clientCompanyVO.setYearStartDate(clientCompanyDTO.getYearStartDate());
+		clientCompanyVO.setYearEndDate(clientCompanyDTO.getYearEndDate());
+		
+		
+	 	
+		if(ObjectUtils.isNotEmpty(clientCompanyDTO.getId()))
+		{
+			List<ClientCompanyReportAccessVO> clientCompanyReportAccessVO= clientCompanyReportAccessRepo.findByClientCompanyVO(clientCompanyVO);
+			clientCompanyReportAccessRepo.deleteAll(clientCompanyReportAccessVO);
+		}
+		
+		if (!ObjectUtils.isEmpty(clientCompanyDTO.getClientCompanyReportAccessDTO())) {
+			List<ClientCompanyReportAccessVO>accessList= clientCompanyDTO.getClientCompanyReportAccessDTO().stream()
+					.map(accessDTO -> {
+						ClientCompanyReportAccessVO clientCompanyReportAccessVOs= new ClientCompanyReportAccessVO();
+						clientCompanyReportAccessVOs.setElCode(accessDTO.getElCode());
+						clientCompanyReportAccessVOs.setDescription(accessDTO.getDescription());
+						clientCompanyReportAccessVOs.setAccess(accessDTO.isAccess());
+						clientCompanyReportAccessVOs.setClientCompanyVO(clientCompanyVO);
+						return clientCompanyReportAccessVOs;
+					}).collect(Collectors.toList());
+			clientCompanyVO.setClientCompanyReportAccessVO(accessList);
+		}		
 		return clientCompanyVO;
 	}
 

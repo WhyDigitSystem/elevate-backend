@@ -1,6 +1,7 @@
 package com.ebooks.elevate.dto;
 
-import javax.persistence.Column;
+import java.time.LocalDate;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,9 +25,13 @@ public class ClientCompanyDTO {
 	private String turnOver;
 	private String levelOfService;
 	private String repPerson;
-	
+	private String currency;
+	private LocalDate yearStartDate;
+	private LocalDate yearEndDate;
 	private String userName;
-	private String password;
+	private String password="HzNOsmwTefzQ4WWqCURfjDYdOzoyMT4nlgQk6p77fso=";
+	
+	private List<ClientCompanyReportAccessDTO> clientCompanyReportAccessDTO;
 
 	
 }
