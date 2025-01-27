@@ -34,6 +34,9 @@ public interface TrailBalanceService {
 	
 	TbHeaderVO getTrialBalanceVOById(Long Id);
 	
+	ExcelUploadResultDTO excelUploadForBudget(MultipartFile[] files, String createdBy, String clientCode,
+			String clientName, Long orgId) throws ApplicationException, IOException;
+	
 	
 
 }

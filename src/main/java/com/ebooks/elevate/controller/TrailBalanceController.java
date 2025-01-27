@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +138,8 @@ public class TrailBalanceController extends BaseController {
 	}
 
 	@GetMapping("/getTBDocId")
-	public ResponseEntity<ResponseDTO> getTBDocId(@RequestParam Long orgId, @RequestParam String finYear,@RequestParam String clientCode) {
+	public ResponseEntity<ResponseDTO> getTBDocId(@RequestParam Long orgId, @RequestParam String finYear,
+			@RequestParam String clientCode) {
 
 		String methodName = "getTBDocId()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
@@ -146,7 +149,7 @@ public class TrailBalanceController extends BaseController {
 		String mapp = "";
 
 		try {
-			mapp = trailBalanceService.getTBDocId(orgId, finYear,clientCode);
+			mapp = trailBalanceService.getTBDocId(orgId, finYear, clientCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -164,9 +167,10 @@ public class TrailBalanceController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getAllTrialBalanceByClient")
-	public ResponseEntity<ResponseDTO> getAllTrialBalanceByClient(@RequestParam Long orgId,@RequestParam String finYear,@RequestParam String client) {
+	public ResponseEntity<ResponseDTO> getAllTrialBalanceByClient(@RequestParam Long orgId,
+			@RequestParam String finYear, @RequestParam String client) {
 		String methodName = "getAllTrialBalanceByClient()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -174,7 +178,7 @@ public class TrailBalanceController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<TbHeaderVO> tbHeaderVO = new ArrayList<>();
 		try {
-			tbHeaderVO = trailBalanceService.getAllTbByClient(orgId,finYear,client);
+			tbHeaderVO = trailBalanceService.getAllTbByClient(orgId, finYear, client);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -184,13 +188,13 @@ public class TrailBalanceController extends BaseController {
 			responseObjectsMap.put("tbHeaderVO", tbHeaderVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "Trial Balance information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Trial Balance information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
-	
+
 	@GetMapping("/getTrialBalanceById")
 	public ResponseEntity<ResponseDTO> getTrialBalanceById(@RequestParam(required = false) Long id) {
 		String methodName = "getTrialBalanceById()";
@@ -206,14 +210,51 @@ public class TrailBalanceController extends BaseController {
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
 		}
 		if (StringUtils.isBlank(errorMsg)) {
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE,
-					"Trial Balance information get successfully By Id");
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Trial Balance information get successfully By Id");
 			responseObjectsMap.put("tbHeaderVO", tbHeaderVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
 			responseDTO = createServiceResponseError(responseObjectsMap,
 					"Trial Balance information receive failedByOrgId", errorMsg);
 		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@Transactional
+	@PostMapping("/excelUploadForBudget")
+	public ResponseEntity<ResponseDTO> excelUploadForBudget(@RequestParam MultipartFile[] files,
+			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
+			@RequestParam String clientName, @RequestParam Long orgId) {
+
+		String methodName = "excelUploadForTb()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+
+		ResponseDTO responseDTO;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+
+		try {
+			// Call the service method and get the result
+			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForBudget(files, createdBy, clientCode, clientName, orgId);
+
+			responseObjectsMap.put("status", uploadResult.getFailureReasons().isEmpty());
+			// Populate success response
+			responseObjectsMap.put("statusFlag", "Ok");
+			responseObjectsMap.put("uploadResult", uploadResult);
+			responseDTO = createServiceResponse(responseObjectsMap);
+
+		} catch (Exception e) {
+			// Handle any exceptions and populate error response
+			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
+
+			responseObjectsMap.put("statusFlag", "Error");
+			responseObjectsMap.put("status", false);
+			responseObjectsMap.put("errorMessage", e.getMessage());
+
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
+					e.getMessage());
+		}
+
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
