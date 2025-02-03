@@ -227,7 +227,7 @@ public class TrailBalanceController extends BaseController {
 			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
 			@RequestParam String clientName, @RequestParam Long orgId) {
 
-		String methodName = "excelUploadForTb()";
+		String methodName = "excelUploadForBudget()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
 		ResponseDTO responseDTO;
@@ -236,6 +236,44 @@ public class TrailBalanceController extends BaseController {
 		try {
 			// Call the service method and get the result
 			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForBudget(files, createdBy, clientCode, clientName, orgId);
+
+			responseObjectsMap.put("status", uploadResult.getFailureReasons().isEmpty());
+			// Populate success response
+			responseObjectsMap.put("statusFlag", "Ok");
+			responseObjectsMap.put("uploadResult", uploadResult);
+			responseDTO = createServiceResponse(responseObjectsMap);
+
+		} catch (Exception e) {
+			// Handle any exceptions and populate error response
+			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
+
+			responseObjectsMap.put("statusFlag", "Error");
+			responseObjectsMap.put("status", false);
+			responseObjectsMap.put("errorMessage", e.getMessage());
+
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
+					e.getMessage());
+		}
+
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@Transactional
+	@PostMapping("/excelUploadForPreviousYear")
+	public ResponseEntity<ResponseDTO> excelUploadForPreviousYear(@RequestParam MultipartFile[] files,
+			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
+			@RequestParam String clientName, @RequestParam Long orgId) {
+
+		String methodName = "excelUploadForPreviousYear()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+
+		ResponseDTO responseDTO;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+
+		try {
+			// Call the service method and get the result
+			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForPreviousYear(files, createdBy, clientCode, clientName, orgId);
 
 			responseObjectsMap.put("status", uploadResult.getFailureReasons().isEmpty());
 			// Populate success response

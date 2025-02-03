@@ -9,13 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -30,7 +32,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ebooks.elevate.dto.ElMfrDTO;
 import com.ebooks.elevate.entity.ElMfrVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.ElMfrRepo;
+import com.ebooks.elevate.repo.PreviousYearActualRepo;
 
 import io.jsonwebtoken.io.IOException;
 @Service
@@ -41,6 +45,12 @@ public class ELReportServiceImpl implements ELReportService {
 	@Autowired
 	ElMfrRepo elMfrRepo;
 
+	@Autowired
+	BudgetRepo budgetRepo;
+	
+	@Autowired
+	PreviousYearActualRepo previousYearActualRepo;
+	
 	@Override
 	public Map<String, Object> createUpdateElMfr(ElMfrDTO elMfrDTO) throws ApplicationException {
 
@@ -308,6 +318,74 @@ public class ELReportServiceImpl implements ELReportService {
 			return List1;
 
 		}
-	
+
+		@Override
+		public List<Map<String, Object>> getClientBudgetDetails(Long orgId, String year, String client,
+				String clientCode) {
+			Set<Object[]> budget=budgetRepo.getClientBudgetDetails(orgId,year,client,clientCode);
+			return budgetDetails(budget);
+		}
+
+		private List<Map<String, Object>> budgetDetails(Set<Object[]> budget) {
+			List<Map<String, Object>>budgets=new ArrayList<>();
+			for(Object[] bud:budget)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("id", Integer.parseInt(bud[0].toString()));
+				b.put("accountName", bud[1] != null ? bud[1].toString() : "");
+				b.put("accountCode", bud[2] != null ? bud[2].toString() : "");
+				b.put("natureOfAccount", bud[3] != null ? bud[3].toString() : "");
+				b.put("january", ((Number) bud[4]).intValue());
+				b.put("february", ((Number) bud[5]).intValue());
+				b.put("march", ((Number) bud[6]).intValue());
+				b.put("april", ((Number) bud[7]).intValue());
+				b.put("may", ((Number) bud[8]).intValue());
+				b.put("june", ((Number) bud[9]).intValue());
+				b.put("july", ((Number) bud[10]).intValue());
+				b.put("august", ((Number) bud[11]).intValue());
+				b.put("september", ((Number) bud[12]).intValue());
+				b.put("october", ((Number) bud[13]).intValue());
+				b.put("november", ((Number) bud[14]).intValue());
+				b.put("december", ((Number) bud[15]).intValue());
+				
+				budgets.add(b);
+			}
+			return budgets;
+		}
+
+		@Override
+		public List<Map<String, Object>> getClientPreviousYearActualDetails(Long orgId, String year, String client,
+				String clientCode) {
+			Set<Object[]> actual=previousYearActualRepo.getClientPreviousYearActualDetails(orgId,year,client,clientCode);
+			return actualDetails(actual);
+		}
+
+		private List<Map<String, Object>> actualDetails(Set<Object[]> actual) {
+			List<Map<String, Object>>actuals=new ArrayList<>();
+			for(Object[] bud:actual)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("id", Integer.parseInt(bud[0].toString()));
+				b.put("accountName", bud[1] != null ? bud[1].toString() : "");
+				b.put("accountCode", bud[2] != null ? bud[2].toString() : "");
+				b.put("natureOfAccount", bud[3] != null ? bud[3].toString() : "");
+				b.put("january", ((Number) bud[4]).intValue());
+				b.put("february", ((Number) bud[5]).intValue());
+				b.put("march", ((Number) bud[6]).intValue());
+				b.put("april", ((Number) bud[7]).intValue());
+				b.put("may", ((Number) bud[8]).intValue());
+				b.put("june", ((Number) bud[9]).intValue());
+				b.put("july", ((Number) bud[10]).intValue());
+				b.put("august", ((Number) bud[11]).intValue());
+				b.put("september", ((Number) bud[12]).intValue());
+				b.put("october", ((Number) bud[13]).intValue());
+				b.put("november", ((Number) bud[14]).intValue());
+				b.put("december", ((Number) bud[15]).intValue());
+				
+				actuals.add(b);
+			}
+			return actuals;
+		}
+		
 
 }

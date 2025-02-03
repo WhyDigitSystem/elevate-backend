@@ -144,6 +144,56 @@ public class ELReportController extends BaseController{
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+	
+	@GetMapping("/getClientBudgetDetails")
+	public ResponseEntity<ResponseDTO> getClientBudgetDetails(@RequestParam Long orgId,@RequestParam String year,@RequestParam String client,@RequestParam String clientCode) {
+		String methodName = "getClientBudgetDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> budgetVO = new ArrayList<Map<String, Object>>();
+		try {
+			budgetVO = elReportService.getClientBudgetDetails(orgId, year, client, clientCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Client Budget information get successfully");
+			responseObjectsMap.put("budgetVO", budgetVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Client Budget information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getClientPreviousYearActualDetails")
+	public ResponseEntity<ResponseDTO> getClientPreviousYearActualDetails(@RequestParam Long orgId,@RequestParam String year,@RequestParam String client,@RequestParam String clientCode) {
+		String methodName = "getClientPreviousYearActualDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> actualVO = new ArrayList<Map<String, Object>>();
+		try {
+			actualVO = elReportService.getClientPreviousYearActualDetails(orgId, year, client, clientCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Client Actual information get successfully");
+			responseObjectsMap.put("actualVO", actualVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Client Actual information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 
 	
 }

@@ -5,9 +5,9 @@ import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.ebooks.elevate.entity.BudgetVO;
+import com.ebooks.elevate.entity.PreviousYearActualVO;
 
-public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
+public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActualVO, Long>{
 
 	@Query(nativeQuery = true, value = "SELECT \r\n"
 			+ "    ROW_NUMBER() OVER (ORDER BY accountcode) AS `ELGLS.No`,\r\n"
@@ -26,9 +26,9 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "    MAX(CASE WHEN month = 'October' THEN amount ELSE 0 END) AS 'October',\r\n"
 			+ "    MAX(CASE WHEN month = 'November' THEN amount ELSE 0 END) AS 'November',\r\n"
 			+ "    MAX(CASE WHEN month = 'December' THEN amount ELSE 0 END) AS 'December'\r\n"
-			+ "FROM budget where year=?2 and orgid=?1 and client=?3 and clientcode=?4 \r\n"
+			+ "FROM previousyearactual where year=?2 and orgid=?1 and client=?3 and clientcode=?4 \r\n"
 			+ "GROUP BY accountname, accountcode, natureofaccount\r\n"
 			+ "ORDER BY accountcode")
-	Set<Object[]> getClientBudgetDetails(Long orgId, String year, String client, String clientCode);
+	Set<Object[]> getClientPreviousYearActualDetails(Long orgId, String year, String client, String clientCode);
 
 }

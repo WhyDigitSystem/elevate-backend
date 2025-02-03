@@ -36,6 +36,9 @@ public interface TrailBalanceService {
 	
 	ExcelUploadResultDTO excelUploadForBudget(MultipartFile[] files, String createdBy, String clientCode,
 			String clientName, Long orgId) throws ApplicationException, IOException;
+
+	ExcelUploadResultDTO excelUploadForPreviousYear(MultipartFile[] files, String createdBy, String clientCode,
+			String clientName, Long orgId)throws ApplicationException, IOException;
 	
 	
 

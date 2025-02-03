@@ -29,12 +29,14 @@ import com.ebooks.elevate.dto.TbDetailsDTO;
 import com.ebooks.elevate.dto.TbHeaderDTO;
 import com.ebooks.elevate.entity.BudgetVO;
 import com.ebooks.elevate.entity.DocumentTypeMappingDetailsVO;
+import com.ebooks.elevate.entity.PreviousYearActualVO;
 import com.ebooks.elevate.entity.TbDetailsVO;
 import com.ebooks.elevate.entity.TbHeaderVO;
 import com.ebooks.elevate.entity.TrialBalanceVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.DocumentTypeMappingDetailsRepo;
+import com.ebooks.elevate.repo.PreviousYearActualRepo;
 import com.ebooks.elevate.repo.TbHeaderRepo;
 import com.ebooks.elevate.repo.TrialBalanceRepo;
 
@@ -51,6 +53,9 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 
 	@Autowired
 	BudgetRepo budgetRepo;
+	
+	@Autowired
+	PreviousYearActualRepo previousYearActualRepo;
 
 	@Autowired
 	DocumentTypeMappingDetailsRepo documentTypeMappingDetailsRepo;
@@ -327,7 +332,7 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackOn = ApplicationException.class)
 	public ExcelUploadResultDTO excelUploadForBudget(MultipartFile[] files, String createdBy, String clientCode,
 	        String clientName, Long orgId) throws ApplicationException, IOException, java.io.IOException {
 
@@ -379,6 +384,7 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                        monthlyBudget.setClient(clientName);
 	                        monthlyBudget.setClientCode(clientCode);
 	                        monthlyBudget.setCreatedBy(createdBy);
+	                        monthlyBudget.setUpdatedBy(createdBy);
 	                        monthlyBudget.setAccountName(accountName);
 	                        monthlyBudget.setAccountCode(accountCode);
 	                        monthlyBudget.setNatureOfAccount(natureOfAccount);
@@ -421,6 +427,91 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
              }
          }
          return null;
+	}
+
+	
+	
+	@Override
+	@Transactional(rollbackOn = ApplicationException.class)
+	public ExcelUploadResultDTO excelUploadForPreviousYear(MultipartFile[] files, String createdBy, String clientCode,
+			String clientName, Long orgId) throws ApplicationException, java.io.IOException {
+
+	    ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result object
+	    List<PreviousYearActualVO> budgets = new ArrayList<>();
+	    result.setTotalExcelRows(0);
+	    result.setSuccessfulUploads(0);
+	    result.setUnsuccessfulUploads(0);
+
+	    for (MultipartFile file : files) {
+	        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+	            Sheet sheet = workbook.getSheetAt(0); // Assuming only one sheet
+
+	            for (Row row : sheet) {
+	                if (row.getRowNum() == 0 || isRowEmpty(row)) {
+	                	
+	                	continue;
+	                }
+	                
+	                result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment total rows
+
+	                try {
+	                    // Parse cell values
+	                    String accountName = getStringCellValue(row.getCell(1)); // Account Name
+	                    String accountCode = getStringCellValue(row.getCell(2)); // Account Code
+	                    String natureOfAccount = getStringCellValue(row.getCell(3)); // Nature of Account
+
+	                    // Loop through months from April-24 to March-25
+	                    for (int colIndex = 4; colIndex <= 15; colIndex++) {
+	                    	String months=sheet.getRow(0).getCell(colIndex).toString();
+		                	String[] parts = months.split("-");
+
+		                    // Extract the month and year
+		                    String abbreviatedMonth = parts[1]; // Apr
+		                    String year = parts[2]; // 2024
+
+		                    // Convert abbreviated month to full month name
+		                    String fullMonth = getFullMonthName(abbreviatedMonth);
+
+		                    // Print results
+	                        BigDecimal amount = parseBigDecimal(getStringCellValue(row.getCell(colIndex))); // Amount
+
+	                        // Create and populate BudgetVO object
+	                        PreviousYearActualVO monthlyBudget = new PreviousYearActualVO();
+	                        monthlyBudget.setOrgId(orgId);
+	                        monthlyBudget.setClient(clientName);
+	                        monthlyBudget.setClientCode(clientCode);
+	                        monthlyBudget.setCreatedBy(createdBy);
+	                        monthlyBudget.setUpdatedBy(createdBy);
+	                        monthlyBudget.setAccountName(accountName);
+	                        monthlyBudget.setAccountCode(accountCode);
+	                        monthlyBudget.setNatureOfAccount(natureOfAccount);
+	                        monthlyBudget.setYear(year); // Extract year
+	                        monthlyBudget.setMonth(fullMonth); // Extract month (first three letters)
+	                        monthlyBudget.setAmount(amount);
+	                        monthlyBudget.setActive(true);
+
+	                        budgets.add(monthlyBudget);
+	                    }
+
+	                    result.setSuccessfulUploads(result.getSuccessfulUploads() + 1); // Increment successful uploads
+	                } catch (Exception e) {
+	                    result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
+	                    String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
+	                    result.addFailureReason(error); // Capture failure reason
+	                }
+	            }
+	        } catch (IOException | EncryptedDocumentException e) {
+	            throw new ApplicationException(
+	                    "Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
+	        }
+	    }
+
+	    // Save all valid budget entries
+	    if (!budgets.isEmpty()) {
+	        previousYearActualRepo.saveAll(budgets);
+	    }
+
+	    return result; // Return the result summary
 	}
 
 }
