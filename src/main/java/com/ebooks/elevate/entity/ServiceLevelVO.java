@@ -22,7 +22,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "serviceLevel")
+@Table(name = "servicelevel")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,7 +31,7 @@ public class ServiceLevelVO {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "serviceLevelgen")
 	@SequenceGenerator(name = "serviceLevelgen", sequenceName = "serviceLevelseq", initialValue = 1000000001, allocationSize = 1)
-	@Column(name = "serviceLevelid")
+	@Column(name = "servicelevelid")
 	private Long id;
 	@Column(name = "levelcode")
 	private String levelCode;
