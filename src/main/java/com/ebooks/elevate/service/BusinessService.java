@@ -13,9 +13,11 @@ import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.CoaDTO;
 import com.ebooks.elevate.dto.ExcelUploadResultDTO;
 import com.ebooks.elevate.dto.LedgerMappingDTO;
+import com.ebooks.elevate.dto.ServiceLevelDTO;
 import com.ebooks.elevate.entity.CCoaVO;
 import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.LedgerMappingVO;
+import com.ebooks.elevate.entity.ServiceLevelVO;
 import com.ebooks.elevate.exception.ApplicationException;
 
 @Service
@@ -65,6 +67,14 @@ public interface BusinessService {
 			throws EncryptedDocumentException, io.jsonwebtoken.io.IOException, ApplicationException, IOException;
 
 	ExcelUploadResultDTO excelUploadForLedgerMapping(MultipartFile[] files, String createdBy, String clientCode,Long orgId,String clientName) throws EncryptedDocumentException, IOException;
+
+	//SERVICELEVEL
+	
+	Map<String, Object> createUpdateServiceLevel(ServiceLevelDTO serviceLevelDTO) throws ApplicationException;
+
+	Optional<ServiceLevelVO> getServiceLevelbyId(Long id);
+
+	List<ServiceLevelVO> getAllServiceLevel(Long orgId);
 
 	
 

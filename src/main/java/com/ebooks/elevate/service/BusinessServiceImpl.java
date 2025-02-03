@@ -31,13 +31,19 @@ import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.CoaDTO;
 import com.ebooks.elevate.dto.ExcelUploadResultDTO;
 import com.ebooks.elevate.dto.LedgerMappingDTO;
+import com.ebooks.elevate.dto.ServiceLevelDTO;
+import com.ebooks.elevate.dto.ServiceLevelDetailsDTO;
 import com.ebooks.elevate.entity.CCoaVO;
 import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.LedgerMappingVO;
+import com.ebooks.elevate.entity.ServiceLevelDetailsVO;
+import com.ebooks.elevate.entity.ServiceLevelVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.CCoaRepo;
 import com.ebooks.elevate.repo.CoaRepo;
 import com.ebooks.elevate.repo.LedgerMappingRepo;
+import com.ebooks.elevate.repo.ServiceLevelDetailsRepo;
+import com.ebooks.elevate.repo.ServiceLevelRepo;
 
 import io.jsonwebtoken.io.IOException;
 
@@ -52,6 +58,12 @@ public class BusinessServiceImpl implements BusinessService {
 
 	@Autowired
 	LedgerMappingRepo ledgerMappingRepo;
+
+	@Autowired
+	ServiceLevelRepo serviceLevelRepo;
+
+	@Autowired
+	ServiceLevelDetailsRepo serviceLevelDetailsRepo;
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(BusinessServiceImpl.class);
 
@@ -553,7 +565,6 @@ public class BusinessServiceImpl implements BusinessService {
 						String accountName = getStringCellValue(row.getCell(1));
 						String natureOfAccount = getStringCellValue1(row.getCell(2));
 						String activeString = getStringCellValue(row.getCell(3));
-						
 
 						boolean active = "1".equals(activeString); // Convert "1"/"0" to boolean
 
@@ -891,6 +902,117 @@ public class BusinessServiceImpl implements BusinessService {
 		}
 
 		return result; // Return the result summary
+	}
+
+	@Override
+	public Map<String, Object> createUpdateServiceLevel(ServiceLevelDTO serviceLevelDTO) throws ApplicationException {
+
+		String message = null;
+
+		ServiceLevelVO serviceLevelVO;
+
+		if (ObjectUtils.isEmpty(serviceLevelDTO.getId())) {
+
+			if (serviceLevelRepo.existsByLevelCodeAndOrgId(serviceLevelDTO.getLevelCode(),serviceLevelDTO.getOrgId())) {
+
+				String errorFormat = String.format("The LevelCode Already Exists This Organization",
+						serviceLevelDTO.getLevelCode());
+				throw new ApplicationException(errorFormat);
+
+			}
+
+			if (serviceLevelRepo.existsByLevelNameAndOrgId(serviceLevelDTO.getLevelName(),serviceLevelDTO.getOrgId())) {
+
+				String errorFormat = String.format("The LevelName Already Exists This Organization",
+						serviceLevelDTO.getLevelName());
+				throw new ApplicationException(errorFormat);
+
+			}
+
+			serviceLevelVO = new ServiceLevelVO();
+			serviceLevelVO.setCreatedBy(serviceLevelDTO.getCreatedBy());
+			serviceLevelVO.setUpdatedBy(serviceLevelDTO.getCreatedBy());
+
+			message = "ServiceLevel Creation Successfully";
+		} else {
+
+			serviceLevelVO = serviceLevelRepo.findById(serviceLevelDTO.getId()).orElseThrow(
+					() -> new ApplicationException("ServiceLevel not found with id: " + serviceLevelDTO.getId()));
+
+			if (!serviceLevelVO.getLevelCode().equalsIgnoreCase(serviceLevelDTO.getLevelCode())) {
+
+				if (serviceLevelRepo.existsByLevelCodeAndOrgId(serviceLevelDTO.getLevelCode(),serviceLevelDTO.getOrgId())) {
+
+					String errorFormat = String.format("The LevelCode Already Exists This Organization",
+							serviceLevelDTO.getLevelCode());
+					throw new ApplicationException(errorFormat);
+
+				}
+				serviceLevelVO.setLevelCode(serviceLevelDTO.getLevelCode());
+			}
+
+			if (!serviceLevelVO.getLevelName().equalsIgnoreCase(serviceLevelDTO.getLevelName())) {
+
+				if (serviceLevelRepo.existsByLevelNameAndOrgId(serviceLevelDTO.getLevelName(),serviceLevelDTO.getOrgId())) {
+
+					String errorFormat = String.format("The LevelName Already Exists This Organization",
+							serviceLevelDTO.getLevelName());
+					throw new ApplicationException(errorFormat);
+
+				}
+				serviceLevelVO.setLevelName(serviceLevelDTO.getLevelName());
+			}
+
+		}
+
+		serviceLevelVO = getServiceLevelVOFromServiceLevelDTO(serviceLevelVO, serviceLevelDTO);
+		serviceLevelRepo.save(serviceLevelVO);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", message);
+		response.put("serviceLevelVO", serviceLevelVO); // Return the list of saved records
+		return response;
+	}
+
+	private ServiceLevelVO getServiceLevelVOFromServiceLevelDTO(ServiceLevelVO serviceLevelVO,
+			ServiceLevelDTO serviceLevelDTO) {
+
+		serviceLevelVO.setLevelCode(serviceLevelDTO.getLevelCode());
+		serviceLevelVO.setLevelName(serviceLevelDTO.getLevelName());
+		serviceLevelVO.setActive(serviceLevelDTO.isActive());
+		serviceLevelVO.setOrgId(serviceLevelDTO.getOrgId());
+
+		if (serviceLevelDTO.getId() != null) {
+
+			List<ServiceLevelDetailsVO> serviceLevelDetailsVO = serviceLevelDetailsRepo
+					.findByServiceLevelVO(serviceLevelVO);
+			serviceLevelDetailsRepo.deleteAll(serviceLevelDetailsVO);
+
+		}
+
+		List<ServiceLevelDetailsVO> serviceLevelDetailsVOs = new ArrayList<>();
+		for (ServiceLevelDetailsDTO serviceLevelDetailsDTO : serviceLevelDTO.getServiceLevelDetailsDTO()) {
+			ServiceLevelDetailsVO serviceLevelDetailsVO = new ServiceLevelDetailsVO();
+
+			serviceLevelDetailsVO.setDescription(serviceLevelDetailsDTO.getDescription());
+			serviceLevelDetailsVO.setElNo(serviceLevelDetailsDTO.getElNo());
+
+			serviceLevelDetailsVO.setServiceLevelVO(serviceLevelVO);
+			serviceLevelDetailsVOs.add(serviceLevelDetailsVO);
+		}
+		serviceLevelVO.setServiceLevelDetailsVO(serviceLevelDetailsVOs);
+		return serviceLevelVO;
+
+	}
+
+	@Override
+	public Optional<ServiceLevelVO> getServiceLevelbyId(Long id) {
+		return serviceLevelRepo.findById(id);
+	}
+
+	@Override
+	public List<ServiceLevelVO> getAllServiceLevel(Long orgId) {
+		return serviceLevelRepo.getAllServiceLevel(orgId);
 	}
 
 }

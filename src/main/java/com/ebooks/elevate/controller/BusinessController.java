@@ -28,9 +28,11 @@ import com.ebooks.elevate.dto.CoaDTO;
 import com.ebooks.elevate.dto.ExcelUploadResultDTO;
 import com.ebooks.elevate.dto.LedgerMappingDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
+import com.ebooks.elevate.dto.ServiceLevelDTO;
 import com.ebooks.elevate.entity.CCoaVO;
 import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.LedgerMappingVO;
+import com.ebooks.elevate.entity.ServiceLevelVO;
 import com.ebooks.elevate.service.BusinessService;
 
 @CrossOrigin
@@ -520,4 +522,84 @@ public class BusinessController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
+	//SERVICE LEVEL
+	
+	@PutMapping("/createUpdateServiceLevel")
+	public ResponseEntity<ResponseDTO> createUpdateServiceLevel(@RequestBody ServiceLevelDTO serviceLevelDTO) {
+		String methodName = "createUpdateServiceLevel()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			// Call the service and get the response
+			Map<String, Object> serviceLevelVO = businessService.createUpdateServiceLevel(serviceLevelDTO);
+
+			// Set response map values
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, serviceLevelVO.get("message"));
+			responseObjectsMap.put("ledgerMappingVOList", serviceLevelVO.get("serviceLevelVO")); // Ensure correct
+																										// key
+
+			// Create success response
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getServiceLevelbyId")
+	public ResponseEntity<ResponseDTO> getServiceLevelbyId(@RequestParam(required = false) Long id) {
+		String methodName = "getServiceLevelbyId()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		Optional<ServiceLevelVO> serviceLevelVO = null;
+		try {
+			serviceLevelVO = businessService.getServiceLevelbyId(id);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "ServiceLevel information get successfully By Id");
+			responseObjectsMap.put("serviceLevelVO", serviceLevelVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "ServiceLevel information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getAllServiceLevel")
+	public ResponseEntity<ResponseDTO> getAllServiceLevel(@RequestParam(required = false) Long orgId) {
+		String methodName = "getAllServiceLevel()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<ServiceLevelVO> serviceLevelVO = new ArrayList<ServiceLevelVO>();
+		try {
+			serviceLevelVO = businessService.getAllServiceLevel(orgId);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "ServiceLevel information get successfully");
+			responseObjectsMap.put("serviceLevelVO", serviceLevelVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "ServiceLevel information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 }
