@@ -31,7 +31,7 @@ public class ClientCompanyReportAccessVO {
 	
 	@Column(name = "elcode", length = 30)
 	private String elCode;
-	@Column(name = "description", length = 30)
+	@Column(name = "description", length = 100)
 	private String description;
 	@Column(name = "access" )
 	private boolean access;
