@@ -308,7 +308,7 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		companyVO.setCreatedBy(companyDTO.getCreatedBy());
 		companyVO.setActive(companyDTO.isActive());
 		companyVO.setCancel(companyDTO.isCancel());
-		companyVO.setRole(Role.ROLE_PRODUCT_OWNER);
+		companyVO.setRole(Role.ADMIN);
 		companyVO.setGst(companyDTO.getGst());
 		companyVO.setCeo(companyDTO.getCeo());
 	}

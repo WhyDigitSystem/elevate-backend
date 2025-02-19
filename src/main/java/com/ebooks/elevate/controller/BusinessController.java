@@ -147,8 +147,9 @@ public class BusinessController extends BaseController {
 	public ResponseEntity<ResponseDTO> excelUploadForCoa(@RequestParam MultipartFile[] files,
 			@RequestParam(required = false) String createdBy,@RequestParam Long orgId) {
 		String methodName = "excelUploadForCoa()";
-		int totalRows = 0;
+		
 		Map<String, Object> responseObjectsMap = new HashMap<>();
+		int totalRows = 0;
 		int successfulUploads = 0;
 		ResponseDTO responseDTO = null;
 		try {
@@ -281,6 +282,8 @@ public class BusinessController extends BaseController {
 			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
 			@RequestParam String clientName, @RequestParam Long orgId) {
 
+		int totalRows = 0;
+		int successfulUploads = 0;
 		String methodName = "excelUploadForCCoa()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
@@ -291,22 +294,27 @@ public class BusinessController extends BaseController {
 			// Call the service method and get the result
 			ExcelUploadResultDTO uploadResult = businessService.excelUploadForCCoa(files, createdBy, clientCode, clientName, orgId);
 
-			// Populate success response
+			totalRows = businessService.getTotalRows(); // Get total rows processed
+			successfulUploads = businessService.getSuccessfulUploads();
 			responseObjectsMap.put("statusFlag", "Ok");
 			responseObjectsMap.put("status", true);
-			responseObjectsMap.put("uploadResult", uploadResult);
+			responseObjectsMap.put("totalRows", totalRows);
+			responseObjectsMap.put("successfulUploads", successfulUploads);
+			responseObjectsMap.put("message", "Excel Upload For CCoa successful"); 
+//			// Populate success response
+//			responseObjectsMap.put("statusFlag", "Ok");
+//			responseObjectsMap.put("status", true);
+//			responseObjectsMap.put("uploadResult", uploadResult);
 			responseDTO = createServiceResponse(responseObjectsMap);
 
 		} catch (Exception e) {
-			// Handle any exceptions and populate error response
+			String errorMsg = e.getMessage();
 			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
-
 			responseObjectsMap.put("statusFlag", "Error");
 			responseObjectsMap.put("status", false);
-			responseObjectsMap.put("errorMessage", e.getMessage());
+			responseObjectsMap.put("errorMessage", errorMsg);
 
-			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
-					e.getMessage());
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For CCoa Failed", errorMsg);
 		}
 
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
@@ -489,6 +497,8 @@ public class BusinessController extends BaseController {
 			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
 			@RequestParam Long orgId, @RequestParam String clientName) {
 
+		int totalRows = 0;
+		int successfulUploads = 0;
 		String methodName = "excelUploadForLedgerMapping()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
@@ -500,21 +510,27 @@ public class BusinessController extends BaseController {
 			ExcelUploadResultDTO uploadResult = businessService.excelUploadForLedgerMapping(files, createdBy,
 					clientCode, orgId, clientName);
 
-			responseObjectsMap.put("status", uploadResult.getFailureReasons().isEmpty());
-			// Populate success response
+			totalRows = businessService.getTotalRows(); // Get total rows processed
+			successfulUploads = businessService.getSuccessfulUploads();
 			responseObjectsMap.put("statusFlag", "Ok");
-			responseObjectsMap.put("uploadResult", uploadResult);
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("totalRows", totalRows);
+			responseObjectsMap.put("successfulUploads", successfulUploads);
+			responseObjectsMap.put("message", "Excel Upload For Ledger Mapping successful"); 
+//			// Populate success response
+//			responseObjectsMap.put("statusFlag", "Ok");
+//			responseObjectsMap.put("status", true);
+//			responseObjectsMap.put("uploadResult", uploadResult);
 			responseDTO = createServiceResponse(responseObjectsMap);
 
 		} catch (Exception e) {
-			// Handle any exceptions and populate error response
+			String errorMsg = e.getMessage();
 			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
-
 			responseObjectsMap.put("statusFlag", "Error");
 			responseObjectsMap.put("status", false);
-			responseObjectsMap.put("errorMessage", e.getMessage());
+			responseObjectsMap.put("errorMessage", errorMsg);
 
-			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Ledger Mapping Failed",
 					e.getMessage());
 		}
 

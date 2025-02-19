@@ -1,6 +1,6 @@
 package com.ebooks.elevate.dto;
 
 public enum Role {
-	ROLE_PRODUCT_OWNER,ADMIN,USER,GUST;
+	SADMIN,ADMIN,EXECUTIVE,GUEST;
 
 }

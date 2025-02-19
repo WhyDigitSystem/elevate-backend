@@ -198,6 +198,7 @@ public class CompanyServiceImpl implements CompanyService {
 	                    companyEmployeeDTO.getEmployeeCode());
 	            throw new ApplicationException(errorMessage);
 	        }
+	        companyEmployeeVO.setEmployeeCode(companyEmployeeDTO.getEmployeeCode());
 
 	        if (companyEmployeeRepo.existsByEmailAndOrgId(companyEmployeeDTO.getEmail(),
 	                companyEmployeeDTO.getOrgId())) {
@@ -205,21 +206,7 @@ public class CompanyServiceImpl implements CompanyService {
 	                    companyEmployeeDTO.getEmail());
 	            throw new ApplicationException(errorMessage);
 	        }
-
-	        if (companyEmployeeRepo.existsByPhoneAndOrgId(companyEmployeeDTO.getPhone(),
-	                companyEmployeeDTO.getOrgId())) {
-	            String errorMessage = String.format("The PhoneNo: %s already exists in this Organization.",
-	                    companyEmployeeDTO.getPhone());
-	            throw new ApplicationException(errorMessage);
-	        }
-
-//	        if (companyEmployeeRepo.existsByWebSiteAndOrgId(companyEmployeeDTO.getWebSite(),
-//	                companyEmployeeDTO.getOrgId())) {
-//	            String errorMessage = String.format("The WebSite: %s already exists in this Organization.",
-//	                    companyEmployeeDTO.getWebSite());
-//	            throw new ApplicationException(errorMessage);
-//	        }
-
+	        companyEmployeeVO.setEmail(companyEmployeeDTO.getEmail());
 	        companyEmployeeVO.setCreatedBy(companyEmployeeDTO.getCreatedBy());
 	        companyEmployeeVO.setUpdatedBy(companyEmployeeDTO.getCreatedBy());
 
@@ -230,14 +217,14 @@ public class CompanyServiceImpl implements CompanyService {
 
 	        companyEmployeeVO.setUpdatedBy(companyEmployeeDTO.getCreatedBy());
 
-	        if (!companyEmployeeVO.getEmployeeName().equalsIgnoreCase(companyEmployeeDTO.getEmployeeCode())) {
+	        if (!companyEmployeeVO.getEmployeeCode().equalsIgnoreCase(companyEmployeeDTO.getEmployeeCode())) {
 	            if (companyEmployeeRepo.existsByEmployeeCodeAndOrgId(companyEmployeeDTO.getEmployeeCode(),
 	                    companyEmployeeDTO.getOrgId())) {
 	                String errorMessage = String.format("The EmployeeCode: %s already exists in this Organization.",
 	                        companyEmployeeDTO.getEmployeeCode());
 	                throw new ApplicationException(errorMessage);
 	            }
-	            companyEmployeeVO.setEmployeeName(companyEmployeeDTO.getEmployeeCode());
+	            companyEmployeeVO.setEmployeeCode(companyEmployeeDTO.getEmployeeCode());
 	        }
 
 	        if (!companyEmployeeVO.getEmail().equalsIgnoreCase(companyEmployeeDTO.getEmail())) {
@@ -248,28 +235,8 @@ public class CompanyServiceImpl implements CompanyService {
 	                throw new ApplicationException(errorMessage);
 	            }
 	            companyEmployeeVO.setEmail(companyEmployeeDTO.getEmail());
+	            companyEmployeeVO.setUpdatedBy(companyEmployeeDTO.getCreatedBy());
 	        }
-
-	        if (!companyEmployeeVO.getPhone().equalsIgnoreCase(companyEmployeeDTO.getPhone())) {
-	            if (companyEmployeeRepo.existsByPhoneAndOrgId(companyEmployeeDTO.getPhone(),
-	                    companyEmployeeDTO.getOrgId())) {
-	                String errorMessage = String.format("The PhoneNo: %s already exists in this Organization.",
-	                        companyEmployeeDTO.getPhone());
-	                throw new ApplicationException(errorMessage);
-	            }
-	            companyEmployeeVO.setPhone(companyEmployeeDTO.getPhone());
-	        }
-
-//	        if (!companyEmployeeVO.getWebSite().equalsIgnoreCase(companyEmployeeDTO.getWebSite())) {
-//	            if (companyEmployeeRepo.existsByWebSiteAndOrgId(companyEmployeeDTO.getWebSite(),
-//	                    companyEmployeeDTO.getOrgId())) {
-//	                String errorMessage = String.format("The WebSite: %s already exists in this Organization.",
-//	                        companyEmployeeDTO.getWebSite());
-//	                throw new ApplicationException(errorMessage);
-//	            }
-//	            companyEmployeeVO.setWebSite(companyEmployeeDTO.getWebSite());
-//	        }
-
 	        message = "Company Employee Updation Successfully";
 	    }
 
@@ -285,12 +252,9 @@ public class CompanyServiceImpl implements CompanyService {
 	private CompanyEmployeeVO getCompanyEmployeeVOFromCompanyEmployeeDTO(CompanyEmployeeVO companyEmployeeVO,
 	        @Valid CompanyEmployeeDTO companyEmployeeDTO) {
 
-	    companyEmployeeVO.setEmployeeCode(companyEmployeeDTO.getEmployeeCode());
 	    companyEmployeeVO.setEmployeeName(companyEmployeeDTO.getEmployeeName());
-	    companyEmployeeVO.setEmail(companyEmployeeDTO.getEmail());
 	    companyEmployeeVO.setPhone(companyEmployeeDTO.getPhone());
 	    companyEmployeeVO.setOrgId(companyEmployeeDTO.getOrgId());
-	  //  companyEmployeeVO.setWebSite(companyEmployeeDTO.getWebSite());
 	    companyEmployeeVO.setActive(companyEmployeeDTO.isActive());
 	    return companyEmployeeVO;
 	}

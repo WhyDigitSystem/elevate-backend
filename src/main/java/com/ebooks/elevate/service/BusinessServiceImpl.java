@@ -367,6 +367,10 @@ public class BusinessServiceImpl implements BusinessService {
 						String accountName = getStringCellValue1(row.getCell(3));
 						String natureOfAccount = getStringCellValue1(row.getCell(4));
 						String activeString = getStringCellValue1(row.getCell(5)); // Get value from the cell
+						
+						if(coaRepo.existsByOrgIdAndAccountCode(orgId, accountCode)) {
+							throw new ApplicationException("AccountCode "+accountCode+" Already Exist");
+						}
 
 						// Convert activeString to integer and handle the conditions
 						boolean active;
@@ -409,6 +413,10 @@ public class BusinessServiceImpl implements BusinessService {
 							} else {
 
 								CoaVO vo = coaRepo.getOrgIdAndMainAccountGroupName(orgId, groupName);
+								if(vo==null)
+								{
+									throw new ApplicationException("The GroupName not exist in the COA"+groupName);
+								}
 								coaVO.setParentCode(vo.getAccountCode());
 								coaVO.setParentId(vo.getId().toString());
 								// Subgroup (groupName is not null)
@@ -418,6 +426,10 @@ public class BusinessServiceImpl implements BusinessService {
 						} else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
 							// Account (groupName is not null)
 							CoaVO vo = coaRepo.getOrgIdAndSubAccountGroupName(orgId, groupName);
+							if(vo==null)
+							{
+								throw new ApplicationException("The GroupName not exist in the COA"+groupName);
+							}
 							coaVO.setParentCode(vo.getAccountCode());
 							coaVO.setParentId(vo.getId().toString());
 							accountList.add(coaVO);
@@ -427,13 +439,13 @@ public class BusinessServiceImpl implements BusinessService {
 						successfulUploads++; // Increment successfulUploads
 
 					} catch (Exception e) {
-						errorMessages.add("Error processing row " + (row.getRowNum() + 1) + ": " + e.getMessage());
+						errorMessages.add("Row No " + (row.getRowNum() + 1) + ": " + e.getMessage());
 					}
 				}
 
 				if (!errorMessages.isEmpty()) {
 					throw new ApplicationException(
-							"Excel upload validation failed. Errors: " + String.join(", ", errorMessages));
+						    "Excel upload failed. " + String.join(", ", errorMessages) + ". Except for these lines, all other data has been uploaded.");
 				}
 
 			} catch (IOException e) {
@@ -539,6 +551,8 @@ public class BusinessServiceImpl implements BusinessService {
 			String clientName, Long orgId)
 			throws EncryptedDocumentException, IOException, ApplicationException, java.io.IOException {
 
+		totalRows = 0;
+		successfulUploads = 0;
 		ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result Object
 
 		List<CCoaVO> mainGroupList = new ArrayList<>();
@@ -551,13 +565,14 @@ public class BusinessServiceImpl implements BusinessService {
 				Sheet sheet = workbook.getSheetAt(0);
 				Row headerRow = sheet.getRow(0);
 
+				List<String> errorMessages = new ArrayList<>();
 				// Validate header
 
 				for (Row row : sheet) {
 					if (row.getRowNum() == 0 || isRowEmpty(row)) {
 						continue; // Skip header and empty rows
 					}
-
+					totalRows++;
 					result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment totalRows
 					try {
 						// Parse cell values
@@ -594,13 +609,22 @@ public class BusinessServiceImpl implements BusinessService {
 
 						mainGroupList.add(cCoaVO);
 						result.setSuccessfulUploads(result.getSuccessfulUploads() + 1);
-
+						successfulUploads++;
 					} catch (Exception e) {
+						errorMessages.add("Row No " + (row.getRowNum() + 1) + ": " + e.getMessage());
 						result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
 						String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
 						result.addFailureReason(error); // Capture failure reason
 					}
 				}
+				if (!errorMessages.isEmpty()) {
+					throw new ApplicationException(
+						    "Excel upload failed. " + String.join(", ", errorMessages) + ". Except for these lines, all other data has been uploaded.");
+				}
+			}
+			catch (IOException e) {
+				throw new ApplicationException(
+						"Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
 			}
 		}
 
@@ -813,8 +837,10 @@ public class BusinessServiceImpl implements BusinessService {
 
 	@Override
 	public ExcelUploadResultDTO excelUploadForLedgerMapping(MultipartFile[] files, String createdBy, String clientCode,
-			Long orgId, String clientName) throws EncryptedDocumentException, java.io.IOException {
+			Long orgId, String clientName) throws EncryptedDocumentException, java.io.IOException, ApplicationException {
 
+		totalRows = 0;
+		successfulUploads = 0;
 		ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result Object
 
 		List<LedgerMappingVO> mainGroupList = new ArrayList<>();
@@ -827,13 +853,14 @@ public class BusinessServiceImpl implements BusinessService {
 				Sheet sheet = workbook.getSheetAt(0);
 				Row headerRow = sheet.getRow(0);
 
+				List<String> errorMessages = new ArrayList<>();
 				// Validate header
 
 				for (Row row : sheet) {
 					if (row.getRowNum() == 0 || isRowEmpty(row)) {
 						continue; // Skip header and empty rows
 					}
-
+					totalRows++;
 					result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment totalRows
 					try {
 						// Parse cell values
@@ -886,13 +913,23 @@ public class BusinessServiceImpl implements BusinessService {
 
 						mainGroupList.add(ledgerMappingVO);
 						result.setSuccessfulUploads(result.getSuccessfulUploads() + 1);
+						successfulUploads++;
 
 					} catch (Exception e) {
+						errorMessages.add("Row No " + (row.getRowNum() + 1) + ": " + e.getMessage());
 						result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
 						String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
 						result.addFailureReason(error); // Capture failure reason
 					}
 				}
+				if (!errorMessages.isEmpty()) {
+					throw new ApplicationException(
+						    "Excel upload failed. " + String.join(", ", errorMessages) + ". Except for these lines, all other data has been uploaded.");
+				}
+			}
+			catch (IOException e) {
+				throw new ApplicationException(
+						"Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
 			}
 		}
 

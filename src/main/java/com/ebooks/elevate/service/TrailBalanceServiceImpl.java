@@ -60,22 +60,26 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	@Autowired
 	DocumentTypeMappingDetailsRepo documentTypeMappingDetailsRepo;
 
+	private int totalRows = 0;
+	private int successfulUploads = 0;
+	
 	@Override
 	public int getTotalRows() {
-		// TODO Auto-generated method stub
-		return 0;
+		return totalRows;
 	}
 
 	@Override
 	public int getSuccessfulUploads() {
 		// TODO Auto-generated method stub
-		return 0;
+		return successfulUploads;
 	}
 
 	@Override
 	public ExcelUploadResultDTO excelUploadForTb(MultipartFile[] files, String createdBy, String clientCode,
 			String finYear, String month, String clientName, Long orgId)
 			throws ApplicationException, java.io.IOException {
+		totalRows = 0;
+		successfulUploads = 0;
 
 		ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result object
 		List<TrialBalanceVO> dataToSave = new ArrayList<>();
@@ -87,14 +91,14 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 			try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
 				Sheet sheet = workbook.getSheetAt(0); // Assuming only one sheet
 				Row headerRow = sheet.getRow(0);
-
+				List<String> errorMessages = new ArrayList<>();
 				// Validate header
 				for (Row row : sheet) {
 
 					if (row.getRowNum() == 0) {
 						continue; // Skip this iteration
 					}
-
+					totalRows++;
 					result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment total rows
 
 					try {
@@ -130,14 +134,20 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 						dataVO.setUpdatedBy(createdBy);
 						dataToSave.add(dataVO);
 						result.setSuccessfulUploads(result.getSuccessfulUploads() + 1); // Increment successful uploads
+						successfulUploads++;
 					} catch (Exception e) {
+						errorMessages.add("Row No " + (row.getRowNum() + 1) + ": " + e.getMessage());
 						result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
 						String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
 
 						result.addFailureReason(error); // Capture failure reason
 					}
+				}if (!errorMessages.isEmpty()) {
+					throw new ApplicationException(
+						    "Excel upload failed. " + String.join(", ", errorMessages) + ". Except for these lines, all other data has been uploaded.");
 				}
-			} catch (IOException | EncryptedDocumentException e) {
+
+			} catch (IOException e) {
 				throw new ApplicationException(
 						"Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
 			}

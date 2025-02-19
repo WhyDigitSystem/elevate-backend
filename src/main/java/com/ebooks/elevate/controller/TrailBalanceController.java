@@ -49,6 +49,8 @@ public class TrailBalanceController extends BaseController {
 			@RequestParam Long orgId, @RequestParam String clientName, @RequestParam String month,
 			@RequestParam String finYear) {
 
+		int totalRows = 0;
+		int successfulUploads = 0;
 		String methodName = "excelUploadForTb()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
@@ -60,19 +62,25 @@ public class TrailBalanceController extends BaseController {
 			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForTb(files, createdBy, clientCode,
 					finYear, month, clientName, orgId);
 
-			responseObjectsMap.put("status", uploadResult.getFailureReasons().isEmpty());
-			// Populate success response
+			totalRows = trailBalanceService.getTotalRows(); // Get total rows processed
+			successfulUploads = trailBalanceService.getSuccessfulUploads();
 			responseObjectsMap.put("statusFlag", "Ok");
-			responseObjectsMap.put("uploadResult", uploadResult);
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("totalRows", totalRows);
+			responseObjectsMap.put("successfulUploads", successfulUploads);
+			responseObjectsMap.put("message", "Excel Upload For CCoa successful"); 
+//			// Populate success response
+//			responseObjectsMap.put("statusFlag", "Ok");
+//			responseObjectsMap.put("status", true);
+//			responseObjectsMap.put("uploadResult", uploadResult);
 			responseDTO = createServiceResponse(responseObjectsMap);
 
 		} catch (Exception e) {
-			// Handle any exceptions and populate error response
+			String errorMsg = e.getMessage();
 			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
-
 			responseObjectsMap.put("statusFlag", "Error");
 			responseObjectsMap.put("status", false);
-			responseObjectsMap.put("errorMessage", e.getMessage());
+			responseObjectsMap.put("errorMessage", errorMsg);
 
 			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
 					e.getMessage());

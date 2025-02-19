@@ -66,7 +66,7 @@ public interface BusinessService {
 			String clientName, Long orgId)
 			throws EncryptedDocumentException, io.jsonwebtoken.io.IOException, ApplicationException, IOException;
 
-	ExcelUploadResultDTO excelUploadForLedgerMapping(MultipartFile[] files, String createdBy, String clientCode,Long orgId,String clientName) throws EncryptedDocumentException, IOException;
+	ExcelUploadResultDTO excelUploadForLedgerMapping(MultipartFile[] files, String createdBy, String clientCode,Long orgId,String clientName) throws EncryptedDocumentException, IOException, ApplicationException;
 
 	//SERVICELEVEL
 	
