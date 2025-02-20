@@ -831,8 +831,8 @@ public class BusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
-	public List<LedgerMappingVO> getAllLedgerMapping() {
-		return ledgerMappingRepo.findAll();
+	public List<LedgerMappingVO> getAllLedgerMapping(Long orgId,String clientCode) {
+		return ledgerMappingRepo.findAllByOrgIdAndClientCode(orgId,clientCode);
 	}
 
 	@Override

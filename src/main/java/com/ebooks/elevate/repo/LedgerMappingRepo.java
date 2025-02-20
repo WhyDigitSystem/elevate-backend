@@ -1,5 +1,6 @@
 package com.ebooks.elevate.repo;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.transaction.Transactional;
@@ -34,5 +35,8 @@ public interface LedgerMappingRepo extends JpaRepository<LedgerMappingVO, Long>{
 
 
 	boolean existsByOrgIdAndClientCoaAndClientCode(Long orgId,String clientCoa, String clientCode);
+
+
+	List<LedgerMappingVO> findAllByOrgIdAndClientCode(Long orgId, String clientCode);
 
 }

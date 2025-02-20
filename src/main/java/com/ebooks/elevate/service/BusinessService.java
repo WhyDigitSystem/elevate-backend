@@ -60,7 +60,7 @@ public interface BusinessService {
 
 	Optional<LedgerMappingVO> getLedgerMappingbyId(Long id);
 
-	List<LedgerMappingVO> getAllLedgerMapping();
+	List<LedgerMappingVO> getAllLedgerMapping(Long orgId, String clientCode);
 
 	ExcelUploadResultDTO excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode,
 			String clientName, Long orgId)

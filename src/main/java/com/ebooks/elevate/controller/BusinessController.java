@@ -467,7 +467,7 @@ public class BusinessController extends BaseController {
 	}
 
 	@GetMapping("/getAllLedgerMapping")
-	public ResponseEntity<ResponseDTO> getAllLedgerMapping() {
+	public ResponseEntity<ResponseDTO> getAllLedgerMapping(@RequestParam(required = false) Long orgId,@RequestParam(required = false) String clientCode) {
 		String methodName = "getAllLedgerMapping()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -475,7 +475,7 @@ public class BusinessController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<LedgerMappingVO> ledgerMappingVO = new ArrayList<LedgerMappingVO>();
 		try {
-			ledgerMappingVO = businessService.getAllLedgerMapping();
+			ledgerMappingVO = businessService.getAllLedgerMapping(orgId,clientCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
