@@ -414,6 +414,7 @@ public class ELReportServiceImpl implements ELReportService {
 				b.put("transCredit", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
 				b.put("clBalDebit", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
 				b.put("clBalCredit", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("natureOfAccount", bud[9] != null ? bud[9].toString() : "");
 				YTDTB.add(b);
 			}
 			return YTDTB;
