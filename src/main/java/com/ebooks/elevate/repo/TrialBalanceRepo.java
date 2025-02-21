@@ -16,10 +16,8 @@ public interface TrialBalanceRepo extends JpaRepository<TrialBalanceVO, Long> {
 	Set<Object[]> getFillGridForTbExcelUpload(Long orgId, String finYear,String tbMonth, String client,String clientCode );
 
 	
-	@Query(nativeQuery = true, value = "select row_number() over()id,b.coacode,b.coa,sum(a.opbalancedb)OPBalDebit,sum(a.opbalancecr)OPBalCredit,sum(a.transdebit)TransDebit,sum(a.transcredit)TransCredit,\r\n"
-			+ "sum(a.clbalancedb)CLBalDebit,sum(a.clbalancecr)CLBalCredit from tbexcelupload a , ledgermapping b where a.orgid=?1 and a.clientcode=?2 and finyear=?3 \r\n"
-			+ "and month=?4 \r\n"
-			+ "and a.orgid=b.orgid and a.clientcode=b.clientcode and a.accountcode=b.clientcoacode group by b.coacode,b.coa")
+	@Query(nativeQuery = true, value = "select row_number() over()id,a.coacode,a.coa,a.opbaldebit,a.opbalcredit,a.transdebit,a.transcredit,a.clbaldebit,a.clbalcredit from vw_eltb a where  a.orgid=?1 and a.clientcode=?2 and finyear=?3 \r\n"
+			+ "	and month=?4")
 	Set<Object[]> getElYTDTbdetails(Long orgId, String clientCode, String finyear, String month);
 
 
