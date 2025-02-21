@@ -35,6 +35,7 @@ import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.ElMfrRepo;
 import com.ebooks.elevate.repo.PreviousYearActualRepo;
+import com.ebooks.elevate.repo.TrialBalanceRepo;
 
 import io.jsonwebtoken.io.IOException;
 @Service
@@ -44,6 +45,9 @@ public class ELReportServiceImpl implements ELReportService {
 
 	@Autowired
 	ElMfrRepo elMfrRepo;
+	
+	@Autowired
+	TrialBalanceRepo trialBalanceRepo;
 
 	@Autowired
 	BudgetRepo budgetRepo;
@@ -386,6 +390,33 @@ public class ELReportServiceImpl implements ELReportService {
 			}
 			return actuals;
 		}
-		
+
+		@Override
+		public List<Map<String, Object>> getElevateYTDTBDetails(Long orgId, String clientCode, String finyear,
+				String month) {
+			
+			Set<Object[]> ElTBdetails=trialBalanceRepo.getElYTDTbdetails(orgId,clientCode,finyear,month);
+			return getELYTDTB(ElTBdetails);
+		}
+
+		private List<Map<String, Object>> getELYTDTB(Set<Object[]> elTBdetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:elTBdetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("id", Integer.parseInt(bud[0].toString()));
+				b.put("elglCode", bud[1] != null ? bud[1].toString() : "");
+				b.put("elglLedger", bud[2] != null ? bud[2].toString() : "");
+				b.put("opBalDebit", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+				b.put("opBalCredit", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
+				b.put("transDebit", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+				b.put("transCredit", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+				b.put("clBalDebit", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("clBalCredit", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
 
 }

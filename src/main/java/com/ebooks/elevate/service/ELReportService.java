@@ -29,5 +29,8 @@ public interface ELReportService {
 	List<Map<String, Object>> getClientBudgetDetails(Long orgId,String year, String client,String clientCode);
 	
 	List<Map<String, Object>> getClientPreviousYearActualDetails(Long orgId,String year, String client,String clientCode);
+	
+	List<Map<String, Object>> getElevateYTDTBDetails(Long orgId,String clientCode, String finyear,String month);
 
+	
 }
