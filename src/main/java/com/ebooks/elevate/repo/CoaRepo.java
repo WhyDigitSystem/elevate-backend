@@ -1,6 +1,7 @@
 package com.ebooks.elevate.repo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -49,5 +50,7 @@ public interface CoaRepo extends JpaRepository<CoaVO, Long>{
 
 	@Query(nativeQuery =true,value ="select * from  coa where active=1 and orgid=?1 and accountgroupname=?2  and type='group' and groupname is not null")
 	CoaVO getOrgIdAndSubAccountGroupName(Long orgId, String groupName);
+
+	Optional<CoaVO> findByAccountCode(String code);
 
 }

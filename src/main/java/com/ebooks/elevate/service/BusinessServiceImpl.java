@@ -1052,4 +1052,10 @@ public class BusinessServiceImpl implements BusinessService {
 		return serviceLevelRepo.getAllServiceLevel(orgId);
 	}
 
+	@Override
+	public Optional<CoaVO> getCaoByCode(String code) {
+		// TODO Auto-generated method stub
+		return coaRepo.findByAccountCode(code);
+	}
+
 }

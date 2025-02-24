@@ -93,9 +93,9 @@ public class BusinessController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	@GetMapping("/getCaoById")
-	public ResponseEntity<ResponseDTO> getCaoById(@RequestParam Long id) {
-		String methodName = "getCaoById()";
+	@GetMapping("/getCoaById")
+	public ResponseEntity<ResponseDTO> getCoaById(@RequestParam Long id) {
+		String methodName = "getCoaById()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
@@ -103,6 +103,31 @@ public class BusinessController extends BaseController {
 		Optional<CoaVO> coaVO = null;
 		try {
 			coaVO = businessService.getCaoById(id);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "coa information get successfully By Id");
+			responseObjectsMap.put("coaVO", coaVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "coa information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getCoaByCode")
+	public ResponseEntity<ResponseDTO> getCoaByCode(@RequestParam String code) {
+		String methodName = "getCoaByCode()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		Optional<CoaVO> coaVO = null;
+		try {
+			coaVO = businessService.getCaoByCode(code);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);

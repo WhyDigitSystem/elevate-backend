@@ -76,6 +76,8 @@ public interface BusinessService {
 
 	List<ServiceLevelVO> getAllServiceLevel(Long orgId);
 
+	Optional<CoaVO> getCaoByCode(String code);
+
 	
 
 	
