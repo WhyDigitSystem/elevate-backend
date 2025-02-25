@@ -9,9 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.transaction.Transactional;
 
@@ -406,15 +403,18 @@ public class ELReportServiceImpl implements ELReportService {
 			{
 				Map<String,Object>b= new HashMap<>();
 				b.put("id", Integer.parseInt(bud[0].toString()));
-				b.put("elglCode", bud[1] != null ? bud[1].toString() : "");
-				b.put("elglLedger", bud[2] != null ? bud[2].toString() : "");
-				b.put("opBalDebit", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
-				b.put("opBalCredit", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
-				b.put("transDebit", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
-				b.put("transCredit", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
-				b.put("clBalDebit", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
-				b.put("clBalCredit", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
-				b.put("natureOfAccount", bud[9] != null ? bud[9].toString() : "");
+				b.put("clientGlCode", bud[1] != null ? bud[1].toString() : "");
+				b.put("clientGlLedger", bud[2] != null ? bud[2].toString() : "");
+				b.put("elglCode", bud[3] != null ? bud[3].toString() : "");
+				b.put("elglLedger", bud[4] != null ? bud[4].toString() : "");
+				b.put("opBalDebit", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+				b.put("opBalCredit", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+				b.put("transDebit", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("transCredit", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("clBalDebit", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+				b.put("clBalCredit", bud[10] != null ? new BigDecimal(bud[10].toString()) : BigDecimal.ZERO);
+				b.put("closingBalance", bud[11] != null ? new BigDecimal(bud[11].toString()) : BigDecimal.ZERO);
+				b.put("natureOfAccount", bud[12] != null ? bud[12].toString() : "");
 				YTDTB.add(b);
 			}
 			return YTDTB;
