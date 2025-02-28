@@ -42,6 +42,9 @@ public class TrailBalanceController extends BaseController {
 
 	@Autowired
 	TrailBalanceService trailBalanceService;
+	
+	int totalRows = 0;
+	int successfulUploads = 0;
 
 	@PostMapping("/excelUploadForTb")
 	public ResponseEntity<ResponseDTO> excelUploadForTb(@RequestParam MultipartFile[] files,
@@ -49,8 +52,7 @@ public class TrailBalanceController extends BaseController {
 			@RequestParam Long orgId, @RequestParam String clientName, @RequestParam String month,
 			@RequestParam String finYear) {
 
-		int totalRows = 0;
-		int successfulUploads = 0;
+		
 		String methodName = "excelUploadForTb()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
@@ -68,7 +70,7 @@ public class TrailBalanceController extends BaseController {
 			responseObjectsMap.put("status", true);
 			responseObjectsMap.put("totalRows", totalRows);
 			responseObjectsMap.put("successfulUploads", successfulUploads);
-			responseObjectsMap.put("message", "Excel Upload For CCoa successful"); 
+			responseObjectsMap.put("message", "Excel Upload For CCoa successful");
 //			// Populate success response
 //			responseObjectsMap.put("statusFlag", "Ok");
 //			responseObjectsMap.put("status", true);
@@ -243,12 +245,17 @@ public class TrailBalanceController extends BaseController {
 
 		try {
 			// Call the service method and get the result
-			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForBudget(files, createdBy, clientCode, clientName, orgId);
+			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForBudget(files, createdBy, clientCode,
+					clientName, orgId);
 
-			responseObjectsMap.put("status", uploadResult.getFailureReasons().isEmpty());
-			// Populate success response
+			// Retrieve the counts after processing
+			totalRows = trailBalanceService.getTotalRows(); // Get total rows processed
+			successfulUploads = trailBalanceService.getSuccessfulUploads(); // Get successful uploads count
 			responseObjectsMap.put("statusFlag", "Ok");
-			responseObjectsMap.put("uploadResult", uploadResult);
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("totalRows", totalRows);
+			responseObjectsMap.put("successfulUploads", successfulUploads);
+			responseObjectsMap.put("message", "Excel Upload For Budget successful");
 			responseDTO = createServiceResponse(responseObjectsMap);
 
 		} catch (Exception e) {
@@ -266,7 +273,7 @@ public class TrailBalanceController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@Transactional
 	@PostMapping("/excelUploadForPreviousYear")
 	public ResponseEntity<ResponseDTO> excelUploadForPreviousYear(@RequestParam MultipartFile[] files,
@@ -281,12 +288,16 @@ public class TrailBalanceController extends BaseController {
 
 		try {
 			// Call the service method and get the result
-			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForPreviousYear(files, createdBy, clientCode, clientName, orgId);
+			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForPreviousYear(files, createdBy,
+					clientCode, clientName, orgId);
 
-			responseObjectsMap.put("status", uploadResult.getFailureReasons().isEmpty());
-			// Populate success response
+			totalRows = trailBalanceService.getTotalRows(); // Get total rows processed
+			successfulUploads = trailBalanceService.getSuccessfulUploads(); // Get successful uploads count
 			responseObjectsMap.put("statusFlag", "Ok");
-			responseObjectsMap.put("uploadResult", uploadResult);
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("totalRows", totalRows);
+			responseObjectsMap.put("successfulUploads", successfulUploads);
+			responseObjectsMap.put("message", "Excel Upload For Previous Year Actuals successful");
 			responseDTO = createServiceResponse(responseObjectsMap);
 
 		} catch (Exception e) {

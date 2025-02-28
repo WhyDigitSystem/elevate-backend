@@ -419,5 +419,34 @@ public class ELReportServiceImpl implements ELReportService {
 			}
 			return YTDTB;
 		}
+		
+		@Override
+		public List<Map<String, Object>> getMonthlyProcess(Long orgId, String clientCode, String finyear,
+				String month) {
+			
+			Set<Object[]> ElTBdetails=trialBalanceRepo.getElYTDTbdetailsforMonthlyProcess(orgId, clientCode, finyear, month);
+			return getMonthlyProcess(ElTBdetails);
+		}
+
+		private List<Map<String, Object>> getMonthlyProcess(Set<Object[]> elTBdetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:elTBdetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("id", Integer.parseInt(bud[0].toString()));
+				b.put("clientGlCode", bud[1] != null ? bud[1].toString() : "");
+				b.put("clientGlLedger", bud[2] != null ? bud[2].toString() : "");
+				b.put("elglCode", bud[3] != null ? bud[3].toString() : "");
+				b.put("elglLedger", bud[4] != null ? bud[4].toString() : "");
+				b.put("natureOfAccount", bud[5] != null ? bud[5].toString() : "");
+				b.put("closingBalance", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+				b.put("budget", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("pyActual", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("mismatch", bud[9] != null ? bud[9].toString() : "");
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
 
 }

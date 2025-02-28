@@ -220,4 +220,30 @@ public class ELReportController extends BaseController{
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@GetMapping("/getMonthlyProcessDetails")
+	public ResponseEntity<ResponseDTO> getMonthlyProcessDetails(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String month) {
+		String methodName = "getMonthlyProcessDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elYtdDetails = new ArrayList<Map<String, Object>>();
+		try {
+			elYtdDetails = elReportService.getMonthlyProcess(orgId, clientCode, finyear, month);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Monthly Process information get successfully");
+			responseObjectsMap.put("elYtdDetailsVO", elYtdDetails);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Monthly Process information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	
 }

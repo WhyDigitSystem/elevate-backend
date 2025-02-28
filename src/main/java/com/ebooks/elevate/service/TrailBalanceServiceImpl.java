@@ -113,6 +113,8 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 																										// column 4
 						BigDecimal clBalanceDb = parseBigDecimal(getStringCellValue(row.getCell(6)));
 						BigDecimal clBalanceCr = parseBigDecimal(getStringCellValue(row.getCell(7)));
+						String year = getStringCellValue(row.getCell(8));
+						String processMonth = getStringCellValue(row.getCell(9));
 						// Debit in column 3
 
 						// Create and populate TrailBalanceVO object
@@ -126,8 +128,8 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 						dataVO.setTransDebit(transDebit);
 						dataVO.setClBalanceDb(clBalanceDb);
 						dataVO.setClBalanceCr(clBalanceCr);
-						dataVO.setFinYear(finYear);
-						dataVO.setMonth(month);
+						dataVO.setFinYear(year);
+						dataVO.setMonth(processMonth);
 						dataVO.setOrgId(orgId);
 						dataVO.setClient(clientName);
 						dataVO.setCreatedBy(createdBy);
@@ -346,6 +348,8 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	public ExcelUploadResultDTO excelUploadForBudget(MultipartFile[] files, String createdBy, String clientCode,
 	        String clientName, Long orgId) throws ApplicationException, IOException, java.io.IOException {
 
+		totalRows = 0;
+		successfulUploads = 0;
 	    ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result object
 	    List<BudgetVO> budgets = new ArrayList<>();
 	    result.setTotalExcelRows(0);
@@ -364,7 +368,7 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                
 
 	               
-
+	                totalRows++;
 	                result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment total rows
 
 	                try {
@@ -405,7 +409,7 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 
 	                        budgets.add(monthlyBudget);
 	                    }
-
+	                    successfulUploads++;
 	                    result.setSuccessfulUploads(result.getSuccessfulUploads() + 1); // Increment successful uploads
 	                } catch (Exception e) {
 	                    result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
@@ -446,6 +450,8 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	public ExcelUploadResultDTO excelUploadForPreviousYear(MultipartFile[] files, String createdBy, String clientCode,
 			String clientName, Long orgId) throws ApplicationException, java.io.IOException {
 
+		totalRows = 0;
+		successfulUploads = 0;
 	    ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result object
 	    List<PreviousYearActualVO> budgets = new ArrayList<>();
 	    result.setTotalExcelRows(0);
@@ -461,7 +467,7 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                	
 	                	continue;
 	                }
-	                
+	                totalRows++;
 	                result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment total rows
 
 	                try {
@@ -503,6 +509,7 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                        budgets.add(monthlyBudget);
 	                    }
 
+	                    successfulUploads++;
 	                    result.setSuccessfulUploads(result.getSuccessfulUploads() + 1); // Increment successful uploads
 	                } catch (Exception e) {
 	                    result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
