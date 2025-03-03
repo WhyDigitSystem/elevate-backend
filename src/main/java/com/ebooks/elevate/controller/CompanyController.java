@@ -28,7 +28,9 @@ import com.ebooks.elevate.dto.EltCompanyDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.entity.CompanyEmployeeVO;
 import com.ebooks.elevate.entity.EltCompanyVO;
+import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.service.CompanyService;
+import com.ebooks.elevate.service.UserService;
 
 
 @CrossOrigin
@@ -42,6 +44,11 @@ import com.ebooks.elevate.service.CompanyService;
 	@Autowired
 	CompanyService companyService;
 	
+	@Autowired
+	UserService userService;
+	
+	
+	//ELT COMPANY
 	
 	@PutMapping("/updateCreateCompany")
 	public ResponseEntity<ResponseDTO> updateCreateCompany(@Valid @RequestBody EltCompanyDTO eltCompanyDTO) {
@@ -195,4 +202,32 @@ import com.ebooks.elevate.service.CompanyService;
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+	
+	@GetMapping("/getBranchCodeByUser")
+	public ResponseEntity<ResponseDTO> getBranchCodeByUser(@RequestParam(required =true) String userName) {
+		String methodName = "getBranchCodeByUser()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<UserVO> userVO = new ArrayList<>();
+		try {
+			userVO = userService.getBranchCodeByUser(userName);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();   
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "BranchCode information get successfully");
+			responseObjectsMap.put("userVO", userVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					"BranchCodeinformation receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	
 }

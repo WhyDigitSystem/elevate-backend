@@ -33,6 +33,7 @@ import com.ebooks.elevate.dto.RolesResponsibilityDTO;
 import com.ebooks.elevate.dto.ScreensDTO;
 import com.ebooks.elevate.dto.SignUpFormDTO;
 import com.ebooks.elevate.dto.UserLoginBranchAccessDTO;
+import com.ebooks.elevate.dto.UserLoginClientAccessDTO;
 import com.ebooks.elevate.dto.UserLoginRoleAccessDTO;
 import com.ebooks.elevate.dto.UserResponseDTO;
 import com.ebooks.elevate.entity.ResponsibilityVO;
@@ -41,9 +42,11 @@ import com.ebooks.elevate.entity.RolesVO;
 import com.ebooks.elevate.entity.ScreensVO;
 import com.ebooks.elevate.entity.TokenVO;
 import com.ebooks.elevate.entity.UserLoginBranchAccessibleVO;
+import com.ebooks.elevate.entity.UserLoginClientAccessVO;
 import com.ebooks.elevate.entity.UserLoginRolesVO;
 import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.ClientAccessRepo;
 import com.ebooks.elevate.repo.ResponsibilitiesRepo;
 import com.ebooks.elevate.repo.RolesRepo;
 import com.ebooks.elevate.repo.RolesResponsibilityRepo;
@@ -97,6 +100,9 @@ public class AuthServiceImpl implements AuthService {
 
 	@Autowired
 	RolesResponsibilityRepo rolesResponsibilityRepo;
+	
+	@Autowired
+	ClientAccessRepo clientAccessRepo;
 
 	@Override
 	public void signup(SignUpFormDTO signUpRequest) {
@@ -128,11 +134,15 @@ public class AuthServiceImpl implements AuthService {
 
 			List<UserLoginRolesVO> roles = loginRolesRepo.findByUserVO(userVO);
 			loginRolesRepo.deleteAll(roles);
-//			List<UserLoginClientAccessVO> client = clientAccessRepo.findByUserVO(userVO);
-//			clientAccessRepo.deleteAll(client);
+			List<UserLoginClientAccessVO> client = clientAccessRepo.findByUserVO(userVO);
+			clientAccessRepo.deleteAll(client);
 			List<UserLoginBranchAccessibleVO> branch = branchAccessRepo.findByUserVO(userVO);
 			branchAccessRepo.deleteAll(branch);
+			List<UserLoginClientAccessVO> client1 = clientAccessRepo.findByUserVO(userVO);
+			clientAccessRepo.deleteAll(client1);
+			
 		}
+		
 		userVO.setUserName(signUpFormDTO.getUserName());
 		if (ObjectUtils.isEmpty(userVO.getId())) {
 			try {
@@ -167,17 +177,17 @@ public class AuthServiceImpl implements AuthService {
 		}
 
 		userVO.setRoleAccessVO(rolesVO);
-//		List<UserLoginClientAccessVO> clientAccessVOList = new ArrayList<>();
-//		if (signUpFormDTO.getClientAccessDTOList() != null) {
-//			for (UserLoginClientAccessDTO clientAccessDTO : signUpFormDTO.getClientAccessDTOList()) {
-//				UserLoginClientAccessVO clientAccessVO = new UserLoginClientAccessVO();
-//				clientAccessVO.setClient(clientAccessDTO.getClient());
-//				clientAccessVO.setCustomer(clientAccessDTO.getCustomer());
-//				clientAccessVO.setUserVO(userVO);
-//				clientAccessVOList.add(clientAccessVO);
-//			}
-//		}
-//		userVO.setClientAccessVO(clientAccessVOList);
+		List<UserLoginClientAccessVO> clientAccessVOList = new ArrayList<>();
+		if (signUpFormDTO.getClientAccessDTOList() != null) {
+			for (UserLoginClientAccessDTO clientAccessDTO : signUpFormDTO.getClientAccessDTOList()) {
+				UserLoginClientAccessVO clientAccessVO = new UserLoginClientAccessVO();
+				clientAccessVO.setClientName(clientAccessDTO.getClientName());
+				clientAccessVO.setClientCode(clientAccessDTO.getClientCode());
+				clientAccessVO.setUserVO(userVO);
+				clientAccessVOList.add(clientAccessVO);
+			}
+		}
+		userVO.setClientAccessVO(clientAccessVOList);
 
 		List<UserLoginBranchAccessibleVO> branchAccessList = new ArrayList<>();
 		if (signUpFormDTO.getBranchAccessDTOList() != null) {
@@ -433,7 +443,7 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public Map<String, Object> createUpdateResponsibilities(ResponsibilityDTO responsibilityDTO)
-			throws ApplicationException {
+			throws ApplicationException  {
 
 		ResponsibilityVO responsibilityVO = new ResponsibilityVO();
 		String message;
@@ -445,7 +455,7 @@ public class AuthServiceImpl implements AuthService {
 //					responsibilityDTO.getOrgId())) {
 //				throw new ApplicationException("Responsibility Name already exists");
 //			}
-
+ 
 			responsibilityVO.setCreatedBy(responsibilityDTO.getCreatedBy());
 			responsibilityVO.setUpdatedBy(responsibilityDTO.getCreatedBy());
 			// Set the values from responsibilityDTO to responsibilityVO
@@ -487,14 +497,14 @@ public class AuthServiceImpl implements AuthService {
 	private void mapResponsibilityDtoToResponsibilityVo(ResponsibilityDTO responsibilityDTO,
 			ResponsibilityVO responsibilityVO) {
 		responsibilityVO.setResponsibility(responsibilityDTO.getResponsibility().toUpperCase());
-		//responsibilityVO.setOrgId(responsibilityDTO.getOrgId());
+		responsibilityVO.setOrgId(responsibilityDTO.getOrgId());
 		responsibilityVO.setActive(responsibilityDTO.isActive());
 		if (responsibilityDTO.getScreensDTO() != null) {
 			List<ScreensVO> screensVOList = new ArrayList<>();
 			for (ScreensDTO screensDTO : responsibilityDTO.getScreensDTO()) {
 				ScreensVO screensVO = new ScreensVO();
 				screensVO.setScreenName(screensDTO.getScreenName().toUpperCase());
-				//screensVO.setOrgId(responsibilityDTO.getOrgId());
+				screensVO.setOrgId(responsibilityDTO.getOrgId());
 				screensVO.setResponsibilityVO(responsibilityVO);
 				screensVOList.add(screensVO);
 			}
@@ -503,8 +513,8 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getResponsibilityForRolesByOrgId() {
-		Set<Object[]> activeResponsibility = responsibilityRepo.findActiveResponsibility();
+	public List<Map<String, Object>> getResponsibilityForRolesByOrgId(Long orgId) {
+		Set<Object[]> activeResponsibility = responsibilityRepo.findActiveResponsibility(orgId);
 		return getActiveResponsibile(activeResponsibility);
 	}
 
@@ -571,7 +581,7 @@ public class AuthServiceImpl implements AuthService {
 	// Helper method to map RolesDTO to RolesVO
 	private void mapRolesDtoToRolesVo(RolesDTO rolesDTO, RolesVO rolesVO) {
 		rolesVO.setRole(rolesDTO.getRole().toUpperCase());
-	//	rolesVO.setOrgId(rolesDTO.getOrgId());
+		rolesVO.setOrgId(rolesDTO.getOrgId());
 		rolesVO.setActive(rolesDTO.isActive());
 		if (rolesDTO.getRolesResponsibilityDTO() != null) {
 			List<RolesResponsibilityVO> rolesResponsibilityVOList = new ArrayList<>();
@@ -588,15 +598,15 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<RolesVO> getAllRoles() {
+	public List<RolesVO> getAllRoles(Long orgId) {
 
-		return rolesRepo.findAll();
+		return rolesRepo.findAllByOrgId(orgId);
 	}
 
 	@Override
-	public List<RolesVO> getAllActiveRoles() {
+	public List<RolesVO> getAllActiveRoles(Long orgId) {
 
-		return rolesRepo.findAllActiveRoles();
+		return rolesRepo.findAllActiveRoles(orgId);
 	}
 
 	@Override
@@ -626,15 +636,15 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public List<ResponsibilityVO> getAllResponsibility() {
+	public List<ResponsibilityVO> getAllResponsibility(Long orgId) {
 
-		return responsibilityRepo.findAll();
+		return responsibilityRepo.findAllByOrgId(orgId);
 	}
 
 	@Override
-	public List<ResponsibilityVO> getAllActiveResponsibility() {
+	public List<ResponsibilityVO> getAllActiveResponsibility(Long orgId) {
 		// TODO Auto-generated method stub
-		return responsibilityRepo.findAllActiveResponsibility();
+		return responsibilityRepo.findAllActiveResponsibility(orgId);
 	}
 
 	public List<UserVO> getAllUsersByOrgId(Long orgId) {

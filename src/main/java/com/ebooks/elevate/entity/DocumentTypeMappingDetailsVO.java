@@ -43,6 +43,12 @@ public class DocumentTypeMappingDetailsVO {
 	@Column(name = "branch",length =25)
 	private String branch;
 	
+	@Column(name = "client",length =100)
+	private String client;
+	
+	@Column(name = "clientcode",length =25)
+	private String clientCode;
+	
 	@Column(name = "branchcode",length =25)
 	private String branchCode;
 	

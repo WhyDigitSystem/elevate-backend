@@ -1,0 +1,38 @@
+package com.ebooks.elevate.service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.ebooks.elevate.dto.ElMfrDTO;
+import com.ebooks.elevate.entity.ElMfrVO;
+import com.ebooks.elevate.exception.ApplicationException;
+
+@Service
+public interface ELReportService {
+
+	Map<String, Object> createUpdateElMfr(ElMfrDTO elMfrDTO) throws ApplicationException;
+
+	List<ElMfrVO> getAllElMfr(Long orgId);
+
+	int getTotalRows();
+
+	int getSuccessfulUploads();
+
+	void excelUploadForElMfr(MultipartFile[] files, String createdBy, Long orgId) throws ApplicationException, IOException;
+
+	List<Map<String, Object>> getMisMatchClientTb(Long orgId, String clientCode);
+	
+	List<Map<String, Object>> getClientBudgetDetails(Long orgId,String year, String client,String clientCode);
+	
+	List<Map<String, Object>> getClientPreviousYearActualDetails(Long orgId,String year, String client,String clientCode);
+	
+	List<Map<String, Object>> getElevateYTDTBDetails(Long orgId,String clientCode, String finyear,String month);
+
+	List<Map<String, Object>> getMonthlyProcess(Long orgId, String clientCode, String finyear, String month);
+
+	
+}

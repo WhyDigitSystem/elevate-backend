@@ -10,12 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GlobalParameterDTO {
 
-	private Long id;
 	private Long userId;
 	private String finYear;
-	private String branch;
-	private String branchCode;
-	private Long orgId;
-	private Long clientId;
+	private String clientCode;
+	private String clientName;
+	private String month;
 
 }

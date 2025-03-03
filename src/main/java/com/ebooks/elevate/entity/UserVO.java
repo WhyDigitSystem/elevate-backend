@@ -84,8 +84,8 @@ public class UserVO {
 	@OneToMany(mappedBy = "userVO", cascade = CascadeType.ALL)
 	private List<UserLoginRolesVO> roleAccessVO;
 
-//	@OneToMany(mappedBy = "userVO", cascade = CascadeType.ALL)
-//	private List<UserLoginClientAccessVO> clientAccessVO;
+	@OneToMany(mappedBy = "userVO", cascade = CascadeType.ALL)
+	private List<UserLoginClientAccessVO> clientAccessVO;
 
 	@OneToMany(mappedBy = "userVO", cascade = CascadeType.ALL)
 	private List<UserLoginBranchAccessibleVO> branchAccessibleVO;

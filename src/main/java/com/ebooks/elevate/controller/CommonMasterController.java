@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -37,7 +36,6 @@ import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.dto.ScreenNamesDTO;
 import com.ebooks.elevate.dto.StateDTO;
 import com.ebooks.elevate.entity.CityVO;
-import com.ebooks.elevate.entity.ClientVO;
 import com.ebooks.elevate.entity.CompanyVO;
 import com.ebooks.elevate.entity.CountryVO;
 import com.ebooks.elevate.entity.CurrencyVO;
@@ -925,57 +923,7 @@ public class CommonMasterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	@GetMapping("/getAllClients")
-	public ResponseEntity<ResponseDTO> getAllClients(@RequestParam(required =true) Long orgId) {
-		String methodName = "getAllClients()";
-		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-		String errorMsg = null;
-		Map<String, Object> responseObjectsMap = new HashMap<>();
-		ResponseDTO responseDTO = null;
-		List<ClientVO> clientVOs = new ArrayList<>();
-		try {
-			clientVOs = commonMasterService.getAllClients(orgId);
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-		}
-		if (StringUtils.isBlank(errorMsg)) {
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "get All Clients information get successfully");
-			responseObjectsMap.put("clientVOs", clientVOs);
-			responseDTO = createServiceResponse(responseObjectsMap);
-		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "get All Clients information receive failed",
-					errorMsg);
-		}
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
-	}
 	
-	@GetMapping("/getClientById")
-	public ResponseEntity<ResponseDTO> getClientById(@RequestParam(required =true) Long id) {
-		String methodName = "getClientById()";
-		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-		String errorMsg = null;
-		Map<String, Object> responseObjectsMap = new HashMap<>();
-		ResponseDTO responseDTO = null;
-		Optional<ClientVO> clientVOs = null;
-		try {
-			clientVOs = commonMasterService.getClientById(id);
-		} catch (Exception e) {
-			errorMsg = e.getMessage();
-			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-		}
-		if (StringUtils.isBlank(errorMsg)) {
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "get  Client information get successfully");
-			responseObjectsMap.put("clientVOs", clientVOs);
-			responseDTO = createServiceResponse(responseObjectsMap);
-		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "get  Client information receive failed",
-					errorMsg);
-		}
-		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-		return ResponseEntity.ok().body(responseDTO);
-	}
 	
 	
 }

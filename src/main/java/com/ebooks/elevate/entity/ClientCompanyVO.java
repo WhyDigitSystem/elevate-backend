@@ -1,16 +1,22 @@
 package com.ebooks.elevate.entity;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.ebooks.elevate.dto.CreatedUpdatedDate;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,26 +37,53 @@ public class ClientCompanyVO {
 	
 	@Column(name = "orgid")
 	private Long orgId;
-	@Column(name = "companycode")
-	private String companyCode;
-	@Column(name = "clientname")
+	@Column(name = "name" , length = 100)
 	private String clientName;
-	@Column(name = "clientcode")
-	private String clientCode;
-	@Column(name = "phone")
+	@Column(name = "clientcode",length = 10)
+	private String clientCode; 
+	@Column(name = "phone",length = 25)
 	private String phone;
-	@Column(name = "email")
+	@Column(name = "email",length = 100)
 	private String email;
-	@Column(name = "website")
+	@Column(name = "website",length = 100)
 	private String webSite;
 	@Column(name = "active")
 	private boolean active;
-	@Column(name = "createdby")
+	@Column(name = "createdby",length = 50)
 	private String createdBy;
-	@Column(name = "modifiedby")
+	@Column(name = "modifiedby",length = 50)
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
+	
+	@Column(name = "currency",length = 50)
+	private String currency;
+	@Column(name = "yearstartdate")
+	private LocalDate yearStartDate;
+	@Column(name = "yearenddate")
+	private LocalDate yearEndDate;
+	
+	@Column(name = "bussinesstype",length = 255)
+	private String bussinessType;
+	
+	@Column(name = "turnover",length = 100)
+	private String turnOver;
+	
+	@Column(name = "levelofservice",length = 100)
+	private String levelOfService;
+	
+	@Column(name = "repperson",length = 100)
+	private String repPerson;
+	
+	@Column(name = "username",length = 100)
+	private String userName;
+	
+	@Column(name = "password")
+	private String password;
+	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "clientCompanyVO", cascade = CascadeType.ALL)
+	private List<ClientCompanyReportAccessVO>clientCompanyReportAccessVO;
 
 	@JsonGetter("active")
 	public String getActive() {

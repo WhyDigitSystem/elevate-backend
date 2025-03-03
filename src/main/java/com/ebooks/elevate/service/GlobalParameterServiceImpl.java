@@ -1,6 +1,8 @@
 package com.ebooks.elevate.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.ebooks.elevate.dto.GlobalParameterDTO;
 import com.ebooks.elevate.entity.GlobalParameterVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.ClientRepo;
 import com.ebooks.elevate.repo.FinancialYearRepo;
 import com.ebooks.elevate.repo.GlobalParameterRepo;
 import com.ebooks.elevate.repo.UserBranchAccessRepo;
@@ -38,70 +41,92 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 	@Autowired
 	FinancialYearRepo financialRepo;
 
+	@Autowired
+	ClientRepo clientRepo;
+
 	// Global Parametre
 
-	@Override
-	public Set<Object[]> getWarehouseNameByOrgIdAndBranchAndClient(Long orgid, String branch, String client) {
-		return globalParameterRepo.findWarehouseNameByOrgIdAndBranchAndClient(orgid, branch, client);
-	}
+//	@Override
+//	public Set<Object[]> getWarehouseNameByOrgIdAndBranchAndClient(Long orgid, String branch, String client) {
+//		return globalParameterRepo.findWarehouseNameByOrgIdAndBranchAndClient(orgid, branch, client);
+//	}
 
-	@Override
-	public Optional<GlobalParameterVO> getGlobalParamByOrgIdAndUserName(Long orgid, String username) {
-
-		return globalParameterRepo.findGlobalParamByOrgIdAndUserName(orgid, username);
-	}
+//	@Override
+//	public Optional<GlobalParameterVO> getGlobalParamByOrgIdAndUserName(String username) {
+//
+//		return globalParameterRepo.findGlobalParamByUserName(username);
+//	}
 
 	// get access Branch
-	@Override
-	public Set<Object[]> getGlobalParametersBranchAndBranchCodeByOrgIdAndUserName(Long orgid, String userName) {
-
-		return userBranchAccessRepo.findGlobalParametersBranchByUserName(orgid, userName);
-	}
+//	@Override
+//	public Set<Object[]> getGlobalParametersBranchAndBranchCodeByOrgIdAndUserName(Long orgid, String userName) {
+//
+//		return userBranchAccessRepo.findGlobalParametersBranchByUserName(orgid, userName);
+//	}
 
 	@Override
 	public Map<String, Object> updateCreateGlobalparam(@Valid GlobalParameterDTO globalParameterDTO)
-			throws ApplicationException {
+	        throws ApplicationException {
 
-		GlobalParameterVO globalParameterVO;
-		String message = null;
+	    String message;
+	    GlobalParameterVO globalParameterVO;
 
-		if (ObjectUtils.isEmpty(globalParameterDTO.getId())) {
+	    // Check if a record with the same UserId exists
+	    GlobalParameterVO existingRecord = globalParameterRepo.findByUserid(globalParameterDTO.getUserId());
 
-			globalParameterVO = new GlobalParameterVO();
+	    if (existingRecord != null) {
+	        // Update the existing record
+	        existingRecord.setClientCode(globalParameterDTO.getClientCode());
+	        existingRecord.setClientName(globalParameterDTO.getClientName());
+	        existingRecord.setFinYear(globalParameterDTO.getFinYear());
+	        existingRecord.setMonth(globalParameterDTO.getMonth());
 
-			message = "GlobalParameter Creation SuccessFully";
-		}
+	        globalParameterVO = globalParameterRepo.save(existingRecord);
+	        message = "GlobalParameter Updation Successfully";
+	    } else {
+	        // Create a new record
+	        globalParameterVO = new GlobalParameterVO();
+	        globalParameterVO.setFinYear(globalParameterDTO.getFinYear());
+	        globalParameterVO.setClientCode(globalParameterDTO.getClientCode());
+	        globalParameterVO.setUserid(globalParameterDTO.getUserId());
+	        globalParameterVO.setMonth(globalParameterDTO.getMonth());
+	        globalParameterVO.setClientName(globalParameterDTO.getClientName());
+	        globalParameterVO = globalParameterRepo.save(globalParameterVO);
+	        message = "GlobalParameter Creation Successfully";
+	    }
 
-		else {
-			globalParameterVO = globalParameterRepo.findById(globalParameterDTO.getId())
-					.orElseThrow(() -> new ApplicationException(
-							"Global Parameter Not Found with id: " + globalParameterDTO.getId()));
+	    // Prepare the response
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("message", message);
+	    response.put("globalParameterVO", globalParameterVO);
 
-			message = "GlobalParameter Updation Successfully";
-		}
-
-		globalParameterVO = getGlobalParameterVOFromglobalParameterDTO(globalParameterVO, globalParameterDTO);
-
-		globalParameterRepo.save(globalParameterVO);
-
-		Map<String, Object> response = new HashMap<>();
-		response.put("message", message);
-		response.put("globalParameterVO", globalParameterVO);
-		return response;
-
+	    return response;
 	}
 
-	private GlobalParameterVO getGlobalParameterVOFromglobalParameterDTO(GlobalParameterVO globalParameterVO,
-			@Valid GlobalParameterDTO globalParameterDTO) {
+   
+	
 
-		globalParameterVO.setBranch(globalParameterDTO.getBranch());
-		globalParameterVO.setBranchcode(globalParameterDTO.getBranchCode());
-		globalParameterVO.setFinYear(globalParameterDTO.getFinYear());
-		globalParameterVO.setOrgId(globalParameterDTO.getOrgId());
-		globalParameterVO.setClientId(globalParameterDTO.getClientId());
-		globalParameterVO.setUserid(globalParameterDTO.getUserId());
-
-		return globalParameterVO;
+	@Override
+	public List<Map<String, Object>> getClientCodeForGlopalParam(String userName) {
+		Set<Object[]> getClientDts = clientRepo.getClientCode(userName);
+		return getClientCodeForGlopa(getClientDts);
 	}
+
+	private List<Map<String, Object>> getClientCodeForGlopa(Set<Object[]> getFullGrid) {
+		List<Map<String, Object>> List1 = new ArrayList<>();
+		for (Object[] ch : getFullGrid) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("clientCode", ch[0] != null ? ch[0].toString() : ""); // Map clientCode
+			map.put("clientName", ch[1] != null ? ch[1].toString() : ""); // Map clientName
+			List1.add(map); // Add the map to the list
+		}
+		return List1;
+	}  
+ 
+	@Override
+	public Optional<GlobalParameterVO> getGlobalparamByUserId(Long userId) {
+
+		return globalParameterRepo.getGlobalParam(userId);
+	}  
 
 }
