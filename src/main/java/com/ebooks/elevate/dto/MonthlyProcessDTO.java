@@ -1,0 +1,23 @@
+package com.ebooks.elevate.dto;
+
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class MonthlyProcessDTO {
+	
+	private Long id;
+	private Long orgId;
+	private String month; 
+	private String year;
+	private String clientCode;
+	private String client;
+	private String createdBy;
+	private List<MonthlyProcessDetailsDTO>monthlyProcessDetailsDTO;
+
+}

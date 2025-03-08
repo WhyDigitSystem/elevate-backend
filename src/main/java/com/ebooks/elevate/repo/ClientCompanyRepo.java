@@ -28,6 +28,8 @@ public interface ClientCompanyRepo extends JpaRepository<ClientCompanyVO, Long>{
 
 	boolean existsByClientNameAndOrgId(String companyName, Long id);
 
+	ClientCompanyVO findByClientCode(String clientCode);
+
 
 
 }

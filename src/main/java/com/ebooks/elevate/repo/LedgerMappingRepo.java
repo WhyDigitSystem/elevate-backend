@@ -25,9 +25,9 @@ public interface LedgerMappingRepo extends JpaRepository<LedgerMappingVO, Long>{
 	@Query("DELETE FROM LedgerMappingVO l WHERE l.clientCode = :clientCode")
 	void deleteByClientCode(@Param("clientCode") String clientCode);
 
-	@Query(nativeQuery =true,value ="select a.accountname, a.accountcode from ccoa a where a.accountcode not in(\r\n"
-			+ "select clientcoacode from ledgermapping where clientcode=?1 and orgid=?2 group by \r\n"
-			+ "clientcoacode) and a.clientcode=?1 and a.active=1 and a.orgid=?2 group by a.accountname, a.accountcode")
+	@Query(nativeQuery =true,value ="select a.accountname, a.accountcode from ccoa a where a.accountname not in(\r\n"
+			+ "select clientcoa from ledgermapping where clientcode=?1 and orgid=?2 group by \r\n"
+			+ "clientcoa) and a.clientcode=?1 and a.active=1 and a.orgid=?2 group by a.accountname, a.accountcode")
 	Set<Object[]> getFillGridForLedgerMapping(String clientCode,Long orgId);
 
 
@@ -38,5 +38,7 @@ public interface LedgerMappingRepo extends JpaRepository<LedgerMappingVO, Long>{
 
 
 	List<LedgerMappingVO> findAllByOrgIdAndClientCode(Long orgId, String clientCode);
+
+	boolean existsByOrgIdAndClientCodeAndClientCoaIgnoreCase(Long orgId, String clientCode, String clientAccountName);
 
 }

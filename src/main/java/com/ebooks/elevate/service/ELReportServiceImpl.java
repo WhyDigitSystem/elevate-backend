@@ -415,6 +415,7 @@ public class ELReportServiceImpl implements ELReportService {
 				b.put("clBalCredit", bud[10] != null ? new BigDecimal(bud[10].toString()) : BigDecimal.ZERO);
 				b.put("closingBalance", bud[11] != null ? new BigDecimal(bud[11].toString()) : BigDecimal.ZERO);
 				b.put("natureOfAccount", bud[12] != null ? bud[12].toString() : "");
+				b.put("segment", bud[13] != null ? bud[13].toString() : "");
 				YTDTB.add(b);
 			}
 			return YTDTB;
@@ -435,18 +436,19 @@ public class ELReportServiceImpl implements ELReportService {
 			{
 				Map<String,Object>b= new HashMap<>();
 				b.put("id", Integer.parseInt(bud[0].toString()));
-				b.put("clientGlCode", bud[1] != null ? bud[1].toString() : "");
-				b.put("clientGlLedger", bud[2] != null ? bud[2].toString() : "");
-				b.put("elglCode", bud[3] != null ? bud[3].toString() : "");
-				b.put("elglLedger", bud[4] != null ? bud[4].toString() : "");
-				b.put("natureOfAccount", bud[5] != null ? bud[5].toString() : "");
-				b.put("closingBalance", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
-				b.put("budget", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
-				b.put("pyActual", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
-				b.put("mismatch", bud[9] != null ? bud[9].toString() : "");
+				b.put("elglCode", bud[1] != null ? bud[1].toString() : "");
+				b.put("elglLedger", bud[2] != null ? bud[2].toString() : "");
+				b.put("natureOfAccount", bud[3] != null ? bud[3].toString() : "");
+				b.put("segment", bud[4] != null ? bud[4].toString() : "");
+				b.put("closingBalanceCurrentMonth", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+				b.put("closingBalancePreviousMonth", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+				b.put("actualCurrentMonth", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("budget", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("pyActual", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+				b.put("mismatch", bud[10] != null ? bud[10].toString() : "");
+				b.put("approveStatus", bud[11] != null && "Yes".equalsIgnoreCase(bud[11].toString()));
 				YTDTB.add(b);
 			}
 			return YTDTB;
 		}
-
 }

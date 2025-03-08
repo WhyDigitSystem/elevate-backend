@@ -40,7 +40,6 @@ public interface CoaRepo extends JpaRepository<CoaVO, Long>{
 	CoaVO findByOrgIdAndAccountCode(Long orgId, String elAccountCode);
 
 
-	boolean existsByOrgIdAndAccountCode(Long orgId, String accountCode);
 
 	@Query(value = "select * from coa a where a.orgid=?1",nativeQuery = true)
 	List<CoaVO> getAllCaoByOrgId(Long orgId);
@@ -52,5 +51,9 @@ public interface CoaRepo extends JpaRepository<CoaVO, Long>{
 	CoaVO getOrgIdAndSubAccountGroupName(Long orgId, String groupName);
 
 	Optional<CoaVO> findByAccountCode(String code);
+
+	boolean existsByOrgIdAndAccountGroupNameIgnoreCase(Long orgId, String accountName);
+
+	boolean existsByOrgIdAndAccountCodeIgnoreCase(Long orgId, String accountCode);
 
 }

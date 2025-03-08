@@ -1,0 +1,20 @@
+package com.ebooks.elevate.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import com.ebooks.elevate.dto.MonthlyProcessDTO;
+import com.ebooks.elevate.entity.MonthlyProcessVO;
+import com.ebooks.elevate.exception.ApplicationException;
+
+@Service
+public interface MonthlyProcessService {
+
+	Map<String, Object> createUpdateMonthlyProcess(MonthlyProcessDTO monthlyProcessDTO) throws ApplicationException;
+	
+	List<MonthlyProcessVO>getAllMonthlyProcessByClientCode(Long orgId,String clientCode);
+
+	MonthlyProcessVO getAllMonthlyProcessById(Long id);
+}

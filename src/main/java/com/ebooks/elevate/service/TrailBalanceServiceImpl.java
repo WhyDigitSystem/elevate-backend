@@ -20,6 +20,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +47,7 @@ import io.jsonwebtoken.io.IOException;
 @Service
 public class TrailBalanceServiceImpl implements TrailBalanceService {
 
+	public static final Logger LOGGER = LoggerFactory.getLogger(TrailBalanceServiceImpl.class);
 	@Autowired
 	TrialBalanceRepo trialBalanceRepo;
 
@@ -103,24 +106,21 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 
 					try {
 						// Parse cell values
-						String accountCode = getStringCellValue(row.getCell(0)); // Account Code is in column 0
-						String accountName = getStringCellValue(row.getCell(1)); // Account Name is in column 1
-						BigDecimal opBalanceDb = parseBigDecimal(getStringCellValue(row.getCell(2)));
-						BigDecimal opBalanceCr = parseBigDecimal(getStringCellValue(row.getCell(3)));
-						BigDecimal transDebit = parseBigDecimal(getStringCellValue(row.getCell(4))); // Debit Amount in
-																										// column 3
-						BigDecimal transCredit = parseBigDecimal(getStringCellValue(row.getCell(5))); // Credit in
-																										// column 4
-						BigDecimal clBalanceDb = parseBigDecimal(getStringCellValue(row.getCell(6)));
-						BigDecimal clBalanceCr = parseBigDecimal(getStringCellValue(row.getCell(7)));
-						String year = getStringCellValue(row.getCell(8));
-						String processMonth = getStringCellValue(row.getCell(9));
+						String accountName = getStringCellValue(row.getCell(0)); // Account Name is in column 1
+						BigDecimal opBalanceDb = parseBigDecimal(getStringCellValue(row.getCell(1)));
+						BigDecimal opBalanceCr = parseBigDecimal(getStringCellValue(row.getCell(2)));
+						BigDecimal transDebit = parseBigDecimal(getStringCellValue(row.getCell(3))); // Debit Amount in
+						BigDecimal transCredit = parseBigDecimal(getStringCellValue(row.getCell(4))); // Credit in
+						BigDecimal clBalanceDb = parseBigDecimal(getStringCellValue(row.getCell(5)));
+						BigDecimal clBalanceCr = parseBigDecimal(getStringCellValue(row.getCell(6)));
+						String year = getStringCellValue(row.getCell(7));
+						String processMonth = getStringCellValue(row.getCell(8));
 						// Debit in column 3
 
 						// Create and populate TrailBalanceVO object
 						TrialBalanceVO dataVO = new TrialBalanceVO();
 						dataVO.setAccountName(accountName);
-						dataVO.setAccountCode(accountCode);
+//						dataVO.setAccountCode(accountCode);
 						dataVO.setClientCode(clientCode);
 						dataVO.setOpBalanceDb(opBalanceDb);
 						dataVO.setOpBalanceCr(opBalanceCr);

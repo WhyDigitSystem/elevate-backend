@@ -22,6 +22,8 @@ public class ClientCompanyDTO {
 	private String createdBy;
 	private boolean active;
 	private String bussinessType;
+	private String clientGLCode;
+	private Long startNo;
 	private String turnOver;
 	private String levelOfService;
 	private String repPerson;

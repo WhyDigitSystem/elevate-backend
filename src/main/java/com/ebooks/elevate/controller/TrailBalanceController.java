@@ -70,7 +70,7 @@ public class TrailBalanceController extends BaseController {
 			responseObjectsMap.put("status", true);
 			responseObjectsMap.put("totalRows", totalRows);
 			responseObjectsMap.put("successfulUploads", successfulUploads);
-			responseObjectsMap.put("message", "Excel Upload For CCoa successful");
+			responseObjectsMap.put("message", "Excel Upload For Client TB successful");
 //			// Populate success response
 //			responseObjectsMap.put("statusFlag", "Ok");
 //			responseObjectsMap.put("status", true);
@@ -84,7 +84,7 @@ public class TrailBalanceController extends BaseController {
 			responseObjectsMap.put("status", false);
 			responseObjectsMap.put("errorMessage", errorMsg);
 
-			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client Trial Balance Failed",
 					e.getMessage());
 		}
 
