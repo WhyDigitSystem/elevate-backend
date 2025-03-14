@@ -573,4 +573,14 @@ public class MasterServiceImpl implements MasterService {
 		}
 		return groupMappingVO;
 	}
+
+	@Override
+	public List<GroupMappingVO> getGroupMappingAll(Long orgId) {
+		return groupMappingRepo.getGroupMappingAll(orgId);
+	}
+
+	@Override
+	public Optional<GroupMappingVO> getGroupMappingById(Long id) {
+		return groupMappingRepo.findById(id);
+	}
 }

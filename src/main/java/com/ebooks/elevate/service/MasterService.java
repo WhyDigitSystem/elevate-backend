@@ -15,6 +15,7 @@ import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.EmployeeVO;
+import com.ebooks.elevate.entity.GroupMappingVO;
 import com.ebooks.elevate.entity.ListOfValuesVO;
 import com.ebooks.elevate.entity.SacCodeVO;
 import com.ebooks.elevate.entity.SetTaxRateVO;
@@ -95,6 +96,10 @@ public interface MasterService {
 	List<CoaVO> getLegders(Long orgId, List<String> accountCode);
 	
 	Map<String, Object> createUpdateGroupMapping(GroupMappingDTO groupMappingDTO) throws ApplicationException;
+
+	List<GroupMappingVO> getGroupMappingAll(Long orgId);
+
+	Optional<GroupMappingVO> getGroupMappingById(Long id);
 	
 	
 }
