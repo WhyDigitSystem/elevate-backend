@@ -55,5 +55,11 @@ public interface CoaRepo extends JpaRepository<CoaVO, Long>{
 	boolean existsByOrgIdAndAccountGroupNameIgnoreCase(Long orgId, String accountName);
 
 	boolean existsByOrgIdAndAccountCodeIgnoreCase(Long orgId, String accountCode);
+	
+	@Query(nativeQuery = true,value = "select a.* from coa a where a.orgid=?1 and a.type='Group' and groupname is not null ")
+	List<CoaVO> getOrgIdAndSubGroupName(Long orgId);
+
+	@Query(nativeQuery = true,value = "select a.* from coa a where a.orgid=?1 and a.type='Account' and parentcode in(?2)")
+	List<CoaVO> getOrgIdAndSubGroupName(Long orgId, List<String> accountCode);
 
 }

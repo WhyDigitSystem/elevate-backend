@@ -573,7 +573,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 				if (!errorMessages.isEmpty()) {
 					throw new ApplicationException("Excel upload failed. " + String.join(", ", errorMessages)
-							+ ". Except for these lines, all other data has been uploaded.");
+							+ ".Except for these lines, all other data has been uploaded.");
 				}
 
 			} catch (IOException e) {
@@ -753,7 +753,7 @@ public class BusinessServiceImpl implements BusinessService {
 				// ✅ If any errors occurred, throw exception with details
 				if (!errorMessages.isEmpty()) {
 					throw new ApplicationException("Excel upload failed. " + String.join(", ", errorMessages)
-							+ ". Except for these lines, all other data has been uploaded.");
+							+ ". Please Make Correction for above Lines and Re-Upload the Exccel Sheet");
 				}
 
 			} catch (IOException e) {

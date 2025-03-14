@@ -4,12 +4,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
+import com.ebooks.elevate.dto.GroupMappingDTO;
+import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.entity.BranchVO;
+import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.EmployeeVO;
+import com.ebooks.elevate.entity.ListOfValuesVO;
 import com.ebooks.elevate.entity.SacCodeVO;
 import com.ebooks.elevate.entity.SetTaxRateVO;
 import com.ebooks.elevate.entity.SubLedgerAccountVO;
@@ -67,6 +73,30 @@ public interface MasterService {
 
 	List<SubLedgerAccountVO> getSubLedgerAccountByActive();
 
+	
+	//List Of Values
+	
+
+	List<ListOfValuesVO> getAllListOfValuesByOrgId(Long orgId);
+
+	List<ListOfValuesVO> getListOfValuesById(Long listOfValuesId);
 
 
+	ListOfValuesVO updateCreateListOfValues(@Valid ListOfValuesDTO listOfValuesDTO) throws ApplicationException;
+
+	
+	
+	
+	// Group Mapping\
+	List<Map<String, Object>> getBudgetGroup(Long orgId,String name) throws ApplicationException;
+	
+	List<CoaVO>getSubGroup(Long orgId);
+
+	List<CoaVO> getLegders(Long orgId, List<String> accountCode);
+	
+	Map<String, Object> createUpdateGroupMapping(GroupMappingDTO groupMappingDTO) throws ApplicationException;
+	
+	
 }
+
+
