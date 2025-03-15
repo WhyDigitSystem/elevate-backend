@@ -55,6 +55,9 @@ public class ClientCompanyVO {
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
+	@Column(name = "clientyear",length = 50)
+	private String clientYear;
+	
 	@Column(name = "clientGLCode",length = 50)
 	private String clientGLCode;
 	@Column(name = "startno")

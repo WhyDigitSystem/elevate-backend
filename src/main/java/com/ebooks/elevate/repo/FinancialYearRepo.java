@@ -1,6 +1,7 @@
 package com.ebooks.elevate.repo;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,5 +23,9 @@ public interface FinancialYearRepo extends JpaRepository<FinancialYearVO, Long> 
 	boolean existsByFinYearIdentifierAndOrgId(String finYearIdentifier, Long orgId);
 
 	boolean existsByFinYearIdAndOrgId(Long finYearId, Long orgId);
+
+	@Query(nativeQuery = true,value = "select b.finyearidentifier from clientcompany a,financialyear b where a.orgid=b.orgid and a.clientcode=?2 and a.orgid=?1 and a.clientyear=b.yeartype\r\n"
+			+ "order by b.finyearidentifier desc")
+	Set<Object[]> getClientFinYear(Long orgId, String clientCode);
 
 }

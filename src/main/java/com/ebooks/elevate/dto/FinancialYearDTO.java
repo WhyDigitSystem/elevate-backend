@@ -21,6 +21,7 @@ public class FinancialYearDTO {
 	private boolean closed;
 	private Long orgId;
 	private String createdBy;
+	private String yearType;
 	private boolean active;
 
 }

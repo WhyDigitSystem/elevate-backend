@@ -23,6 +23,7 @@ public class ClientCompanyDTO {
 	private boolean active;
 	private String bussinessType;
 	private String clientGLCode;
+	private String clientYear;
 	private Long startNo;
 	private String turnOver;
 	private String levelOfService;

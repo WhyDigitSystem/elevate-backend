@@ -662,7 +662,7 @@ public class MasterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/getLedgers")
+	@GetMapping("/getGroupMappingAll")
 	public ResponseEntity<ResponseDTO> getGroupMappingAll(@RequestParam Long orgId) {
 		String methodName = "getGroupMappingAll()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
@@ -687,7 +687,7 @@ public class MasterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/getLedgers")
+	@GetMapping("/getGroupMappingById")
 	public ResponseEntity<ResponseDTO> getGroupMappingById(@RequestParam Long id) {
 		String methodName = "getGroupMappingById()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);

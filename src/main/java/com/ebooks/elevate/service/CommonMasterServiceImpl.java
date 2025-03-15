@@ -991,26 +991,13 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		String message;
 
 		if (ObjectUtils.isEmpty(financialYearDTO.getId())) {
-			if (financialYearRepo.existsByFinYearAndOrgId(financialYearDTO.getFinYear(), financialYearDTO.getOrgId())) {
-				String errorMessage = String.format("ThiS finyear:%s Already Exists This Organization .",
-						financialYearDTO.getFinYear());
-				throw new ApplicationException(errorMessage);
-			}
-
+			
 			if (financialYearRepo.existsByFinYearIdentifierAndOrgId(financialYearDTO.getFinYearIdentifier(),
 					financialYearDTO.getOrgId())) {
 				String errorMessage = String.format("ThiS finyearidentifier:%s Already Exists This Organization .",
 						financialYearDTO.getFinYearIdentifier());
 				throw new ApplicationException(errorMessage);
 			}
-
-			if (financialYearRepo.existsByFinYearIdAndOrgId(financialYearDTO.getFinYearId(),
-					financialYearDTO.getOrgId())) {
-				String errorMessage = String.format("ThiS finyearid:%s Already Exists This Organization .",
-						financialYearDTO.getFinYearId());
-				throw new ApplicationException(errorMessage);
-			}
-
 			financialYearVO = new FinancialYearVO();
 			financialYearVO.setCreatedBy(financialYearDTO.getCreatedBy());
 			financialYearVO.setUpdatedBy(financialYearDTO.getCreatedBy());
@@ -1021,15 +1008,8 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 					.orElseThrow(() -> new ApplicationException(String
 							.format("This Id Is Not Found Any Information, Invalid Id: %s", financialYearDTO.getId())));
 
-			if (financialYearVO.getFinYear() != financialYearDTO.getFinYear()) {
-				if (financialYearRepo.existsByFinYearAndOrgId(financialYearDTO.getFinYear(),
-						financialYearDTO.getOrgId())) {
-					String errorMessage = String.format("This finyear: %s already exists for this organization.",
-							financialYearDTO.getFinYear());
-					throw new ApplicationException(errorMessage);
-				}
+			
 				financialYearVO.setFinYear(financialYearDTO.getFinYear());
-			}
 
 			if (!financialYearVO.getFinYearIdentifier().equals(financialYearDTO.getFinYearIdentifier())) {
 				if (financialYearRepo.existsByFinYearIdentifierAndOrgId(financialYearDTO.getFinYearIdentifier(),
@@ -1043,13 +1023,13 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 			}
 
 			if (financialYearVO.getFinYearId() != financialYearDTO.getFinYearId()) {
-				if (financialYearRepo.existsByFinYearIdAndOrgId(financialYearDTO.getFinYearId(),
+				if (financialYearRepo.existsByFinYearIdentifierAndOrgId(financialYearDTO.getFinYearIdentifier(),
 						financialYearDTO.getOrgId())) {
-					String errorMessage = String.format("This finyearId: %s already exists for this organization.",
-							financialYearDTO.getFinYearId());
+					String errorMessage = String.format("ThiS finyearidentifier:%s Already Exists This Organization .",
+							financialYearDTO.getFinYearIdentifier());
 					throw new ApplicationException(errorMessage);
 				}
-				financialYearVO.setFinYearId(financialYearDTO.getFinYearId());
+				financialYearVO.setFinYearIdentifier(financialYearDTO.getFinYearIdentifier());
 			}
 
 			financialYearVO.setUpdatedBy(financialYearDTO.getCreatedBy());
@@ -1075,6 +1055,7 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		financialYearVO.setCurrentFinYear(financialYearDTO.isCurrentFinYear());
 		financialYearVO.setClosed(financialYearDTO.isClosed());
 		financialYearVO.setOrgId(financialYearDTO.getOrgId());
+		financialYearVO.setYearType(financialYearDTO.getYearType());
 		financialYearVO.setActive(financialYearDTO.isActive());
 	}
 
@@ -1088,9 +1069,28 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		return financialYearRepo.findFinancialYearByOrgId(orgId);
 	}
 
+	
 	@Override
 	public Optional<FinancialYearVO> getAllFInYearById(Long id) {
 		return financialYearRepo.findById(id);
+	}
+	
+	@Override
+	public List<Map<String, Object>> getFinYearByClient(Long orgId,String clientCode) {
+		Set<Object[]> finYear = financialYearRepo.getClientFinYear(orgId,clientCode);
+		return getFinYear(finYear); // Returning a list of Map<String, Object>
+	}
+
+	private List<Map<String, Object>> getFinYear(Set<Object[]> finYear) {
+		List<Map<String, Object>> currencyList = new ArrayList<>(); // Correct variable name
+
+		for (Object[] currency : finYear) { // Iterating over getFullGridCurrency
+			Map<String, Object> currencyMap = new HashMap<>();
+			currencyMap.put("finYear", currency[0] != null ? currency[0].toString() : "");
+
+			currencyList.add(currencyMap); // Add the Map to the list
+		}
+		return currencyList;
 	}
 
 	@Override
