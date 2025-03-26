@@ -35,6 +35,12 @@ public class MonthlyProcessVO {
 	
 	@Column(name = "orgid")
 	private Long orgId;
+	@Column(name = "maingroup")
+	private String mainGroup;
+	@Column(name = "subgroup")
+	private String subGroup;
+	@Column(name = "subgroupcode")
+	private String subGroupCode;
 	
 	@Column(name = "month", length = 30)
 	private String month; 

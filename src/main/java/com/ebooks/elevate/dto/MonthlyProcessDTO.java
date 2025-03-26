@@ -13,6 +13,9 @@ public class MonthlyProcessDTO {
 	
 	private Long id;
 	private Long orgId;
+	private String mainGroup;
+	private String subGroup;
+	private String subGroupCode;
 	private String month; 
 	private String year;
 	private String clientCode;

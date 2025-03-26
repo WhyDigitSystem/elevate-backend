@@ -55,7 +55,7 @@ public class MonthlyProcessController extends BaseController {
 	}
 	
 	@GetMapping("/getMonthlyProcessByClient")
-	public ResponseEntity<ResponseDTO> getMonthlyProcessByClient(@RequestParam Long orgId,@RequestParam String clientCode) {
+	public ResponseEntity<ResponseDTO> getMonthlyProcessByClient(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String mainGroup,@RequestParam String subGroupCode,@RequestParam String finYear) {
 		String methodName = "getMonthlyProcessByClient()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -63,7 +63,7 @@ public class MonthlyProcessController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<MonthlyProcessVO> monthlyProcessVO = new ArrayList<>();
 		try {
-			monthlyProcessVO = monthlyProcessService.getAllMonthlyProcessByClientCode(orgId, clientCode);
+			monthlyProcessVO = monthlyProcessService.getAllMonthlyProcessByClientCode(orgId, clientCode, mainGroup, subGroupCode,finYear);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);

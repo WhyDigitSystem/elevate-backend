@@ -28,4 +28,8 @@ public interface FinancialYearRepo extends JpaRepository<FinancialYearVO, Long> 
 			+ "order by b.finyearidentifier desc")
 	Set<Object[]> getClientFinYear(Long orgId, String clientCode);
 
+	FinancialYearVO findByOrgIdAndFinYearIdentifier(Long orgId, String finyear);
+
+	FinancialYearVO findByOrgIdAndFinYear(Long orgId, int previousYear);
+
 }

@@ -406,7 +406,6 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 	                        monthlyBudget.setMonth(fullMonth); // Extract month (first three letters)
 	                        monthlyBudget.setAmount(amount);
 	                        monthlyBudget.setActive(true);
-
 	                        budgets.add(monthlyBudget);
 	                    }
 	                    successfulUploads++;

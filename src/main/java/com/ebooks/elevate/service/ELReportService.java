@@ -32,7 +32,8 @@ public interface ELReportService {
 	
 	List<Map<String, Object>> getElevateYTDTBDetails(Long orgId,String clientCode, String finyear,String month);
 
-	List<Map<String, Object>> getMonthlyProcess(Long orgId, String clientCode, String finyear, String month);
+	List<Map<String, Object>> getMonthlyProcess(Long orgId, String clientCode, String finyear, String month,
+			String yearType, String mainGroupName, String subGroupCode);
 
 	
 }

@@ -221,7 +221,7 @@ public class ELReportController extends BaseController{
 	}
 	
 	@GetMapping("/getMonthlyProcessDetails")
-	public ResponseEntity<ResponseDTO> getMonthlyProcessDetails(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String month) {
+	public ResponseEntity<ResponseDTO> getMonthlyProcessDetails(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finYear,@RequestParam String month,@RequestParam String yearType,String mainGroup,String subGroupCode) {
 		String methodName = "getMonthlyProcessDetails()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -229,7 +229,7 @@ public class ELReportController extends BaseController{
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> elYtdDetails = new ArrayList<Map<String, Object>>();
 		try {
-			elYtdDetails = elReportService.getMonthlyProcess(orgId, clientCode, finyear, month);
+			elYtdDetails = elReportService.getMonthlyProcess(orgId, clientCode, finYear, month, yearType, mainGroup, subGroupCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);

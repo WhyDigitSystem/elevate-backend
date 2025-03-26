@@ -28,9 +28,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ebooks.elevate.dto.ElMfrDTO;
 import com.ebooks.elevate.entity.ElMfrVO;
+import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.ElMfrRepo;
+import com.ebooks.elevate.repo.FinancialYearRepo;
 import com.ebooks.elevate.repo.PreviousYearActualRepo;
 import com.ebooks.elevate.repo.TrialBalanceRepo;
 
@@ -45,6 +47,9 @@ public class ELReportServiceImpl implements ELReportService {
 	
 	@Autowired
 	TrialBalanceRepo trialBalanceRepo;
+	
+	@Autowired
+	FinancialYearRepo financialYearRepo;
 
 	@Autowired
 	BudgetRepo budgetRepo;
@@ -423,9 +428,29 @@ public class ELReportServiceImpl implements ELReportService {
 		
 		@Override
 		public List<Map<String, Object>> getMonthlyProcess(Long orgId, String clientCode, String finyear,
-				String month) {
+				String month,String yearType,String mainGroupName,String subGroupCode) {
+			String previousYear=finyear;
+			if(yearType.equals("FY")&& month.equals("April"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifier(orgId,finyear);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYear(orgId,preYear);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY")&& month.equals("January"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifier(orgId,finyear);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYear(orgId,preYear);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			else
+			{
+				previousYear=finyear;
+			}
 			
-			Set<Object[]> ElTBdetails=trialBalanceRepo.getElYTDTbdetailsforMonthlyProcess(orgId, clientCode, finyear, month);
+			Set<Object[]> ElTBdetails=trialBalanceRepo.getElYTDTbdetailsforMonthlyProcess(orgId, clientCode, finyear, month,previousYear,mainGroupName,subGroupCode);
 			return getMonthlyProcess(ElTBdetails);
 		}
 
@@ -436,17 +461,27 @@ public class ELReportServiceImpl implements ELReportService {
 			{
 				Map<String,Object>b= new HashMap<>();
 				b.put("id", Integer.parseInt(bud[0].toString()));
-				b.put("elglCode", bud[1] != null ? bud[1].toString() : "");
-				b.put("elglLedger", bud[2] != null ? bud[2].toString() : "");
+				b.put("elGlCode", bud[1] != null ? bud[1].toString() : "");
+				b.put("elGl", bud[2] != null ? bud[2].toString() : "");
 				b.put("natureOfAccount", bud[3] != null ? bud[3].toString() : "");
 				b.put("segment", bud[4] != null ? bud[4].toString() : "");
-				b.put("closingBalanceCurrentMonth", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
-				b.put("closingBalancePreviousMonth", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
-				b.put("actualCurrentMonth", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
-				b.put("budget", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
-				b.put("pyActual", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
-				b.put("mismatch", bud[10] != null ? bud[10].toString() : "");
-				b.put("approveStatus", bud[11] != null && "Yes".equalsIgnoreCase(bud[11].toString()));
+				b.put("currentMonthDebit", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+				b.put("currentMonthCredit", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+				b.put("currentMonthClosing", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("previousMonthDebit", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("previousMonthCredit", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+				b.put("previousMonthClosing", bud[10] != null ? new BigDecimal(bud[10].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthActDebit", bud[11] != null ? new BigDecimal(bud[11].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthActCredit", bud[12] != null ? new BigDecimal(bud[12].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthActClosing", bud[13] != null ? new BigDecimal(bud[13].toString()) : BigDecimal.ZERO);
+				b.put("mismatch", "Yes".equalsIgnoreCase(bud[14] != null ? bud[14].toString() : "No"));
+				b.put("provisionDebit", bud[15] != null ? new BigDecimal(bud[15].toString()) : BigDecimal.ZERO);
+				b.put("provisionCredit", bud[16] != null ? new BigDecimal(bud[16].toString()) : BigDecimal.ZERO);
+				b.put("provisionClosing", bud[17] != null ? new BigDecimal(bud[17].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthDebit", bud[18] != null ? new BigDecimal(bud[18].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthCredit", bud[19] != null ? new BigDecimal(bud[19].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthClosing", bud[20] != null ? new BigDecimal(bud[20].toString()) : BigDecimal.ZERO);
+				b.put("approveStatus", "Yes".equalsIgnoreCase(bud[21] != null ? bud[21].toString() : "No"));
 				YTDTB.add(b);
 			}
 			return YTDTB;

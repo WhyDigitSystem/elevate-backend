@@ -31,4 +31,10 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 			+ "ORDER BY accountcode")
 	Set<Object[]> getClientPreviousYearActualDetails(Long orgId, String year, String client, String clientCode);
 
+	@Query(nativeQuery = true,value = "select * from previousyearactual where orgid=?1 and clientcode=?2 and year=?3 and month=?4 and maingroup=?5 and subgroupcode=?6 and accountcode=?7")
+	PreviousYearActualVO getPreviousYearDetails(Long orgId, String clientCode, String year, String month,
+			String mainGroup, String subGroupCode, String accountCode);
+
+	
+
 }

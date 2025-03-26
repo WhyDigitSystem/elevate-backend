@@ -34,6 +34,9 @@ public class MonthlyProcessDetailsVO {
 	@Column(name = "month", length = 30)
 	private String month; 
 	
+	@Column(name = "orgid")
+	private Long orgId; 
+	
 	@Column(name = "year", length = 10)
 	private String year;
 	
@@ -44,10 +47,10 @@ public class MonthlyProcessDetailsVO {
 	private String client;
 	
 	@Column(name = "accountcode", length = 50)
-	private String elglCode;
+	private String elGlCode;
 	
 	@Column(name = "accountname", length = 150)
-	private String elglLedger;
+	private String elGl;
 	
 	@Column(name = "natureofaccount", length = 50)
 	private String natureOfAccount;
@@ -55,32 +58,54 @@ public class MonthlyProcessDetailsVO {
 	@Column(name = "groupname", length = 150)
 	private String segment;
 	
-	@Column(name = "clbalance", precision = 20,scale = 2)
-	private BigDecimal closingBalanceCurrentMonth;
+	@Column(name = "groupcode", length = 150)
+	private String segmentCode;
 	
-	@Column(name = "clbalancepremonth", precision = 20,scale = 2)
-	private BigDecimal closingBalancePreviousMonth;
+	@Column(name = "maingroup", length = 150)
+	private String mainGroup;
 	
-	@Column(name = "actual", precision = 20,scale = 2)
-	private BigDecimal actualCurrentMonth;
-	
-	@Column(name = "budget", precision = 20,scale = 2)
-	private BigDecimal budget;
-	
-	@Column(name = "pyactual", precision = 20,scale = 2)
-	private BigDecimal pyActual;
-	
-	@Column(name = "mismatch",length = 10)
-	private String mismatch;
+	private boolean mismatch;
 	
 	@Column(name = "approvestatus")
 	private boolean approveStatus;
 	
-	@Column(name = "provision", precision = 20,scale = 2)
-	private BigDecimal provision;
 	
-	@Column(name = "finalactual", precision = 20,scale = 2)
-	private BigDecimal finalActual;
+	@Column(name = "currentmonthdebit", precision = 20,scale = 2)
+	private BigDecimal currentMonthDebit;
+	@Column(name = "currentmonthcredit", precision = 20,scale = 2)
+	private BigDecimal currentMonthCredit;
+	@Column(name = "currentmonthclosing", precision = 20,scale = 2)
+	private BigDecimal currentMonthClosing;
+	@Column(name = "previousmonthdebit", precision = 20,scale = 2)
+	private BigDecimal previoustMonthDebit;
+	@Column(name = "previousmonthcredit", precision = 20,scale = 2)
+	private BigDecimal previoustMonthCredit;
+	@Column(name = "previousmonthclosing", precision = 20,scale = 2)
+	private BigDecimal previoustMonthClosing;
+	@Column(name = "forthemonthactdebit", precision = 20,scale = 2)
+	private BigDecimal forTheMonthActDebit;
+	@Column(name = "forthemonthactcredit", precision = 20,scale = 2)
+	private BigDecimal forTheMonthActCredit;
+	@Column(name = "forthemonthactclosing", precision = 20,scale = 2)
+	private BigDecimal forTheMonthActClosing;
+	@Column(name = "provisiondebit", precision = 20,scale = 2)
+	private BigDecimal provisionDebit;
+	@Column(name = "provisioncredit", precision = 20,scale = 2)
+	private BigDecimal provisionCredit;
+	@Column(name = "provisionclosing", precision = 20,scale = 2)
+	private BigDecimal provisionClosing;
+	@Column(name = "forthemonthdebit", precision = 20,scale = 2)
+	private BigDecimal forTheMonthDebit;
+	@Column(name = "forthemonthcredit", precision = 20,scale = 2)
+	private BigDecimal forTheMonthCredit;
+	@Column(name = "forthemonthclosing", precision = 20,scale = 2)
+	private BigDecimal forTheMonthClosing;
+	@Column(name = "provisionremarks",length = 150)
+	private String provisionRemarks;
+	
+	@Column(name = "closingbalance", precision = 20,scale = 2)
+	private BigDecimal closingBalance;
+	
 	
 	@JsonBackReference
 	@ManyToOne

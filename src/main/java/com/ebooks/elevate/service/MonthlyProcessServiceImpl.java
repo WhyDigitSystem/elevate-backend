@@ -35,16 +35,15 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService{
 			throws ApplicationException {
 		MonthlyProcessVO monthlyProcessVO = new MonthlyProcessVO();
 		String message;
-		if (ObjectUtils.isNotEmpty(monthlyProcessDTO.getId())) {
-			monthlyProcessVO = monthlyProcessRepo.findById(monthlyProcessDTO.getId())
+		MonthlyProcessVO monthly = monthlyProcessRepo.getOrgIdAndClientCodeAndYearAndMonthAndMainGroupAndSubGroupCode(monthlyProcessDTO.getOrgId(),monthlyProcessDTO.getClientCode(),monthlyProcessDTO.getYear(),monthlyProcessDTO.getMonth(),monthlyProcessDTO.getMainGroup(),monthlyProcessDTO.getSubGroupCode());
+		if (monthly!=null) {
+			monthlyProcessVO = monthlyProcessRepo.findByOrgIdAndClientCodeAndYearAndMonthAndMainGroupAndSubGroupCode(monthlyProcessDTO.getOrgId(),monthlyProcessDTO.getClientCode(),monthlyProcessDTO.getYear(),monthlyProcessDTO.getMonth(),monthlyProcessDTO.getMainGroup(),monthlyProcessDTO.getSubGroupCode())
 					.orElseThrow(() -> new ApplicationException("Monthly Process not found"));
 
 			monthlyProcessVO.setUpdatedBy(monthlyProcessDTO.getCreatedBy());
 			createUpdateMonthlyProcessVOByMonthlyProcessDTO(monthlyProcessDTO, monthlyProcessVO);
 			message = "Monthly Process Updated Successfully";
 		} else {
-			
-
 			monthlyProcessVO.setCreatedBy(monthlyProcessDTO.getCreatedBy());
 			monthlyProcessVO.setUpdatedBy(monthlyProcessDTO.getCreatedBy());
 			createUpdateMonthlyProcessVOByMonthlyProcessDTO(monthlyProcessDTO, monthlyProcessVO);
@@ -62,6 +61,9 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService{
 			MonthlyProcessVO monthlyProcessVO) {
 		
 		monthlyProcessVO.setOrgId(monthlyProcessDTO.getOrgId());
+		monthlyProcessVO.setMainGroup(monthlyProcessDTO.getMainGroup());
+		monthlyProcessVO.setSubGroup(monthlyProcessDTO.getSubGroup());
+		monthlyProcessVO.setSubGroupCode(monthlyProcessDTO.getSubGroupCode());
 		monthlyProcessVO.setYear(monthlyProcessDTO.getYear());
 		monthlyProcessVO.setMonth(monthlyProcessDTO.getMonth());
 		monthlyProcessVO.setClient(monthlyProcessDTO.getClient());
@@ -75,30 +77,53 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService{
 		List<MonthlyProcessDetailsVO> monthlyProcessDetailsVOs = monthlyProcessDTO.getMonthlyProcessDetailsDTO().stream()
 			    .map(dto -> {
 			        MonthlyProcessDetailsVO vo = new MonthlyProcessDetailsVO();
-			        vo.setElglCode(dto.getElglCode());
-			        vo.setElglLedger(dto.getElglLedger());
+			        vo.setElGlCode(dto.getElGlCode());
+			        vo.setElGl(dto.getElGl());
 			        vo.setNatureOfAccount(dto.getNatureOfAccount());
-			        vo.setSegment(dto.getSegment());
-			        vo.setClosingBalanceCurrentMonth(dto.getClosingBalanceCurrentMonth());
-			        vo.setClosingBalancePreviousMonth(dto.getClosingBalancePreviousMonth());
-			        vo.setActualCurrentMonth(dto.getClosingBalanceCurrentMonth().subtract(dto.getClosingBalancePreviousMonth()));
-			        vo.setBudget(dto.getBudget());
-			        vo.setPyActual(dto.getPyActual());
-			        vo.setMismatch(dto.getMismatch());
+			        vo.setSegment(monthlyProcessDTO.getSubGroup());
+			        vo.setSegmentCode(monthlyProcessDTO.getSubGroupCode());
+			        vo.setMainGroup(monthlyProcessDTO.getMainGroup());
+			        vo.setCurrentMonthDebit(dto.getCurrentMonthDebit());
+			        vo.setOrgId(monthlyProcessDTO.getOrgId());
+			        vo.setCurrentMonthCredit(dto.getCurrentMonthCredit());
+			        vo.setCurrentMonthClosing(dto.getCurrentMonthDebit().subtract(dto.getCurrentMonthCredit()));
+			        vo.setPrevioustMonthDebit(dto.getPrevioustMonthDebit());
+			        vo.setPrevioustMonthCredit(dto.getPrevioustMonthCredit());
+			        
+			        BigDecimal currentMonthClosing=dto.getCurrentMonthDebit().subtract(dto.getCurrentMonthCredit());
+			        BigDecimal preMonthClosing=dto.getPrevioustMonthDebit().subtract(dto.getPrevioustMonthCredit()); 
+			        
+			        vo.setPrevioustMonthClosing(dto.getPrevioustMonthDebit().subtract(dto.getPrevioustMonthCredit()));
+			        vo.setForTheMonthActDebit(dto.getCurrentMonthDebit().subtract(dto.getPrevioustMonthDebit()));
+			        vo.setForTheMonthActCredit(dto.getCurrentMonthCredit().subtract(dto.getPrevioustMonthCredit()));
+			        BigDecimal forMonthActDebit=dto.getCurrentMonthDebit().subtract(dto.getPrevioustMonthDebit());
+			        BigDecimal forMonthActCredit=dto.getCurrentMonthCredit().subtract(dto.getPrevioustMonthCredit());
+			        vo.setForTheMonthActClosing(forMonthActDebit.subtract(forMonthActCredit));
+			        
+			        vo.setProvisionDebit(dto.getProvisionDebit());
+			        vo.setProvisionCredit(dto.getProvisionCredit());
+			        vo.setProvisionClosing(dto.getProvisionDebit().subtract(dto.getProvisionCredit()));
+			        
+			        vo.setForTheMonthDebit(forMonthActDebit.add(dto.getProvisionDebit()));
+			        vo.setForTheMonthCredit(forMonthActCredit.add(dto.getProvisionCredit()));
+			        BigDecimal forTheMonthDebit=forMonthActDebit.add(dto.getProvisionDebit());
+			        BigDecimal forTheMonthCredit=forMonthActCredit.add(dto.getProvisionCredit());
+			        vo.setForTheMonthClosing(forTheMonthDebit.subtract(forTheMonthCredit));
+			        vo.setMismatch(dto.isMismatch());
+			        vo.setProvisionRemarks(dto.getProvisionRemarks());
 			        vo.setYear(monthlyProcessDTO.getYear());
 			        vo.setMonth(monthlyProcessDTO.getMonth());
 			        vo.setClient(monthlyProcessDTO.getClient());
 			        vo.setClientCode(monthlyProcessDTO.getClientCode());
 			        vo.setApproveStatus(dto.isApproveStatus());
-			        vo.setProvision(dto.getProvision());
 			        vo.setMonthlyProcessVO(monthlyProcessVO);
 			        if(dto.isApproveStatus())
 			        {
-			        	vo.setFinalActual((dto.getClosingBalanceCurrentMonth().subtract(dto.getClosingBalancePreviousMonth())).add(dto.getProvision()));
+			        	vo.setClosingBalance(forTheMonthDebit.subtract(forTheMonthCredit));
 			        }
 			        else
 			        {
-			        	vo.setFinalActual(BigDecimal.ZERO);
+			        	vo.setClosingBalance(BigDecimal.ZERO);
 			        }
 			        return vo;
 			    })
@@ -108,9 +133,9 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService{
 	}
 
 	@Override
-	public List<MonthlyProcessVO> getAllMonthlyProcessByClientCode(Long orgId, String clientCode) {
+	public List<MonthlyProcessVO> getAllMonthlyProcessByClientCode(Long orgId, String clientCode,String mainGroup,String subGroupCode,String finYear) {
 		
-		List<MonthlyProcessVO> monthlyProcessVO= monthlyProcessRepo.findByOrgIdAndClientCode(orgId,clientCode);
+		List<MonthlyProcessVO> monthlyProcessVO= monthlyProcessRepo.findByOrgIdAndClientCodeAndMainGroupAndSubGroupCodeAndYear(orgId,clientCode,mainGroup,subGroupCode,finYear);
 		return monthlyProcessVO;
 		
 	}

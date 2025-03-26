@@ -31,4 +31,8 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "ORDER BY accountcode")
 	Set<Object[]> getClientBudgetDetails(Long orgId, String year, String client, String clientCode);
 
+	@Query(nativeQuery = true,value = "select * from budget where orgid=?1 and clientcode=?2 and year=?3 and month=?4 and maingroup=?5 and subgroupcode=?6 and accountcode=?7")
+	BudgetVO getBudgetDetails(Long orgId, String clientCode, String year, String month, String mainGroup,
+			String subGroupCode, String accountCode);
+
 }
