@@ -30,6 +30,9 @@ public class BudgetServiceImpl implements BudgetService {
 	GroupMappingRepo groupMappingRepo;
 	
 	@Autowired
+	QuaterMonthService quaterMonthService;
+	
+	@Autowired
 	SubGroupDetailsRepo subGroupDetailsRepo;
 	
 	@Autowired
@@ -90,6 +93,7 @@ public class BudgetServiceImpl implements BudgetService {
 			budgetVO= budgetRepo.getBudgetDetails(budgetDTO2.getOrgId(),budgetDTO2.getClientCode(),budgetDTO2.getYear(),budgetDTO2.getMonth(),budgetDTO2.getMainGroup(),budgetDTO2.getSubGroupCode(),budgetDTO2.getAccountCode());
 			if(budgetVO == null)
 			{
+				
 				budgetVO = new BudgetVO();
 				budgetVO.setOrgId(budgetDTO2.getOrgId());
 				budgetVO.setClient(budgetDTO2.getClient());
@@ -106,6 +110,12 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
 				budgetVO.setSubGroup(budgetDTO2.getSubGroup());
 				budgetVO.setActive(true);
+				
+				int quater=quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setQuater(String.valueOf(quater));
+				
+				int monthseq= quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
 				
 				budgetRepo.save(budgetVO);
 			}
@@ -127,6 +137,10 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
 				budgetVO.setSubGroup(budgetDTO2.getSubGroup());
 				budgetVO.setActive(true);
+				int quater=quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setQuater(String.valueOf(quater));
+				int monthseq= quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
 				budgetRepo.save(budgetVO);
 			}
 		}
@@ -160,6 +174,10 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
 				budgetVO.setSubGroup(budgetDTO2.getSubGroup());
 				budgetVO.setActive(true);
+				int quater=quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				int monthseq= quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
+				budgetVO.setQuater(String.valueOf(quater));
 				
 				previousYearActualRepo.save(budgetVO);
 			}
@@ -181,6 +199,11 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
 				budgetVO.setSubGroup(budgetDTO2.getSubGroup());
 				budgetVO.setActive(true);
+				int quater=quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				int monthseq= quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
+				budgetVO.setQuater(String.valueOf(quater));
+				
 				previousYearActualRepo.save(budgetVO);
 			}
 		}
@@ -194,6 +217,13 @@ public class BudgetServiceImpl implements BudgetService {
 	public List<Map<String, Object>> getPreviousYearGroupLedgersDetails(Long orgId,String year,String clientCode, String mainGroup,String subGroupCode) {
 		
 		Set<Object[]>subGroupDetails=groupMappingRepo.PreviousYearGroupLedgersDetails(orgId,year,clientCode, mainGroup, subGroupCode);
+		return getGroupLedgerDetails(subGroupDetails);
+	}
+	
+	@Override
+	public List<Map<String, Object>> getActualGroupLedgersDetails(Long orgId,String year,String clientCode, String mainGroup,String subGroupCode) {
+		
+		Set<Object[]>subGroupDetails=groupMappingRepo.ActualGroupLedgersDetails(orgId,year,clientCode, mainGroup, subGroupCode);
 		return getGroupLedgerDetails(subGroupDetails);
 	}
 }

@@ -26,4 +26,8 @@ public interface BudgetService {
 	List<Map<String, Object>> getPreviousYearGroupLedgersDetails(Long orgId, String year, String clientCode,
 			String mainGroup, String subGroupCode);
 
+
+	List<Map<String, Object>> getActualGroupLedgersDetails(Long orgId, String year, String clientCode, String mainGroup,
+			String subGroupCode);
+
 }

@@ -63,6 +63,10 @@ public class BudgetVO {
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
+	@Column(name = "quater",length = 5)
+	private String quater;
+	
+	private int monthsequence;
 	
 	@Embedded
 	private CreatedUpdatedDate createdUpdatedDate= new CreatedUpdatedDate();

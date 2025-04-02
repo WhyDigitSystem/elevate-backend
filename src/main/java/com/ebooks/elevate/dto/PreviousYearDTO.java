@@ -26,5 +26,6 @@ public class PreviousYearDTO {
 	private boolean active;
 	private String createdBy;
 	private boolean cancel;
+	private String yearType;
 
 }

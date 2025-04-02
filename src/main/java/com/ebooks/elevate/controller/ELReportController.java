@@ -245,5 +245,57 @@ public class ELReportController extends BaseController{
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@GetMapping("/getElBudgetReport")
+	public ResponseEntity<ResponseDTO> getElBudgetReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,
+			@RequestParam String yearType,@RequestParam String mainGroupName,@RequestParam String subGroupCode) {
+		String methodName = "getElBudgetReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elBudgetReport = new ArrayList<Map<String, Object>>();
+		try {
+			elBudgetReport = elReportService.getELBudgetReport(orgId, clientCode, finyear, yearType, mainGroupName, subGroupCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Budget Report information get successfully");
+			responseObjectsMap.put("elBudgetReport", elBudgetReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Budget Report information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getElPYReport")
+	public ResponseEntity<ResponseDTO> getElPYReport(@RequestParam Long orgId,@RequestParam String finyear,@RequestParam String clientCode,
+			@RequestParam String mainGroupName,@RequestParam String subGroupCode,@RequestParam String month) {
+		String methodName = "getElPYReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elPYReport = new ArrayList<Map<String, Object>>();
+		try {
+			elPYReport = elReportService.getELPYReport(orgId,finyear,clientCode, mainGroupName, subGroupCode,month);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL PY Report information get successfully");
+			responseObjectsMap.put("elPYReport", elPYReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL PY Report information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
 	
 }

@@ -130,6 +130,31 @@ public class BudgetController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@GetMapping("/getActualGroupLedgers")
+	public ResponseEntity<ResponseDTO> getActualGroupLedgers(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String mainGroup,@RequestParam String subGroupCode) {
+		String methodName = "getActualGroupLedgers()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> groupLedgers = new ArrayList<>();
+		try {
+			groupLedgers = budgetService.getActualGroupLedgersDetails(orgId, year, clientCode, mainGroup, subGroupCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Group Ledgers information get successfully");
+			responseObjectsMap.put("groupLedgers", groupLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Group Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
 	@PutMapping("/createUpdatePreviousYear")
 	public ResponseEntity<ResponseDTO> createUpdatePreviousYear(@RequestBody List<PreviousYearDTO> previousYearDTO) {
 		String methodName = "createUpdatePreviousYear()";

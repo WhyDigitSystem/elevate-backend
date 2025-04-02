@@ -432,17 +432,17 @@ public class ELReportServiceImpl implements ELReportService {
 			String previousYear=finyear;
 			if(yearType.equals("FY")&& month.equals("April"))
 			{
-				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifier(orgId,finyear);
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
 				int preYear=financialYearVO.getFinYear()-1;
-				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYear(orgId,preYear);
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
 				previousYear=financialYearVO2.getFinYearIdentifier();
 				
 			}
 			else if(yearType.equals("CY")&& month.equals("January"))
 			{
-				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifier(orgId,finyear);
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
 				int preYear=financialYearVO.getFinYear()-1;
-				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYear(orgId,preYear);
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
 				previousYear=financialYearVO2.getFinYearIdentifier();
 			}
 			else
@@ -486,4 +486,77 @@ public class ELReportServiceImpl implements ELReportService {
 			}
 			return YTDTB;
 		}
+
+		@Override
+		public List<Map<String, Object>> getELBudgetReport(Long orgId, String clientCode, String finyear,
+				String yearType, String mainGroupName, String subGroupCode) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELBudgetDetails=budgetRepo.getELBudgetDetails(orgId,finyear,previousYear,clientCode,mainGroupName,subGroupCode);
+			return budgetReport(ELBudgetDetails);
+		}
+
+		private List<Map<String, Object>> budgetReport(Set<Object[]> eLBudgetDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:eLBudgetDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("mainGroup", bud[0] != null ? bud[0].toString() : "");
+				b.put("subGroup", bud[1] != null ? bud[1].toString() : "");
+				b.put("subGroupCode", bud[2] != null ? bud[2].toString() : "");
+				b.put("ElGlCode", bud[3] != null ? bud[3].toString() : "");
+				b.put("ElGl", bud[4] != null ? bud[4].toString() : "");
+				b.put("natureOfAccount", bud[5] != null ? bud[5].toString() : "");
+				b.put("quater", bud[6] != null ? bud[6].toString() : "");
+				b.put("currentYear", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("previousYear", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
+		
+		@Override
+		public List<Map<String, Object>> getELPYReport(Long orgId, String finyear,String clientCode,
+			 String mainGroupName, String subGroupCode,String month) {
+			
+			Set<Object[]> ELPYDetails=previousYearActualRepo.getELPYDetails(orgId,finyear,clientCode,mainGroupName,subGroupCode,month);
+			return PyReport(ELPYDetails);
+		}
+
+		private List<Map<String, Object>> PyReport(Set<Object[]> eLPYDetails) {
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:eLPYDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("mainGroup", bud[0] != null ? bud[0].toString() : "");
+				b.put("subGroup", bud[1] != null ? bud[1].toString() : "");
+				b.put("subGroupCode", bud[2] != null ? bud[2].toString() : "");
+				b.put("ElGlCode", bud[3] != null ? bud[3].toString() : "");
+				b.put("ElGl", bud[4] != null ? bud[4].toString() : "");
+				b.put("natureOfAccount", bud[5] != null ? bud[5].toString() : "");
+				b.put("quater", bud[6] != null ? bud[6].toString() : "");
+				b.put("amount", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
 }

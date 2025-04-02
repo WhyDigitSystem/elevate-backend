@@ -35,6 +35,47 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 	PreviousYearActualVO getPreviousYearDetails(Long orgId, String clientCode, String year, String month,
 			String mainGroup, String subGroupCode, String accountCode);
 
+	@Query(nativeQuery = true,value = "SELECT a.maingroup, a.subgroup, a.subgroupcode, a.accountcode, a.accountname, \r\n"
+			+ "       a.natureofaccount, a.quater, SUM(a.previousYear) AS previousYear \r\n"
+			+ "FROM (\r\n"
+			+ "    SELECT maingroup, subgroup, subgroupcode, accountcode, accountname, natureofaccount, quater, \r\n"
+			+ "           SUM(amount) AS previousYear \r\n"
+			+ "    FROM previousyearactual \r\n"
+			+ "    WHERE orgid = ?1 \r\n"
+			+ "      AND clientcode = ?3 \r\n"
+			+ "      AND year = ?2 \r\n"
+			+ "      AND monthsequence <= (\r\n"
+			+ "          SELECT MAX(monthsequence) \r\n"
+			+ "          FROM previousyearactual \r\n"
+			+ "          WHERE year = ?2 \r\n"
+			+ "            AND month = ?6 \r\n"
+			+ "            AND clientcode = ?3\r\n"
+			+ "      )\r\n"
+			+ "    GROUP BY maingroup, subgroup, natureofaccount, subgroupcode, accountcode, accountname, quater \r\n"
+			+ "\r\n"
+			+ "    UNION \r\n"
+			+ "\r\n"
+			+ "    SELECT maingroup, subgroup, subgroupcode, accountcode, accountname, natureofaccount, \r\n"
+			+ "           'YTD' AS quater, SUM(amount) AS previousYear \r\n"
+			+ "    FROM previousyearactual \r\n"
+			+ "    WHERE orgid = ?1 \r\n"
+			+ "      AND clientcode = ?3 \r\n"
+			+ "      AND year = ?2 \r\n"
+			+ "      AND monthsequence <= (\r\n"
+			+ "          SELECT MAX(monthsequence) \r\n"
+			+ "          FROM previousyearactual \r\n"
+			+ "          WHERE year = ?2 \r\n"
+			+ "            AND month = ?6 \r\n"
+			+ "            AND clientcode = ?3\r\n"
+			+ "      )\r\n"
+			+ "    GROUP BY maingroup, subgroup, natureofaccount, subgroupcode, accountcode, accountname\r\n"
+			+ ") AS a  -- Alias for the derived table\r\n"
+			+ "WHERE a.maingroup = ?4 AND a.subgroupcode = ?5  -- Fixed condition (AND instead of ,)\r\n"
+			+ "GROUP BY a.maingroup, a.subgroup, a.subgroupcode, a.accountcode, a.accountname, a.natureofaccount, a.quater;\r\n"
+			+ "")
+	Set<Object[]> getELPYDetails(Long orgId, String finyear, String clientCode, String mainGroupName,
+			String subGroupCode,String month);
+
 	
 
 }

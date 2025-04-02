@@ -42,6 +42,8 @@ public class MonthlyProcessVO {
 	@Column(name = "subgroupcode")
 	private String subGroupCode;
 	
+	
+	
 	@Column(name = "month", length = 30)
 	private String month; 
 	

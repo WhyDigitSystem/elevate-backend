@@ -19,6 +19,7 @@ public class MonthlyProcessDTO {
 	private String month; 
 	private String year;
 	private String clientCode;
+	private String yearType;
 	private String client;
 	private String createdBy;
 	private List<MonthlyProcessDetailsDTO>monthlyProcessDetailsDTO;
