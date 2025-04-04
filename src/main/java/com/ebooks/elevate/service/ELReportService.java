@@ -41,5 +41,8 @@ public interface ELReportService {
 	List<Map<String, Object>> getELPYReport(Long orgId, String finyear,String clientCode, 
 			String mainGroupName, String subGroupCode,String month);
 
+	List<Map<String, Object>> getELActualReport(Long orgId, String clientCode, String finyear, String yearType,
+			String month, String mainGroupName, String subGroupCode);
+
 	
 }
