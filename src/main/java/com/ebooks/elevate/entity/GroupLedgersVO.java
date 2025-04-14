@@ -44,6 +44,9 @@ public class GroupLedgersVO {
 	@Column(name = "accountname", length = 150)
 	private String accountName;
 	
+	@Column(name = "displayseq")
+	private String displaySeq;
+	
 	@Column(name="orgid")
 	private Long orgId;
 	

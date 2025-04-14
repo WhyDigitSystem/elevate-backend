@@ -52,6 +52,9 @@ public class GroupMappingVO {
 	
 	@Column(name = "orgid")
 	private Long orgId;
+	
+	@Column(name="subheading")
+	private String subheading;
 
 	@Embedded
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();

@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
 import com.ebooks.elevate.dto.GroupLedgersDTO;
+import com.ebooks.elevate.dto.GroupMapping2DTO;
+import com.ebooks.elevate.dto.GroupMapping2SubGroupDTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;
 import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.dto.ListOfValuesDetailsDTO;
@@ -578,4 +580,91 @@ public class MasterServiceImpl implements MasterService {
 	public Optional<GroupMappingVO> getGroupMappingById(Long id) {
 		return groupMappingRepo.findById(id);
 	}
+
+	@Override
+	public Map<String, Object> createUpdateGroupMapping2(GroupMapping2DTO groupMapping2DTO) throws ApplicationException {
+
+	    if (ObjectUtils.isEmpty(groupMapping2DTO)) {
+	        throw new ApplicationException("GroupMapping2DTO is null or empty");
+	    }
+
+	    GroupMappingVO groupMappingVO;
+	    String message;
+
+	    if (groupMapping2DTO.getId() == null) {
+	        // Create flow
+	    	
+	    	if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMapping2DTO.getOrgId(),groupMapping2DTO.getSegment())) {
+				throw new ApplicationException("Segment already Exists");
+			}
+	    	
+	        groupMappingVO = new GroupMappingVO();
+	        groupMappingVO.setCreatedBy(groupMapping2DTO.getCreatedBy());
+	        groupMappingVO.setUpdatedBy(groupMapping2DTO.getCreatedBy());
+	        message = "GroupMapping2 Created Successfully";
+	    } else {
+	        // Update flow
+	    	
+	    	 groupMappingVO = groupMappingRepo.findById(groupMapping2DTO.getId())
+		                .orElseThrow(() -> new ApplicationException("Invalid Groupmapping Details"));
+	    	
+	    	if(!groupMappingVO.getGroupName().equals(groupMapping2DTO.getSegment()))
+			{
+				if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMapping2DTO.getOrgId(),groupMapping2DTO.getSegment())) {
+					throw new ApplicationException("Segment already Exists");
+				}
+				groupMappingVO.setGroupName(groupMapping2DTO.getSegment());
+			}
+	    	
+	        groupMappingVO.setUpdatedBy(groupMapping2DTO.getCreatedBy());
+	        message = "GroupMapping2 Updated Successfully";
+	    }
+
+	    groupMappingVO = mapDTOToVO(groupMappingVO, groupMapping2DTO);
+	    groupMappingRepo.save(groupMappingVO);
+
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("groupMappingVO", groupMappingVO);
+	    response.put("message", message);
+	    return response;
+	}
+
+	private GroupMappingVO mapDTOToVO(GroupMappingVO groupMappingVO, GroupMapping2DTO groupMapping2DTO) {
+	    groupMappingVO.setGroupName(groupMapping2DTO.getSegment());
+	    groupMappingVO.setSubheading(groupMapping2DTO.getHeader());
+	    groupMappingVO.setActive(groupMapping2DTO.isActive());
+	    groupMappingVO.setOrgId(groupMapping2DTO.getOrgId());
+	    if (groupMapping2DTO.getId() != null) {
+	        List<GroupLedgersVO> existingLedgers = groupLedgersRepo.findByGroupMappingVO(groupMappingVO);
+	        groupLedgersRepo.deleteAll(existingLedgers);
+	    }
+
+	    List<GroupLedgersVO> newLedgers = new ArrayList<>();
+	    if (groupMapping2DTO.getGroupMapping2SubGroupDTO() != null) {
+	        for (GroupMapping2SubGroupDTO dto : groupMapping2DTO.getGroupMapping2SubGroupDTO()) {
+	            GroupLedgersVO ledger = new GroupLedgersVO();
+	            ledger.setMainGroupName(groupMapping2DTO.getSegment());
+	            ledger.setDisplaySeq(dto.getDisplayseq());
+	            ledger.setGroupName(groupMapping2DTO.getHeader());
+	            ledger.setAccountName(dto.getSubGroup());
+	            ledger.setActive(groupMapping2DTO.isActive());
+	            ledger.setGroupMappingVO(groupMappingVO);
+	            newLedgers.add(ledger);
+	        }
+	    }
+
+	    groupMappingVO.setGroupLedgresVOs(newLedgers);
+	    return groupMappingVO;
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

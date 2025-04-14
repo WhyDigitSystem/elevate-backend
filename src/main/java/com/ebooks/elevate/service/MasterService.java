@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
+import com.ebooks.elevate.dto.GroupMapping2DTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;
 import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.entity.BranchVO;
@@ -100,6 +101,8 @@ public interface MasterService {
 	List<GroupMappingVO> getGroupMappingAll(Long orgId);
 
 	Optional<GroupMappingVO> getGroupMappingById(Long id);
+
+	Map<String, Object> createUpdateGroupMapping2(GroupMapping2DTO groupMapping2DTO) throws ApplicationException;
 	
 	
 }

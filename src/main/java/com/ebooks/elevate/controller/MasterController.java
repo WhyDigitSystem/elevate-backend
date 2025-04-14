@@ -27,6 +27,7 @@ import com.ebooks.elevate.common.UserConstants;
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
+import com.ebooks.elevate.dto.GroupMapping2DTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;
 import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
@@ -279,8 +280,6 @@ public class MasterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	
-
 	@GetMapping("/getSetTaxRateByActive")
 	public ResponseEntity<ResponseDTO> getSetTaxRateByActive() {
 		String methodName = "getSetTaxRateByActive()";
@@ -390,8 +389,6 @@ public class MasterController extends BaseController {
 
 	}
 
-
-
 	// SubLedgerAccount
 
 	@GetMapping("/getAllSubLedgerAccountByOrgId")
@@ -449,8 +446,6 @@ public class MasterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	
-
 	@GetMapping("/getSubLedgerAccountByActive")
 	public ResponseEntity<ResponseDTO> getSubLedgerAccountByActive() {
 		String methodName = "getSubLedgerAccountByActive()";
@@ -478,9 +473,7 @@ public class MasterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 
 	}
-	
-	
-	
+
 	// ListOfValues
 
 	@GetMapping("/getListOfValuesById")
@@ -537,45 +530,48 @@ public class MasterController extends BaseController {
 
 	@PutMapping("/updateCreateListOfValues")
 	public ResponseEntity<ResponseDTO> updateCreateListOfValues(@Valid @RequestBody ListOfValuesDTO listOfValuesDTO) {
-	    String methodName = "updateCreateListOfValues()";
+		String methodName = "updateCreateListOfValues()";
 
-	    LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
-	    String errorMsg = null;
-	    Map<String, Object> responseObjectsMap = new HashMap<>();
-	    ResponseDTO responseDTO = null;
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
 
-	    try {
-	        ListOfValuesVO listOfValuesVO = masterService.updateCreateListOfValues(listOfValuesDTO);
-	        boolean isUpdate = listOfValuesDTO.getId() != null;
-	        if (listOfValuesVO != null) {
-	            responseObjectsMap.put(CommonConstant.STRING_MESSAGE, isUpdate ? "ListOfValues updated successfully" : "ListOfValues created successfully");
-	            responseObjectsMap.put("listOfValuesVO", listOfValuesVO);
-	            responseDTO = createServiceResponse(responseObjectsMap);
-	        } else {
-	            errorMsg = isUpdate ? "ListOfValues not found for ID: " + listOfValuesDTO.getId() : "ListOfValues creation failed";
-	            responseDTO = createServiceResponseError(responseObjectsMap, isUpdate ? "ListOfValues update failed" : "ListOfValues creation failed", errorMsg);
-	        }
-	    } catch (Exception e) {
-	        errorMsg = e.getMessage();
-	        boolean isUpdate = listOfValuesDTO.getId() != null;
-	        LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
-	        responseDTO = createServiceResponseError(responseObjectsMap, isUpdate ? "ListOfValues update failed" : "ListOfValues creation failed", errorMsg);
-	    }
-	    LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-	    return ResponseEntity.ok().body(responseDTO);
+		try {
+			ListOfValuesVO listOfValuesVO = masterService.updateCreateListOfValues(listOfValuesDTO);
+			boolean isUpdate = listOfValuesDTO.getId() != null;
+			if (listOfValuesVO != null) {
+				responseObjectsMap.put(CommonConstant.STRING_MESSAGE,
+						isUpdate ? "ListOfValues updated successfully" : "ListOfValues created successfully");
+				responseObjectsMap.put("listOfValuesVO", listOfValuesVO);
+				responseDTO = createServiceResponse(responseObjectsMap);
+			} else {
+				errorMsg = isUpdate ? "ListOfValues not found for ID: " + listOfValuesDTO.getId()
+						: "ListOfValues creation failed";
+				responseDTO = createServiceResponseError(responseObjectsMap,
+						isUpdate ? "ListOfValues update failed" : "ListOfValues creation failed", errorMsg);
+			}
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			boolean isUpdate = listOfValuesDTO.getId() != null;
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					isUpdate ? "ListOfValues update failed" : "ListOfValues creation failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
 	}
-	
-	
+
 	@GetMapping("/getListValues")
-	public ResponseEntity<ResponseDTO> getListValues(@RequestParam Long orgId,@RequestParam String name) {
+	public ResponseEntity<ResponseDTO> getListValues(@RequestParam Long orgId, @RequestParam String name) {
 		String methodName = "getListValues()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
-		List<Map<String,Object>> listValues = new ArrayList<>();
+		List<Map<String, Object>> listValues = new ArrayList<>();
 		try {
-			listValues = masterService.getBudgetGroup(orgId,name);
+			listValues = masterService.getBudgetGroup(orgId, name);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -585,12 +581,13 @@ public class MasterController extends BaseController {
 			responseObjectsMap.put("listValues", listValues);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "List Values information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "List Values information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getSubGroups")
 	public ResponseEntity<ResponseDTO> getSubGroups(@RequestParam Long orgId) {
 		String methodName = "getSubGroups()";
@@ -610,14 +607,15 @@ public class MasterController extends BaseController {
 			responseObjectsMap.put("coaVO", coaVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "Sub Group information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Sub Group information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getLedgers")
-	public ResponseEntity<ResponseDTO> getLedgers(@RequestParam Long orgId,@RequestParam List<String> accountCode) {
+	public ResponseEntity<ResponseDTO> getLedgers(@RequestParam Long orgId, @RequestParam List<String> accountCode) {
 		String methodName = "getLedgers()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -625,7 +623,7 @@ public class MasterController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<CoaVO> coaVO = new ArrayList<>();
 		try {
-			coaVO = masterService.getLegders(orgId,accountCode);
+			coaVO = masterService.getLegders(orgId, accountCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -635,12 +633,13 @@ public class MasterController extends BaseController {
 			responseObjectsMap.put("coaVO", coaVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "Ledgers information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Ledgers information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@PutMapping("/createUpdateGroupMapping")
 	public ResponseEntity<ResponseDTO> createUpdateGroupMapping(@RequestBody GroupMappingDTO groupMappingDTO) {
 		String methodName = "createUpdateGroupMapping()";
@@ -661,7 +660,7 @@ public class MasterController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getGroupMappingAll")
 	public ResponseEntity<ResponseDTO> getGroupMappingAll(@RequestParam Long orgId) {
 		String methodName = "getGroupMappingAll()";
@@ -681,12 +680,13 @@ public class MasterController extends BaseController {
 			responseObjectsMap.put("groupMappingVO", groupMappingVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "Group Mapping information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Group Mapping information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getGroupMappingById")
 	public ResponseEntity<ResponseDTO> getGroupMappingById(@RequestParam Long id) {
 		String methodName = "getGroupMappingById()";
@@ -706,11 +706,34 @@ public class MasterController extends BaseController {
 			responseObjectsMap.put("groupMappingVO", groupMappingVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "Group Mapping information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Group Mapping information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
 
+//GroupMapping2
+
+	
+	@PutMapping("/createUpdateGroupMapping2")
+	public ResponseEntity<ResponseDTO> createUpdateGroupMapping2(@RequestBody GroupMapping2DTO groupMapping2DTO) {
+		String methodName = "createUpdateGroupMapping2()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> groupMappingVO = masterService.createUpdateGroupMapping2(groupMapping2DTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, groupMappingVO.get("message"));
+			responseObjectsMap.put("groupMappingVO", groupMappingVO.get("groupMappingVO"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 }
