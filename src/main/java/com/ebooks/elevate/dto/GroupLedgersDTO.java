@@ -15,5 +15,6 @@ public class GroupLedgersDTO {
 	private String accountCode;
 	private String accountName;
 	private boolean active;
+	private String displaySeq;
 
 }

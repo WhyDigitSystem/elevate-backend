@@ -11,7 +11,7 @@ public class GroupMapping2SubGroupDTO {
 	
 	private Long id;
 
-	private String displayseq;
+	private String displaySeq;
 	
 	private String subGroup;
 	

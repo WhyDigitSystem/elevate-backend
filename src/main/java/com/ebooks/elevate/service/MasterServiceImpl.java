@@ -488,7 +488,8 @@ public class MasterServiceImpl implements MasterService {
 
 		if (ObjectUtils.isEmpty(groupMappingDTO.getId())) {
 
-			if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMappingDTO.getOrgId(),groupMappingDTO.getGroupName())) {
+			if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMappingDTO.getOrgId(),
+					groupMappingDTO.getGroupName())) {
 				throw new ApplicationException("Group Name already Exists");
 			}
 			groupMappingVO.setCreatedBy(groupMappingDTO.getCreatedBy());
@@ -501,15 +502,15 @@ public class MasterServiceImpl implements MasterService {
 
 			groupMappingVO = groupMappingRepo.findById(groupMappingDTO.getId()).orElseThrow(
 					() -> new ApplicationException("Group DTO not found with id: " + groupMappingDTO.getId()));
-			if(!groupMappingVO.getGroupName().equals(groupMappingDTO.getGroupName()))
-			{
-				if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMappingDTO.getOrgId(),groupMappingDTO.getGroupName())) {
+			if (!groupMappingVO.getGroupName().equals(groupMappingDTO.getGroupName())) {
+				if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMappingDTO.getOrgId(),
+						groupMappingDTO.getGroupName())) {
 					throw new ApplicationException("Group Name already Exists");
 				}
 				groupMappingVO.setGroupName(groupMappingDTO.getGroupName());
 			}
 			groupMappingVO.setUpdatedBy(groupMappingDTO.getCreatedBy());
-			
+
 			message = "Group Mapping Updation SuccessFully";
 		}
 
@@ -526,7 +527,7 @@ public class MasterServiceImpl implements MasterService {
 			GroupMappingDTO groupMappingDTO) {
 
 		groupMappingVO.setActive(true);
-		
+
 		groupMappingVO.setOrgId(groupMappingDTO.getOrgId());
 
 		if (groupMappingDTO.getId() != null) {
@@ -545,12 +546,13 @@ public class MasterServiceImpl implements MasterService {
 				detailsVO.setAccountCode(subGroupDetailsDTO.getAccountCode());
 				detailsVO.setAccountName(subGroupDetailsDTO.getAccountName());
 				detailsVO.setActive(subGroupDetailsDTO.isActive());
+				detailsVO.setDisplaySeq(subGroupDetailsDTO.getDisplaySeq());
 				detailsVO.setGroupMappingVO(groupMappingVO);
 				subGroupDetailsVO.add(detailsVO);
 			}
 			groupMappingVO.setSubGroupDetailsVO(subGroupDetailsVO);
 		}
-		
+
 		List<GroupLedgersVO> groupLedgersVO = new ArrayList<>();
 		List<GroupLedgersDTO> groupLedgersDTOs = groupMappingDTO.getGroupLedgersDTO();
 		if (groupLedgersDTOs != null && !groupLedgersDTOs.isEmpty()) {
@@ -559,6 +561,7 @@ public class MasterServiceImpl implements MasterService {
 				ledgersVO.setParentCode(groupLedgersDTO.getParentCode());
 				ledgersVO.setGroupName(groupLedgersDTO.getGroupName());
 				ledgersVO.setOrgId(groupMappingDTO.getOrgId());
+				ledgersVO.setDisplaySeq(groupLedgersDTO.getDisplaySeq());
 				ledgersVO.setMainGroupName(groupMappingDTO.getGroupName());
 				ledgersVO.setAccountCode(groupLedgersDTO.getAccountCode());
 				ledgersVO.setAccountName(groupLedgersDTO.getAccountName());
@@ -582,89 +585,82 @@ public class MasterServiceImpl implements MasterService {
 	}
 
 	@Override
-	public Map<String, Object> createUpdateGroupMapping2(GroupMapping2DTO groupMapping2DTO) throws ApplicationException {
+	public Map<String, Object> createUpdateGroupMapping2(GroupMapping2DTO groupMapping2DTO)
+			throws ApplicationException {
 
-	    if (ObjectUtils.isEmpty(groupMapping2DTO)) {
-	        throw new ApplicationException("GroupMapping2DTO is null or empty");
-	    }
+		if (ObjectUtils.isEmpty(groupMapping2DTO)) {
+			throw new ApplicationException("GroupMapping2DTO is null or empty");
+		}
 
-	    GroupMappingVO groupMappingVO;
-	    String message;
+		GroupMappingVO groupMappingVO;
+		String message;
 
-	    if (groupMapping2DTO.getId() == null) {
-	        // Create flow
-	    	
-	    	if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMapping2DTO.getOrgId(),groupMapping2DTO.getSegment())) {
+		if (groupMapping2DTO.getId() == null) {
+			// Create flow
+
+			if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMapping2DTO.getOrgId(),
+					groupMapping2DTO.getSegment())) {
 				throw new ApplicationException("Segment already Exists");
 			}
-	    	
-	        groupMappingVO = new GroupMappingVO();
-	        groupMappingVO.setCreatedBy(groupMapping2DTO.getCreatedBy());
-	        groupMappingVO.setUpdatedBy(groupMapping2DTO.getCreatedBy());
-	        message = "GroupMapping2 Created Successfully";
-	    } else {
-	        // Update flow
-	    	
-	    	 groupMappingVO = groupMappingRepo.findById(groupMapping2DTO.getId())
-		                .orElseThrow(() -> new ApplicationException("Invalid Groupmapping Details"));
-	    	
-	    	if(!groupMappingVO.getGroupName().equals(groupMapping2DTO.getSegment()))
-			{
-				if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMapping2DTO.getOrgId(),groupMapping2DTO.getSegment())) {
+
+			groupMappingVO = new GroupMappingVO();
+			groupMappingVO.setCreatedBy(groupMapping2DTO.getCreatedBy());
+			groupMappingVO.setUpdatedBy(groupMapping2DTO.getCreatedBy());
+			message = "GroupMapping2 Created Successfully";
+		} else {
+			// Update flow
+
+			groupMappingVO = groupMappingRepo.findById(groupMapping2DTO.getId())
+					.orElseThrow(() -> new ApplicationException("Invalid Groupmapping Details"));
+
+			if (!groupMappingVO.getGroupName().equals(groupMapping2DTO.getSegment())) {
+				if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMapping2DTO.getOrgId(),
+						groupMapping2DTO.getSegment())) {
 					throw new ApplicationException("Segment already Exists");
 				}
 				groupMappingVO.setGroupName(groupMapping2DTO.getSegment());
 			}
-	    	
-	        groupMappingVO.setUpdatedBy(groupMapping2DTO.getCreatedBy());
-	        message = "GroupMapping2 Updated Successfully";
-	    }
 
-	    groupMappingVO = mapDTOToVO(groupMappingVO, groupMapping2DTO);
-	    groupMappingRepo.save(groupMappingVO);
+			groupMappingVO.setUpdatedBy(groupMapping2DTO.getCreatedBy());
+			message = "GroupMapping2 Updated Successfully";
+		}
 
-	    Map<String, Object> response = new HashMap<>();
-	    response.put("groupMappingVO", groupMappingVO);
-	    response.put("message", message);
-	    return response;
+		groupMappingVO = mapDTOToVO(groupMappingVO, groupMapping2DTO);
+		groupMappingRepo.save(groupMappingVO);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("groupMappingVO", groupMappingVO);
+		response.put("message", message);
+		return response;
 	}
 
 	private GroupMappingVO mapDTOToVO(GroupMappingVO groupMappingVO, GroupMapping2DTO groupMapping2DTO) {
-	    groupMappingVO.setGroupName(groupMapping2DTO.getSegment());
-	    groupMappingVO.setSubheading(groupMapping2DTO.getHeader());
-	    groupMappingVO.setActive(groupMapping2DTO.isActive());
-	    groupMappingVO.setOrgId(groupMapping2DTO.getOrgId());
-	    if (groupMapping2DTO.getId() != null) {
-	        List<GroupLedgersVO> existingLedgers = groupLedgersRepo.findByGroupMappingVO(groupMappingVO);
-	        groupLedgersRepo.deleteAll(existingLedgers);
-	    }
+		groupMappingVO.setGroupName(groupMapping2DTO.getSegment());
+		groupMappingVO.setSubheading(groupMapping2DTO.getHeader());
+		groupMappingVO.setActive(groupMapping2DTO.isActive());
+		groupMappingVO.setOrgId(groupMapping2DTO.getOrgId());
+		if (groupMapping2DTO.getId() != null) {
+			List<GroupLedgersVO> existingLedgers = groupLedgersRepo.findByGroupMappingVO(groupMappingVO);
+			groupLedgersRepo.deleteAll(existingLedgers);
+		}
 
-	    List<GroupLedgersVO> newLedgers = new ArrayList<>();
-	    if (groupMapping2DTO.getGroupMapping2SubGroupDTO() != null) {
-	        for (GroupMapping2SubGroupDTO dto : groupMapping2DTO.getGroupMapping2SubGroupDTO()) {
-	            GroupLedgersVO ledger = new GroupLedgersVO();
-	            ledger.setMainGroupName(groupMapping2DTO.getSegment());
-	            ledger.setDisplaySeq(dto.getDisplayseq());
-	            ledger.setGroupName(groupMapping2DTO.getHeader());
-	            ledger.setAccountName(dto.getSubGroup());
-	            ledger.setActive(groupMapping2DTO.isActive());
-	            ledger.setGroupMappingVO(groupMappingVO);
-	            newLedgers.add(ledger);
-	        }
-	    }
+		List<GroupLedgersVO> newLedgers = new ArrayList<>();
+		if (groupMapping2DTO.getGroupMapping2SubGroupDTO() != null) {
+			for (GroupMapping2SubGroupDTO dto : groupMapping2DTO.getGroupMapping2SubGroupDTO()) {
+				GroupLedgersVO ledger = new GroupLedgersVO();
+				ledger.setMainGroupName(groupMapping2DTO.getSegment());
+				ledger.setDisplaySeq(dto.getDisplaySeq());
+				ledger.setGroupName(groupMapping2DTO.getHeader());
+				ledger.setAccountName(dto.getSubGroup());
+				ledger.setActive(groupMapping2DTO.isActive());
+				ledger.setOrgId(groupMapping2DTO.getOrgId());
+				ledger.setGroupMappingVO(groupMappingVO);
+				newLedgers.add(ledger);
+			}
+		}
 
-	    groupMappingVO.setGroupLedgresVOs(newLedgers);
-	    return groupMappingVO;
+		groupMappingVO.setGroupLedgresVOs(newLedgers);
+		return groupMappingVO;
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }

@@ -43,6 +43,9 @@ public class SubGroupDetailsVO {
 	
 	private boolean active;
 	
+	@Column(name = "displayseq")
+	private String displaySeq;
+	
 	
 	@ManyToOne
 	@JoinColumn(name = "groupmappingid")
