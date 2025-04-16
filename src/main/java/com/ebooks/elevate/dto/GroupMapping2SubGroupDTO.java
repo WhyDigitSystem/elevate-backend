@@ -15,4 +15,6 @@ public class GroupMapping2SubGroupDTO {
 	
 	private String subGroup;
 	
+	private String subGroupCode;
+	
 }

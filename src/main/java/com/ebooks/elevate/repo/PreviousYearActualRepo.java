@@ -75,7 +75,21 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 			+ "")
 	Set<Object[]> getELPYDetails(Long orgId, String finyear, String clientCode, String mainGroupName,
 			String subGroupCode,String month);
+	
+	
+	
+	@Query(nativeQuery = true,value = "select a.maingroup,a.subgroup,a.subgroupcode,a.accountcode,a.accountname,a.natureofaccount,quater,sum(a.budget) budget,sum(a.actual)actual,sum(a.PY)PY from(\r\n"
+			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,quater,sum(amount) budget,0 actual,0 PY from budget where  orgid=?1 and clientcode=?2 and year=?3 and month=?5\r\n"
+			+ "group by maingroup,subgroup,subgroupcode,accountcode,natureofaccount,accountname,quater \r\n"
+			+ "union\r\n"
+			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,quater,0 budget,sum(amount)actual,0 PY from previousyearactual where orgid=?1 and clientcode=?2 and year=?3 and month=?5  group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater\r\n"
+			+ "union\r\n"
+			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,quater,0 budget,0 actual,sum(amount)PY from previousyearactual where orgid=?1 and clientcode=?2 and year=?4 and month=?5  group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater) a\r\n"
+			+ " where a.maingroup=?6 and a.subgroupcode=?7 group by a.maingroup,a.subgroup,a.subgroupcode,a.accountcode,a.accountname,a.natureofaccount,quater")
+	Set<Object[]> getELActualQuaterDetails(Long orgId, String clientCode, String finyear, String previousYear, String month,
+			String mainGroupName, String subGroupCode);
 
+	
 	
 
 }

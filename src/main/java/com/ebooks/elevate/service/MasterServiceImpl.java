@@ -596,13 +596,6 @@ public class MasterServiceImpl implements MasterService {
 		String message;
 
 		if (groupMapping2DTO.getId() == null) {
-			// Create flow
-
-			if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMapping2DTO.getOrgId(),
-					groupMapping2DTO.getSegment())) {
-				throw new ApplicationException("Segment already Exists");
-			}
-
 			groupMappingVO = new GroupMappingVO();
 			groupMappingVO.setCreatedBy(groupMapping2DTO.getCreatedBy());
 			groupMappingVO.setUpdatedBy(groupMapping2DTO.getCreatedBy());
@@ -613,13 +606,7 @@ public class MasterServiceImpl implements MasterService {
 			groupMappingVO = groupMappingRepo.findById(groupMapping2DTO.getId())
 					.orElseThrow(() -> new ApplicationException("Invalid Groupmapping Details"));
 
-			if (!groupMappingVO.getGroupName().equals(groupMapping2DTO.getSegment())) {
-				if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMapping2DTO.getOrgId(),
-						groupMapping2DTO.getSegment())) {
-					throw new ApplicationException("Segment already Exists");
-				}
-				groupMappingVO.setGroupName(groupMapping2DTO.getSegment());
-			}
+			groupMappingVO.setGroupName(groupMapping2DTO.getSegment());
 
 			groupMappingVO.setUpdatedBy(groupMapping2DTO.getCreatedBy());
 			message = "GroupMapping2 Updated Successfully";
@@ -651,6 +638,7 @@ public class MasterServiceImpl implements MasterService {
 				ledger.setMainGroupName(groupMapping2DTO.getSegment());
 				ledger.setDisplaySeq(dto.getDisplaySeq());
 				ledger.setGroupName(groupMapping2DTO.getHeader());
+				ledger.setAccountCode(dto.getSubGroupCode());
 				ledger.setAccountName(dto.getSubGroup());
 				ledger.setActive(groupMapping2DTO.isActive());
 				ledger.setOrgId(groupMapping2DTO.getOrgId());
@@ -661,6 +649,24 @@ public class MasterServiceImpl implements MasterService {
 
 		groupMappingVO.setGroupLedgresVOs(newLedgers);
 		return groupMappingVO;
+	}
+
+	@Override
+	public List<Map<String, Object>> getLedgersDetailsForGroupMapping(Long orgId, String segment) {
+		
+		Set<Object []> ledgerDetails=groupLedgersRepo.ledgersDetails(orgId, segment);
+		return ledgDetails(ledgerDetails);
+	}
+
+	private List<Map<String, Object>> ledgDetails(Set<Object[]> ledgerDetails) {
+		List<Map<String, Object>> details = new ArrayList<>();
+		for (Object[] det : ledgerDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("ledger", det[0] != null ? det[0].toString() : "");
+			mp.put("subGroupCode", det[1] != null ? det[1].toString() : null);
+			details.add(mp);
+		}
+		return details;
 	}
 
 }

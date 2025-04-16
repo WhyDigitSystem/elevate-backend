@@ -57,7 +57,7 @@ public class BudgetServiceImpl implements BudgetService {
 		{
 			Map<String,Object> mp= new HashMap<>();
 			mp.put("subGroupName", sub[0] != null ? sub[0].toString() : "");
-			mp.put("subGroupCode", sub[1] != null ? sub[1].toString() : "");
+			mp.put("subGroupCode", sub[1] != null ? sub[1].toString() : null);
 			subgroup.add(mp);
 		}
 		return subgroup;

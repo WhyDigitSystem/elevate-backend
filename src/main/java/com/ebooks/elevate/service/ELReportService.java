@@ -44,5 +44,8 @@ public interface ELReportService {
 	List<Map<String, Object>> getELActualReport(Long orgId, String clientCode, String finyear, String yearType,
 			String month, String mainGroupName, String subGroupCode);
 
+	List<Map<String, Object>> getELActualQuaterReport(Long orgId, String clientCode, String finyear, String yearType,
+			String month, String mainGroupName, String subGroupCode);
+
 	
 }

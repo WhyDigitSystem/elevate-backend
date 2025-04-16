@@ -83,7 +83,6 @@ public class TrailBalanceServiceImpl implements TrailBalanceService {
 			throws ApplicationException, java.io.IOException {
 		totalRows = 0;
 		successfulUploads = 0;
-
 		ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result object
 		List<TrialBalanceVO> dataToSave = new ArrayList<>();
 		result.setTotalExcelRows(0);
