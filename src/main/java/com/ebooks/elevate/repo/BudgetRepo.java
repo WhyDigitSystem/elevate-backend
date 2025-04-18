@@ -40,7 +40,7 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "group by maingroup,subgroup,subgroupcode,accountcode,natureofaccount,accountname,quater \r\n"
 			+ "union\r\n"
 			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,quater,0 currentYear,sum(amount)previousYear from budget where orgid=?1 and clientcode=?4 and year=?3\r\n"
-			+ "group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater) g where g.maingroup=?5 and g.subgroupcode=?6 group by g.maingroup,g.subgroup,g.natureofaccount,g.subgroupcode,g.accountcode,g.accountname,g.quater \r\n"
+			+ "group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater) g where g.maingroup=?5 and g.subgroup=?6 group by g.maingroup,g.subgroup,g.natureofaccount,g.subgroupcode,g.accountcode,g.accountname,g.quater \r\n"
 			+ "order by g.quater asc")
 	Set<Object[]> getELBudgetDetails(Long orgId, String finyear, String previousYear, String clientCode,
 			String mainGroupName, String subGroupCode);
