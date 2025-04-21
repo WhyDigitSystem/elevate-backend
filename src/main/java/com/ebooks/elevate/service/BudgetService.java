@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.BudgetDTO;
+import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 
 @Service
@@ -15,12 +16,16 @@ public interface BudgetService {
 
 	
 	Map<String,Object>createUpdateBudget(List<BudgetDTO> budgetDTO);
+	
+	Map<String,Object>createUpdateBudgetOB(List<OrderBookingDTO> orderBookingDTO);
 
 	List<Map<String, Object>> getGroupLedgersDetails(Long orgId, String year, String clientCode, String mainGroup,
 			String subGroupCode);
 
 
 	Map<String, Object> createUpdatePreviousYear(List<PreviousYearDTO> budgetDTO);
+	
+	
 
 
 	List<Map<String, Object>> getPreviousYearGroupLedgersDetails(Long orgId, String year, String clientCode,
@@ -29,5 +34,8 @@ public interface BudgetService {
 
 	List<Map<String, Object>> getActualGroupLedgersDetails(Long orgId, String year, String clientCode, String mainGroup,
 			String subGroupCode);
+
+
+	List<Map<String, Object>> getOrderBookingBudgetDetail(Long orgId, String year, String clientCode, String type);
 
 }
