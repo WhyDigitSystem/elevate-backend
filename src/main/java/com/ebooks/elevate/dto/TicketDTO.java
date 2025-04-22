@@ -19,7 +19,7 @@ public class TicketDTO {
 
 	private byte[] screenShot;
 	
-	private Long userId;
+	private String userName;
 	
 	private Long orgId;
 

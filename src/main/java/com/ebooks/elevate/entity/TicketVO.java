@@ -37,8 +37,8 @@ public class TicketVO {
 	private String createdBy;
 	@Column(name="modifiedy")
 	private String updatedBy;
-	@Column(name="userid")
-	private Long userId;
+	@Column(name="username")
+	private String userName;
 	@Column(name = "orgid")
 	private Long orgId;
 	

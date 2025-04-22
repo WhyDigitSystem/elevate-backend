@@ -1,5 +1,6 @@
 package com.ebooks.elevate.repo;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,7 +40,7 @@ public interface OrderBookingRepo extends JpaRepository<OrderBookingVO, Long> {
 			+ "    a.month, \r\n"
 			+ "    COALESCE(SUM(a.amount), 0) AS totalamount\r\n"
 			+ "FROM budgetob a\r\n"
-			+ "LEFT JOIN  Months m\r\n"
+			+ "join Months m\r\n"
 			+ "    ON a.month = m.month\r\n"
 			+ "    AND a.orgid = ?1\r\n"
 			+ "    AND a.year = ?2\r\n"
@@ -59,6 +60,10 @@ public interface OrderBookingRepo extends JpaRepository<OrderBookingVO, Long> {
 			+ "ORDER BY \r\n"
 			+ "    FIELD(m.month, 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March')")
 	Set<Object[]> getOrderBookingBudDetails(Long orgId, String year, String clientCode, String type);
+
+	@Query("select a from OrderBookingVO a where a.orgId=?1 and a.clientCode=?2 and a.year=?3 and a.type=?4")
+	List<OrderBookingVO> getBudgetListDetails(Long orgId, String clientCode, String year,String type);
+
 
 
 

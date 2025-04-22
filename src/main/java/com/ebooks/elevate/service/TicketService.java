@@ -24,8 +24,8 @@ public interface TicketService {
 
 	Optional<TicketVO> getTicketById(Long id);
 
-	List<TicketVO> getTicketByUserId(Long userId);
-
 	List<TicketVO> getTicketByOrgId(Long orgId);
+
+	List<TicketVO> getTicketByUserName(String userName);
 
 }

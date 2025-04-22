@@ -115,27 +115,27 @@ public class TicketController extends BaseController{
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
-	@GetMapping("/getTicketByUserId")
-	public ResponseEntity<ResponseDTO> getTicketByUserId(@RequestParam(required = false) Long userId) {
-		String methodName = "getTicketByUserId()";
+	@GetMapping("/getTicketByUserName")
+	public ResponseEntity<ResponseDTO> getTicketByUserName(@RequestParam(required = false) String userName) {
+		String methodName = "getTicketByUserName()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
 		List<TicketVO> eltCompanyVO = new ArrayList<TicketVO>();
 		try {
-			eltCompanyVO = ticketService.getTicketByUserId(userId);
+			eltCompanyVO = ticketService.getTicketByUserName(userName);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();   
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
 		}
 		if (StringUtils.isBlank(errorMsg)) {
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Ticket information get successfully By userId");
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Ticket information get successfully By userName");
 			responseObjectsMap.put("eltCompanyVO", eltCompanyVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
 			responseDTO = createServiceResponseError(responseObjectsMap,
-					"Ticket information receive failed By UserId", errorMsg);
+					"Ticket information receive failed By UserName", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);

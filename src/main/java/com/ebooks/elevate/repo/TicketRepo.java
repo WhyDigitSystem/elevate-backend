@@ -11,10 +11,12 @@ import com.ebooks.elevate.entity.TicketVO;
 @Repository
 public interface TicketRepo extends JpaRepository<TicketVO, Long> {
 
-	@Query(nativeQuery = true,value="select branch from ticket where userid=?1")
-	List<TicketVO> findByUserId(Long userId);
+	@Query(nativeQuery = true,value="select branch from ticket where username=?1")
+	List<TicketVO> findByUserName(String userName);
 
 	@Query(nativeQuery = true,value="select branch from ticket where orgid=?1")
 	List<TicketVO> getByOrgId(Long orgId);
+
+	
 
 }

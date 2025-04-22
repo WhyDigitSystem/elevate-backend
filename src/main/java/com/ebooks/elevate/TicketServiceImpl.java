@@ -66,7 +66,7 @@ public class TicketServiceImpl implements TicketService {
 
 		ticketVO.setSubject(ticketDTO.getSubject());
 		ticketVO.setDescription(ticketDTO.getDescription());
-		ticketVO.setUserId(ticketDTO.getUserId());
+		ticketVO.setUserName(ticketDTO.getUserName());
 		ticketVO.setOrgId(ticketDTO.getOrgId());
 		return ticketVO;
 
@@ -86,9 +86,9 @@ public class TicketServiceImpl implements TicketService {
 	}
 
 	@Override
-	public List<TicketVO> getTicketByUserId(Long userId) {
+	public List<TicketVO> getTicketByUserName(String userName) {
 		
-		return ticketRepo.findByUserId(userId);
+		return ticketRepo.findByUserName(userName);
 	}
 
 	@Override
