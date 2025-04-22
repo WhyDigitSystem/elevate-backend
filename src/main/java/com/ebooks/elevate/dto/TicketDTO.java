@@ -1,0 +1,26 @@
+package com.ebooks.elevate.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class TicketDTO {
+
+	private Long id;
+
+	private String subject;
+
+	private String description;
+
+	private String createdBy;
+
+	private byte[] screenShot;
+	
+	private Long userId;
+	
+	private Long orgId;
+
+}
