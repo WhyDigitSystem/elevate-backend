@@ -40,7 +40,7 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "group by maingroup,subgroup,subgroupcode,accountcode,natureofaccount,accountname,quater \r\n"
 			+ "union\r\n"
 			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,quater,0 currentYear,sum(amount)previousYear from budget where orgid=?1 and clientcode=?4 and year=?3\r\n"
-			+ "group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater) g where g.maingroup=?5 and g.subgroupcode=?6 group by g.maingroup,g.subgroup,g.natureofaccount,g.subgroupcode,g.accountcode,g.accountname,g.quater \r\n"
+			+ "group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater) g where g.maingroup=?5 and g.subgroup=?6 group by g.maingroup,g.subgroup,g.natureofaccount,g.subgroupcode,g.accountcode,g.accountname,g.quater \r\n"
 			+ "order by g.quater asc")
 	Set<Object[]> getELBudgetDetails(Long orgId, String finyear, String previousYear, String clientCode,
 			String mainGroupName, String subGroupCode);
@@ -87,7 +87,7 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "union\r\n"
 			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,0 budget,0 actual,0 PY,0 budgetYTD,0 ActYTD,0 PyYTD,0 fullBudget,sum(amount) fullPY from previousyearactual a where a.orgid=?1 and a.clientcode=?2 and a.year=?4\r\n"
 			+ "group by maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount\r\n"
-			+ ") a where a.maingroup=?6 and a.subgroupcode=?7\r\n"
+			+ ") a where a.maingroup=?6 and a.subgroup=?7\r\n"
 			+ "GROUP BY \r\n"
 			+ "    a.maingroup,\r\n"
 			+ "    a.subgroup,\r\n"

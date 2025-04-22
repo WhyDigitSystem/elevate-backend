@@ -333,6 +333,31 @@ public class ELReportController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
+	@GetMapping("/getElActualQuaterReport")
+	public ResponseEntity<ResponseDTO> getElActualQuaterReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String yearType
+			,@RequestParam String month,@RequestParam String mainGroupName,@RequestParam String subGroupCode) {
+		String methodName = "getElActualQuaterReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elActualQuaterReport = new ArrayList<Map<String, Object>>();
+		try {
+			elActualQuaterReport = elReportService.getELActualQuaterReport(orgId, clientCode, finyear, yearType, month, mainGroupName, subGroupCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Actual Quater Report information get successfully");
+			responseObjectsMap.put("elActualQuaterReport", elActualQuaterReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Quater Report information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 	
 }

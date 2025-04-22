@@ -103,6 +103,9 @@ public interface MasterService {
 	Optional<GroupMappingVO> getGroupMappingById(Long id);
 
 	Map<String, Object> createUpdateGroupMapping2(GroupMapping2DTO groupMapping2DTO) throws ApplicationException;
+
+
+	List<Map<String, Object>> getLedgersDetailsForGroupMapping(Long orgId, String segment);
 	
 	
 }

@@ -608,4 +608,47 @@ public class ELReportServiceImpl implements ELReportService {
 			return YTDTB;
 		}
 		
+		@Override
+		public List<Map<String, Object>> getELActualQuaterReport(Long orgId, String clientCode, String finyear,
+				String yearType,String month, String mainGroupName, String subGroupCode) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELactualDetails=previousYearActualRepo.getELActualQuaterDetails(orgId,clientCode,finyear,previousYear,month,mainGroupName,subGroupCode);
+			return ElActualQuater(ELactualDetails);
+		}
+		
+		private List<Map<String, Object>> ElActualQuater(Set<Object[]> ELactualDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELactualDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("elGlCode", bud[3] != null ? bud[3].toString() : "");
+				b.put("elGl", bud[4] != null ? bud[4].toString() : "");
+				b.put("natureOfAccount", bud[5] != null ? bud[5].toString() : "");
+				b.put("quater", bud[6] != null ? bud[6].toString() : "");
+				b.put("budget", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("actual", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("py", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
 }

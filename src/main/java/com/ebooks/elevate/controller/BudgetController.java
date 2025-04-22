@@ -21,6 +21,7 @@ import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
 import com.ebooks.elevate.dto.BudgetDTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;
+import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.service.BudgetService;
@@ -170,6 +171,52 @@ public class BudgetController extends BaseController {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
 			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	
+	@PutMapping("/createUpdateBudgetOB")
+	public ResponseEntity<ResponseDTO> createUpdateBudgetOB(@RequestBody List<OrderBookingDTO> orderBookingDTO) {
+		String methodName = "createUpdateBudgetOB()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetDetails = budgetService.createUpdateBudgetOB(orderBookingDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getBudgetOBDetails")
+	public ResponseEntity<ResponseDTO> getBudgetOBDetails(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String type) {
+		String methodName = "getBudgetOBDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> budgetOBDetails = new ArrayList<>();
+		try {
+			budgetOBDetails = budgetService.getOrderBookingBudgetDetail(orgId, year, clientCode, type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Budget OB information get successfully");
+			responseObjectsMap.put("budgetOBDetails", budgetOBDetails);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Budget OB information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
