@@ -38,4 +38,10 @@ public interface BudgetService {
 
 	List<Map<String, Object>> getOrderBookingBudgetDetail(Long orgId, String year, String clientCode, String type);
 
+
+	Map<String, Object> createUpdatePYActulaOB(List<OrderBookingDTO> orderBookingDTO);
+
+
+	List<Map<String, Object>> getPYActualOBDetails(Long orgId, String year, String clientCode, String type);
+
 }

@@ -222,4 +222,49 @@ public class BudgetController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@PutMapping("/createUpdatePYActulaOB")
+	public ResponseEntity<ResponseDTO> createUpdatePYActulaOB(@RequestBody List<OrderBookingDTO> orderBookingDTO) {
+		String methodName = "createUpdatePYActulaOB()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetDetails = budgetService.createUpdatePYActulaOB(orderBookingDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getPYActualOBDetails")
+	public ResponseEntity<ResponseDTO> getPYActualOBDetails(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String type) {
+		String methodName = "getPYActualOBDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> budgetOBDetails = new ArrayList<>();
+		try {
+			budgetOBDetails = budgetService.getPYActualOBDetails(orgId, year, clientCode, type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Budget OB information get successfully");
+			responseObjectsMap.put("budgetOBDetails", budgetOBDetails);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Budget OB information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
 }

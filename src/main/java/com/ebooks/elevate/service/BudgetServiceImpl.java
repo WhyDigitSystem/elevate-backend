@@ -17,11 +17,13 @@ import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.entity.BudgetVO;
 import com.ebooks.elevate.entity.OrderBookingVO;
+import com.ebooks.elevate.entity.PreviousYearActualOBVO;
 import com.ebooks.elevate.entity.PreviousYearActualVO;
 import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.GroupLedgersRepo;
 import com.ebooks.elevate.repo.GroupMappingRepo;
 import com.ebooks.elevate.repo.OrderBookingRepo;
+import com.ebooks.elevate.repo.PreviousYearActualOBRepo;
 import com.ebooks.elevate.repo.PreviousYearActualRepo;
 import com.ebooks.elevate.repo.SubGroupDetailsRepo;
 
@@ -34,6 +36,9 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Autowired
 	QuaterMonthService quaterMonthService;
+	
+	@Autowired
+	PreviousYearActualOBRepo previousYearActualOBRepo;
 
 	@Autowired
 	SubGroupDetailsRepo subGroupDetailsRepo;
@@ -292,6 +297,77 @@ public class BudgetServiceImpl implements BudgetService {
 	}
 
 	private List<Map<String, Object>> getOrderBookingBudgetDetails(Set<Object[]> subGroupDetails) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : subGroupDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("segment", sub[0] != null ? sub[0].toString() : "");
+			mp.put("customerName", sub[1] != null ? sub[1].toString() : "");
+			mp.put("orderValue", sub[2] != null ? new BigDecimal(sub[2].toString()) : BigDecimal.ZERO);
+			mp.put("balanceOrderValue", sub[3] != null ? new BigDecimal(sub[3].toString()) : BigDecimal.ZERO);
+			mp.put("classification", sub[4] != null ? sub[4].toString() : "");
+			mp.put("existingOrderPlan", sub[5] != null ? new BigDecimal(sub[5].toString()) : BigDecimal.ZERO);
+			mp.put("paymentReceived", sub[6] != null ? new BigDecimal(sub[6].toString()) : BigDecimal.ZERO);
+			mp.put("yetToReceived", sub[7] != null ? new BigDecimal(sub[7].toString()) : BigDecimal.ZERO);
+			mp.put("month", sub[8] != null ? sub[8].toString() : "");
+			mp.put("amount", sub[9] != null ? new BigDecimal(sub[9].toString()) : BigDecimal.ZERO);
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
+
+	@Override
+	public Map<String, Object> createUpdatePYActulaOB(List<OrderBookingDTO> orderBookingDTO) {
+		PreviousYearActualOBVO budgetVO = new PreviousYearActualOBVO();
+		for (OrderBookingDTO budgetDTO2 : orderBookingDTO) {
+			List<PreviousYearActualOBVO> ordDetails = previousYearActualOBRepo.getBudgetListDetails(budgetDTO2.getOrgId(),
+					budgetDTO2.getClientCode(), budgetDTO2.getYear(),budgetDTO2.getType());
+			previousYearActualOBRepo.deleteAll(ordDetails);
+		}
+		for (OrderBookingDTO budgetDTO2 : orderBookingDTO) {
+
+
+			budgetVO = new PreviousYearActualOBVO();
+			budgetVO.setOrgId(budgetDTO2.getOrgId());
+			budgetVO.setClient(budgetDTO2.getClient());
+			budgetVO.setClientCode(budgetDTO2.getClientCode());
+			budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+			budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+			budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+			budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+			budgetVO.setAmount(budgetDTO2.getAmount());
+			budgetVO.setBalanceOrderValue(budgetDTO2.getBalanceOrderValue());
+			budgetVO.setClassification(budgetDTO2.getClassification());
+			budgetVO.setCustomerName(budgetDTO2.getCustomerName());
+			budgetVO.setExistingOrderPlan(budgetDTO2.getExistingOrderPlan());
+			budgetVO.setOrderValue(budgetDTO2.getOrderValue());
+			budgetVO.setPaymentReceived(budgetDTO2.getPaymentReceived());
+			budgetVO.setSegment(budgetDTO2.getSegment());
+			budgetVO.setType(budgetDTO2.getType());
+			budgetVO.setYetToReceive(budgetDTO2.getYetToReceive());
+
+			budgetVO.setActive(true);
+
+			int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+			budgetVO.setQuater(String.valueOf(quater));
+
+			int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+			budgetVO.setMonthsequence(monthseq);
+
+			previousYearActualOBRepo.save(budgetVO);
+		}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
+	}
+
+	@Override
+	public List<Map<String, Object>> getPYActualOBDetails(Long orgId, String year, String clientCode, String type) {
+		Set<Object[]> subGroupDetails = previousYearActualOBRepo.getOrderBookingPYDetails(orgId, year, clientCode, type);
+		return getOrderBookingPYDetails(subGroupDetails);
+	}
+
+	private List<Map<String, Object>> getOrderBookingPYDetails(Set<Object[]> subGroupDetails) {
 		List<Map<String, Object>> subgroup = new ArrayList<>();
 		for (Object[] sub : subGroupDetails) {
 			Map<String, Object> mp = new HashMap<>();
