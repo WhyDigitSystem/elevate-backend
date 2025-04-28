@@ -6,7 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -17,45 +16,43 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "ticket")
+@Table(name = "notification")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TicketVO {
+public class NotificationVO {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticketgen")
-	@SequenceGenerator(name = "ticketgen", sequenceName = "ticketseq", initialValue = 1000000001, allocationSize = 1)
-	@Column(name = "ticketid")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notificationgen")
+	@SequenceGenerator(name = "notificationgen", sequenceName = "notificationseq", initialValue = 1000000001, allocationSize = 1)
+	@Column(name = "notificationid")
 	private Long id;
+
+	@Column(name = "ticketid")
+	private Long ticketId;
 	
-	private String subject;
-	
-	private String description;
-	
-	@Column(name="createdby")
+	@Column(name = "createdby")
 	private String createdBy;
-	@Column(name="modifiedy")
+	
+	@Column(name = "modifiedy")
 	private String updatedBy;
-	@Column(name="username")
-	private String userName;
+	
+	
 	@Column(name = "orgid")
 	private Long orgId;
-	
+
 	private String status;
 
+	private String message;
+	
+	@Column(name="notifiedto")
+	private String notifiedTo;
+	
 	@Column(name="statusflag")
 	private Boolean statusFlag=true;
 	
-	@Column(name="notificationflag")
-	private Boolean notificationFlag=false;
-	
-	private boolean cancel;
-	
-	@Lob
-	@Column(name = "screenshot", columnDefinition = "LONGBLOB")
-	private byte[] screenShot;
 	
 	@Embedded
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
+
 }

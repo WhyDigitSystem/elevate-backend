@@ -7,22 +7,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketDTO {
+public class CommentsDTO {
 
-	private Long id;
-
-	private String subject;
-
-	private String description;
-
+private Long id;
+	
+	private String comments;
+	
 	private String createdBy;
-
-	//private byte[] screenShot;
-
 	private String userName;
-
 	private Long orgId;
-
-	private String status;
-
+	private Long ticketId;
+	
+//	private String status;
+	
 }

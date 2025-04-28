@@ -6,7 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -17,21 +16,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "ticket")
+@Table(name = "comments")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TicketVO {
-
+public class CommentsVO {
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticketgen")
-	@SequenceGenerator(name = "ticketgen", sequenceName = "ticketseq", initialValue = 1000000001, allocationSize = 1)
-	@Column(name = "ticketid")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "commentsgen")
+	@SequenceGenerator(name = "commentsgen", sequenceName = "commentsseq", initialValue = 1000000001, allocationSize = 1)
+	@Column(name = "commentsid")
 	private Long id;
 	
-	private String subject;
-	
-	private String description;
+	private String comments;
 	
 	@Column(name="createdby")
 	private String createdBy;
@@ -43,19 +39,15 @@ public class TicketVO {
 	private Long orgId;
 	
 	private String status;
-
-	@Column(name="statusflag")
-	private Boolean statusFlag=true;
+	@Column(name = "ticketid")
+	private Long ticketId;
 	
 	@Column(name="notificationflag")
 	private Boolean notificationFlag=false;
 	
-	private boolean cancel;
-	
-	@Lob
-	@Column(name = "screenshot", columnDefinition = "LONGBLOB")
-	private byte[] screenShot;
+	//private boolean cancel;
 	
 	@Embedded
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
+	
 }
