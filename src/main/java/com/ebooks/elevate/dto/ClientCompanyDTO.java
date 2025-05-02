@@ -35,6 +35,10 @@ public class ClientCompanyDTO {
 	private String password="HzNOsmwTefzQ4WWqCURfjDYdOzoyMT4nlgQk6p77fso=";
 	
 	private List<ClientCompanyReportAccessDTO> clientCompanyReportAccessDTO;
+	
+	private List<ClientUnitDTO> clientUnitDTO;
+	
+	private List<ClientSegmentDTO>clientSegmentDTO;
 
 	
 }

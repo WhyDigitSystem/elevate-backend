@@ -13,12 +13,14 @@ import com.ebooks.elevate.dto.EmployeeDTO;
 import com.ebooks.elevate.dto.GroupMapping2DTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;
 import com.ebooks.elevate.dto.ListOfValuesDTO;
+import com.ebooks.elevate.dto.SegmentMappingDTO;
 import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.EmployeeVO;
 import com.ebooks.elevate.entity.GroupMappingVO;
 import com.ebooks.elevate.entity.ListOfValuesVO;
 import com.ebooks.elevate.entity.SacCodeVO;
+import com.ebooks.elevate.entity.SegmentMappingVO;
 import com.ebooks.elevate.entity.SetTaxRateVO;
 import com.ebooks.elevate.entity.SubLedgerAccountVO;
 import com.ebooks.elevate.exception.ApplicationException;
@@ -106,6 +108,18 @@ public interface MasterService {
 
 
 	List<Map<String, Object>> getLedgersDetailsForGroupMapping(Long orgId, String segment);
+	
+	
+	
+	// Segment Mapping
+	
+	Map<String, Object> createUpdateSegmentMapping(SegmentMappingDTO segmentMappingDTO) throws ApplicationException;
+
+	List<SegmentMappingVO> getAllSegmentMapping(Long orgId);
+
+	Optional<SegmentMappingVO> getSegmentMappingById(Long id);
+
+	List<Map<String, Object>> getSegmentDetailsByClient(Long orgId);
 	
 	
 }

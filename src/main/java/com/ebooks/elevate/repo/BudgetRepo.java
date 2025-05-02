@@ -1,5 +1,6 @@
 package com.ebooks.elevate.repo;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -98,7 +99,55 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 	Set<Object[]> getELActualDetails(Long orgId, String clientCode, String finyear, String previousYear, String month,
 			String mainGroupName, String subGroupCode);
 
+	@Query(nativeQuery = true,value = "select a.* from budget a where a.orgid=?1 and a.clientcode=?2 and a.year=?3 and a.maingroup=?4 and a.subgroup=?5")
+	List<BudgetVO> getClientBudgetDls(Long orgId, String clientCode, String year, String mainGroup, String subGroup);
 
+
+	@Query(nativeQuery = true,value = "WITH Months AS (\r\n"
+			+ "    SELECT 'April' AS month UNION ALL\r\n"
+			+ "    SELECT 'May' UNION ALL\r\n"
+			+ "    SELECT 'June' UNION ALL\r\n"
+			+ "    SELECT 'July' UNION ALL\r\n"
+			+ "    SELECT 'August' UNION ALL\r\n"
+			+ "    SELECT 'September' UNION ALL\r\n"
+			+ "    SELECT 'October' UNION ALL\r\n"
+			+ "    SELECT 'November' UNION ALL\r\n"
+			+ "    SELECT 'December' UNION ALL\r\n"
+			+ "    SELECT 'January' UNION ALL\r\n"
+			+ "    SELECT 'February' UNION ALL\r\n"
+			+ "    SELECT 'March'\r\n"
+			+ "),\r\n"
+			+ "Accounts AS (\r\n"
+			+ "    SELECT \r\n"
+			+ "        a.displayseq, \r\n"
+			+ "        a.accountname,\r\n"
+			+ "        a.accountcode,\r\n"
+			+ "        a.subgroupname,\r\n"
+			+ "        a.subgroupcode\r\n"
+			+ "    FROM groupledgers a\r\n"
+			+ "    JOIN groupmapping b ON a.groupmappingid = b.groupmappingid\r\n"
+			+ "    WHERE b.groupname = ?4\r\n"
+			+ "      AND a.active = 1\r\n"
+			+ "    GROUP BY a.accountname, a.displayseq, a.accountcode, a.subgroupname, a.subgroupcode order by cast(a.displayseq as unsigned) asc\r\n"
+			+ ")\r\n"
+			+ "SELECT \r\n"
+			+ "    a.accountcode,\r\n"
+			+ "    a.accountname,\r\n"
+			+ "    m.month,\r\n"
+			+ "    SUM(b.amount) AS total_amount\r\n"
+			+ "FROM Accounts a\r\n"
+			+ "CROSS JOIN Months m\r\n"
+			+ "LEFT JOIN budget b \r\n"
+			+ "    ON a.accountname = b.maingroup \r\n"
+			+ "    AND b.month = m.month\r\n"
+			+ "    AND b.year = ?2 \r\n"
+			+ "    AND b.orgid = ?1 \r\n"
+			+ "    AND b.clientcode = ?3\r\n"
+			+ "GROUP BY a.accountname, a.accountcode, m.month, a.displayseq\r\n"
+			+ "ORDER BY \r\n"
+			+ "    a.displayseq,\r\n"
+			+ "    FIELD(m.month, 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March')")
+	Set<Object[]> getBudgetDetailsAuto(Long orgId, String finyear,  String clientCode,String mainGroupName);
 	
 
 }

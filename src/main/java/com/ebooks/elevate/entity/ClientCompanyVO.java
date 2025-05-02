@@ -90,6 +90,14 @@ public class ClientCompanyVO {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "clientCompanyVO", cascade = CascadeType.ALL)
 	private List<ClientCompanyReportAccessVO>clientCompanyReportAccessVO;
+	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "clientCompanyVO", cascade = CascadeType.ALL)
+	private List<ClientUnitVO>clientUnitVO;
+	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "clientCompanyVO", cascade = CascadeType.ALL)
+	private List<ClientSegmentVO>clientSegmentVO;
 
 	@JsonGetter("active")
 	public String getActive() {

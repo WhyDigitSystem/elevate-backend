@@ -13,18 +13,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.BudgetDTO;
+import com.ebooks.elevate.dto.BudgetHeadCountDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
+import com.ebooks.elevate.dto.PyHeadCountDTO;
+import com.ebooks.elevate.entity.BudgetHeadCountVO;
 import com.ebooks.elevate.entity.BudgetVO;
 import com.ebooks.elevate.entity.OrderBookingVO;
+import com.ebooks.elevate.entity.PYHeadCountVO;
 import com.ebooks.elevate.entity.PreviousYearActualOBVO;
 import com.ebooks.elevate.entity.PreviousYearActualVO;
+import com.ebooks.elevate.repo.BudgetHeadCountRepo;
 import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.GroupLedgersRepo;
 import com.ebooks.elevate.repo.GroupMappingRepo;
 import com.ebooks.elevate.repo.OrderBookingRepo;
 import com.ebooks.elevate.repo.PreviousYearActualOBRepo;
 import com.ebooks.elevate.repo.PreviousYearActualRepo;
+import com.ebooks.elevate.repo.PyHeadCountRepo;
 import com.ebooks.elevate.repo.SubGroupDetailsRepo;
 
 @Service
@@ -36,7 +42,7 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Autowired
 	QuaterMonthService quaterMonthService;
-	
+
 	@Autowired
 	PreviousYearActualOBRepo previousYearActualOBRepo;
 
@@ -45,6 +51,12 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Autowired
 	GroupLedgersRepo groupLedgersRepo;
+	
+	@Autowired
+	BudgetHeadCountRepo budgetHeadCountRepo;
+	
+	@Autowired
+	PyHeadCountRepo  pyHeadCountRepo;
 
 	@Autowired
 	OrderBookingRepo orderBookingRepo;
@@ -99,12 +111,27 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	public Map<String, Object> createUpdateBudget(List<BudgetDTO> budgetDTO) {
 		BudgetVO budgetVO = new BudgetVO();
+		String maingroup = null;
+		String subgroup = null;
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
 		for (BudgetDTO budgetDTO2 : budgetDTO) {
-			budgetVO = budgetRepo.getBudgetDetails(budgetDTO2.getOrgId(), budgetDTO2.getClientCode(),
-					budgetDTO2.getYear(), budgetDTO2.getMonth(), budgetDTO2.getMainGroup(),
-					budgetDTO2.getSubGroupCode(), budgetDTO2.getAccountCode());
-			if (budgetVO == null) {
+			maingroup = budgetDTO2.getMainGroup();
+			subgroup = budgetDTO2.getSubGroup();
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+		}
+		List<BudgetVO> vo = budgetRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
 
+		if (vo != null) {
+			budgetRepo.deleteAll(vo);
+		}
+
+		for (BudgetDTO budgetDTO2 : budgetDTO) {
+
+			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
 				budgetVO = new BudgetVO();
 				budgetVO.setOrgId(budgetDTO2.getOrgId());
 				budgetVO.setClient(budgetDTO2.getClient());
@@ -128,30 +155,6 @@ public class BudgetServiceImpl implements BudgetService {
 				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
 				budgetVO.setMonthsequence(monthseq);
 
-				budgetRepo.save(budgetVO);
-			} else {
-				budgetVO = budgetRepo.getBudgetDetails(budgetDTO2.getOrgId(), budgetDTO2.getClientCode(),
-						budgetDTO2.getYear(), budgetDTO2.getMonth(), budgetDTO2.getMainGroup(),
-						budgetDTO2.getSubGroupCode(), budgetDTO2.getAccountCode());
-				budgetVO.setOrgId(budgetDTO2.getOrgId());
-				budgetVO.setClient(budgetDTO2.getClient());
-				budgetVO.setClientCode(budgetDTO2.getClientCode());
-				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
-				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
-				budgetVO.setAccountName(budgetDTO2.getAccountName());
-				budgetVO.setAccountCode(budgetDTO2.getAccountCode());
-				budgetVO.setNatureOfAccount(budgetDTO2.getNatureOfAccount());
-				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
-				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
-				budgetVO.setAmount(budgetDTO2.getAmount());
-				budgetVO.setMainGroup(budgetDTO2.getMainGroup());
-				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
-				budgetVO.setSubGroup(budgetDTO2.getSubGroup());
-				budgetVO.setActive(true);
-				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
-				budgetVO.setQuater(String.valueOf(quater));
-				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
-				budgetVO.setMonthsequence(monthseq);
 				budgetRepo.save(budgetVO);
 			}
 		}
@@ -247,11 +250,10 @@ public class BudgetServiceImpl implements BudgetService {
 		OrderBookingVO budgetVO = new OrderBookingVO();
 		for (OrderBookingDTO budgetDTO2 : orderBookingDTO) {
 			List<OrderBookingVO> ordDetails = orderBookingRepo.getBudgetListDetails(budgetDTO2.getOrgId(),
-					budgetDTO2.getClientCode(), budgetDTO2.getYear(),budgetDTO2.getType());
+					budgetDTO2.getClientCode(), budgetDTO2.getYear(), budgetDTO2.getType());
 			orderBookingRepo.deleteAll(ordDetails);
 		}
 		for (OrderBookingDTO budgetDTO2 : orderBookingDTO) {
-
 
 			budgetVO = new OrderBookingVO();
 			budgetVO.setOrgId(budgetDTO2.getOrgId());
@@ -319,12 +321,13 @@ public class BudgetServiceImpl implements BudgetService {
 	public Map<String, Object> createUpdatePYActulaOB(List<OrderBookingDTO> orderBookingDTO) {
 		PreviousYearActualOBVO budgetVO = new PreviousYearActualOBVO();
 		for (OrderBookingDTO budgetDTO2 : orderBookingDTO) {
-			List<PreviousYearActualOBVO> ordDetails = previousYearActualOBRepo.getBudgetListDetails(budgetDTO2.getOrgId(),
-					budgetDTO2.getClientCode(), budgetDTO2.getYear(),budgetDTO2.getType());
-			previousYearActualOBRepo.deleteAll(ordDetails);
+			List<PreviousYearActualOBVO> ordDetails = previousYearActualOBRepo.getBudgetListDetails(
+					budgetDTO2.getOrgId(), budgetDTO2.getClientCode(), budgetDTO2.getYear(), budgetDTO2.getType());
+			if (ordDetails != null) {
+				previousYearActualOBRepo.deleteAll(ordDetails);
+			}
 		}
 		for (OrderBookingDTO budgetDTO2 : orderBookingDTO) {
-
 
 			budgetVO = new PreviousYearActualOBVO();
 			budgetVO.setOrgId(budgetDTO2.getOrgId());
@@ -363,7 +366,8 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Override
 	public List<Map<String, Object>> getPYActualOBDetails(Long orgId, String year, String clientCode, String type) {
-		Set<Object[]> subGroupDetails = previousYearActualOBRepo.getOrderBookingPYDetails(orgId, year, clientCode, type);
+		Set<Object[]> subGroupDetails = previousYearActualOBRepo.getOrderBookingPYDetails(orgId, year, clientCode,
+				type);
 		return getOrderBookingPYDetails(subGroupDetails);
 	}
 
@@ -384,5 +388,146 @@ public class BudgetServiceImpl implements BudgetService {
 			subgroup.add(mp);
 		}
 		return subgroup;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getBudgetDetailsAutomatic(Long orgId, String year, String clientCode,
+			String mainGroup) {
+
+		Set<Object[]> subGroupDetails = budgetRepo.getBudgetDetailsAuto(orgId, year, clientCode, mainGroup);
+		return getBudgetAuto(subGroupDetails);
+	}
+	
+	private List<Map<String, Object>> getBudgetAuto(Set<Object[]> subGroupDetails) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : subGroupDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("subGroupCode", sub[0] != null ? sub[0].toString() : "");
+			mp.put("subGroupName", sub[1] != null ? sub[1].toString() : "");
+			mp.put("natureOfAccount", null);
+			mp.put("month", sub[2] );
+			mp.put("amount", sub[3] != null ? new BigDecimal(sub[3].toString()) : BigDecimal.ZERO);
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
+
+	@Override
+	public Map<String, Object> createUpdateBudgetHeadCount(List<BudgetHeadCountDTO> budgetHeadCountDTO) {
+		
+		BudgetHeadCountVO budgetVO = new BudgetHeadCountVO();
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
+		for (BudgetHeadCountDTO budgetDTO2 : budgetHeadCountDTO) {
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+		}
+		List<BudgetHeadCountVO> vo = budgetHeadCountRepo.getClientBudgetDls(org, clientcode, yr);
+
+		if (vo != null) {
+			budgetHeadCountRepo.deleteAll(vo);
+		}
+
+		for (BudgetHeadCountDTO budgetDTO2 : budgetHeadCountDTO) {
+
+				budgetVO = new BudgetHeadCountVO();
+				budgetVO.setOrgId(budgetDTO2.getOrgId());
+				budgetVO.setClient(budgetDTO2.getClient());
+				budgetVO.setClientCode(budgetDTO2.getClientCode());
+				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+				budgetVO.setDepartment(budgetDTO2.getDepartment());
+				budgetVO.setEmploymentType(budgetDTO2.getEmploymentType());
+				budgetVO.setCategory(budgetDTO2.getCategory());
+				budgetVO.setHeadcount(budgetDTO2.getHeadcount());
+				budgetVO.setCtc(budgetDTO2.getCtc());
+				budgetVO.setActive(true);
+
+				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setQuater(String.valueOf(quater));
+
+				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
+
+				budgetHeadCountRepo.save(budgetVO);
+			}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
+	}
+
+	@Override
+	public List<Map<String, Object>> getGroupLedgersDetailsForHeadCount(Long orgId, String year, String clientCode) {
+		Set<Object[]> Details = budgetHeadCountRepo.getDetails(orgId, year, clientCode);
+		return getDetails(Details);
+	}
+
+	private List<Map<String, Object>> getDetails(Set<Object[]> Details) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : Details) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("department", sub[0] != null ? sub[0].toString() : "");
+			mp.put("employmentType", sub[1] != null ? sub[1].toString() : "");
+			mp.put("category", sub[2] != null ? sub[2].toString() : "");
+			mp.put("month", sub[3] != null ? sub[3].toString() : "");
+			mp.put("headCount", sub[4] != null ? Integer.parseInt(sub[4].toString()) : 0);
+			mp.put("ctc", sub[5] != null ? new BigDecimal(sub[5].toString()) : BigDecimal.ZERO);
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
+
+	@Override
+	public Map<String, Object> createUpdatePreviousYearHeadCount(List<PyHeadCountDTO> pyHeadCountDTO) {
+		
+		PYHeadCountVO budgetVO = new PYHeadCountVO();
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
+		for (PyHeadCountDTO budgetDTO2 : pyHeadCountDTO) {
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+		}
+		List<BudgetHeadCountVO> vo = budgetHeadCountRepo.getClientBudgetDls(org, clientcode, yr);
+
+		if (vo != null) {
+			budgetHeadCountRepo.deleteAll(vo);
+		}
+
+		for (PyHeadCountDTO budgetDTO2 : pyHeadCountDTO) {
+
+				budgetVO = new PYHeadCountVO();
+				budgetVO.setOrgId(budgetDTO2.getOrgId());
+				budgetVO.setClient(budgetDTO2.getClient());
+				budgetVO.setClientCode(budgetDTO2.getClientCode());
+				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+				budgetVO.setDepartment(budgetDTO2.getDepartment());
+				budgetVO.setEmploymentType(budgetDTO2.getEmploymentType());
+				budgetVO.setCategory(budgetDTO2.getCategory());
+				budgetVO.setHeadcount(budgetDTO2.getHeadcount());
+				budgetVO.setCtc(budgetDTO2.getCtc());
+				budgetVO.setActive(true);
+
+				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setQuater(String.valueOf(quater));
+
+				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
+
+				pyHeadCountRepo.save(budgetVO);
+			}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
 	}
 }

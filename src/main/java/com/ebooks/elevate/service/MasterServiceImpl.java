@@ -24,6 +24,8 @@ import com.ebooks.elevate.dto.GroupMapping2SubGroupDTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;
 import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.dto.ListOfValuesDetailsDTO;
+import com.ebooks.elevate.dto.SegmentMappingDTO;
+import com.ebooks.elevate.dto.SegmentMappingDetailsDTO;
 import com.ebooks.elevate.dto.SubGroupDetailsDTO;
 import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.CoaVO;
@@ -33,6 +35,8 @@ import com.ebooks.elevate.entity.GroupMappingVO;
 import com.ebooks.elevate.entity.ListOfValuesDetailsVO;
 import com.ebooks.elevate.entity.ListOfValuesVO;
 import com.ebooks.elevate.entity.SacCodeVO;
+import com.ebooks.elevate.entity.SegmentMappingDetailsVO;
+import com.ebooks.elevate.entity.SegmentMappingVO;
 import com.ebooks.elevate.entity.SetTaxRateVO;
 import com.ebooks.elevate.entity.SubGroupDetailsVO;
 import com.ebooks.elevate.entity.SubLedgerAccountVO;
@@ -46,6 +50,8 @@ import com.ebooks.elevate.repo.GroupMappingRepo;
 import com.ebooks.elevate.repo.ListOfValuesDetailsRepo;
 import com.ebooks.elevate.repo.ListOfValuesRepo;
 import com.ebooks.elevate.repo.SacCodeRepo;
+import com.ebooks.elevate.repo.SegmentMappingDetailsRepo;
+import com.ebooks.elevate.repo.SegmentMappingRepo;
 import com.ebooks.elevate.repo.SetTaxRateRepo;
 import com.ebooks.elevate.repo.SubGroupDetailsRepo;
 import com.ebooks.elevate.repo.SubLedgerAccountRepo;
@@ -89,6 +95,12 @@ public class MasterServiceImpl implements MasterService {
 
 	@Autowired
 	DocumentTypeMappingDetailsRepo documentTypeMappingDetailsRepo;
+	
+	@Autowired
+	SegmentMappingRepo segmentMappingRepo;
+	
+	@Autowired
+	SegmentMappingDetailsRepo segmentMappingDetailsRepo;
 	// Branch
 
 	@Override
@@ -664,6 +676,100 @@ public class MasterServiceImpl implements MasterService {
 			Map<String, Object> mp = new HashMap<>();
 			mp.put("ledger", det[0] != null ? det[0].toString() : "");
 			mp.put("subGroupCode", det[1] != null ? det[1].toString() : null);
+			details.add(mp);
+		}
+		return details;
+	}
+
+	@Override
+	public Map<String, Object> createUpdateSegmentMapping(SegmentMappingDTO segmentMappingDTO)
+			throws ApplicationException {
+
+		SegmentMappingVO segMappingVO = new SegmentMappingVO();
+
+		String message = null;
+
+		if (ObjectUtils.isEmpty(segmentMappingDTO.getId())) {
+
+			
+			segMappingVO.setCreatedBy(segmentMappingDTO.getCreatedBy());
+			segMappingVO.setUpdatedBy(segmentMappingDTO.getCreatedBy());
+			message = "Segment Mapping Creation SuccessFully";
+
+		} else {
+
+			segMappingVO = segmentMappingRepo.findById(segmentMappingDTO.getId()).orElseThrow(
+					() -> new ApplicationException("Segment DTO not found with id: " + segmentMappingDTO.getId()));
+			segMappingVO.setUpdatedBy(segmentMappingDTO.getCreatedBy());
+
+			message = "Segment Mapping Updation SuccessFully";
+		}
+
+		segMappingVO = getSegmentMappingVOFromSegmentMappingDTO(segMappingVO, segmentMappingDTO);
+		segmentMappingRepo.save(segMappingVO);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", message);
+		response.put("segmentMappingVO", segMappingVO); // Return the list of saved records
+		return response;
+	}
+
+	private SegmentMappingVO getSegmentMappingVOFromSegmentMappingDTO(SegmentMappingVO segmentMappingVO,
+			SegmentMappingDTO segmentMappingDTO) {
+
+		segmentMappingVO.setActive(segmentMappingDTO.isActive());
+		segmentMappingVO.setClientName(segmentMappingDTO.getClientName());
+		segmentMappingVO.setClientCode(segmentMappingDTO.getClientCode());
+		segmentMappingVO.setSegmentType(segmentMappingDTO.getSegmentType());
+		segmentMappingVO.setOrgId(segmentMappingDTO.getOrgId());
+		
+
+		if (segmentMappingDTO.getId() != null) {
+			List<SegmentMappingDetailsVO> detailsVOs = segmentMappingDetailsRepo.findBySegmentMappingVO(segmentMappingVO);
+			segmentMappingDetailsRepo.deleteAll(detailsVOs);
+		}
+
+		List<SegmentMappingDetailsVO> segmentMappingDetailsVO = new ArrayList<>();
+		List<SegmentMappingDetailsDTO> segmentMappingDetailsDTO = segmentMappingDTO.getSegmentMappingDetailsDTO();
+		if (segmentMappingDetailsDTO != null && !segmentMappingDetailsDTO.isEmpty()) {
+			for (SegmentMappingDetailsDTO segmentMappingDetailsDTOs : segmentMappingDetailsDTO) {
+				SegmentMappingDetailsVO detailsVO = new SegmentMappingDetailsVO();
+				detailsVO.setActive(segmentMappingDetailsDTOs.isActive());
+				detailsVO.setValue(segmentMappingDetailsDTOs.getValue());
+				detailsVO.setActive(segmentMappingDetailsDTOs.isActive());
+				detailsVO.setSegmentMappingVO(segmentMappingVO);
+				segmentMappingDetailsVO.add(detailsVO);
+			}
+			segmentMappingVO.setSegmentMappingDetailsVO(segmentMappingDetailsVO);
+		}
+		return segmentMappingVO;
+	}
+
+	@Override
+	public List<SegmentMappingVO> getAllSegmentMapping(Long orgId) {
+		
+		return segmentMappingRepo.findByOrgId(orgId);
+	}
+
+	@Override
+	public Optional<SegmentMappingVO> getSegmentMappingById(Long id) {
+		// TODO Auto-generated method stub
+		return segmentMappingRepo.findById(id);
+	}
+	
+	
+	@Override
+	public List<Map<String, Object>> getSegmentDetailsByClient(Long orgId) {
+		
+		Set<Object []> segmentDetails=segmentMappingRepo.getSegmentDetailsByClient(orgId);
+		return segDetails(segmentDetails);
+	}
+
+	private List<Map<String, Object>> segDetails(Set<Object[]> ledgerDetails) {
+		List<Map<String, Object>> details = new ArrayList<>();
+		for (Object[] det : ledgerDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("values", det[0] != null ? det[0].toString() : "");
 			details.add(mp);
 		}
 		return details;
