@@ -12,7 +12,7 @@ import com.ebooks.elevate.entity.BudgetVO;
 public interface BudgetUnitWiseRepo extends JpaRepository<BudgetUnitWiseVO, Long>{
 
 	@Query(nativeQuery = true, value = "select a.* from budgetunit a where a.orgid=?1 and a.clientcode=?2 and a.year=?3 and a.unit=?4 ")
-	List<BudgetVO> getBudgetDls(Long org, String clientcode, String yr, String unit);
+	List<BudgetUnitWiseVO> getBudgetDls(Long org, String clientcode, String yr, String unit);
 
 	
 

@@ -663,9 +663,9 @@ public class BudgetServiceImpl implements BudgetService {
 			
 		}
 		
-		List<BudgetVO> vo = budgetUnitWiseRepo.getBudgetDls(org, clientcode, yr, unit);
+		List<BudgetUnitWiseVO> vo = budgetUnitWiseRepo.getBudgetDls(org, clientcode, yr, unit);
 		if (vo != null) {
-			budgetRepo.deleteAll(vo);
+			budgetUnitWiseRepo.deleteAll(vo);
 		}
 		
 
