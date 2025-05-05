@@ -149,5 +149,7 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "    FIELD(m.month, 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March')")
 	Set<Object[]> getBudgetDetailsAuto(Long orgId, String finyear,  String clientCode,String mainGroupName);
 	
+	
+	
 
 }

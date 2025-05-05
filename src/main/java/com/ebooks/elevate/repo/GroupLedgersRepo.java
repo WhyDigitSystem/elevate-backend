@@ -33,4 +33,8 @@ public interface GroupLedgersRepo extends JpaRepository<GroupLedgersVO, Long> {
 			+ "GROUP BY h.ledgers, h.groupcode")
 	Set<Object []>ledgersDetails(Long orgId, String segment);
 
+
+
+	GroupLedgersVO findByOrgIdAndAccountNameAndMainGroupName(Long orgId, String accountName, String mainGroup);
+
 }

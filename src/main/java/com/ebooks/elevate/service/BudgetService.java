@@ -5,8 +5,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.ebooks.elevate.dto.BudgetACPDTO;
 import com.ebooks.elevate.dto.BudgetDTO;
 import com.ebooks.elevate.dto.BudgetHeadCountDTO;
+import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
@@ -60,5 +62,24 @@ public interface BudgetService {
 
 
 	Map<String, Object> createUpdatePreviousYearHeadCount(List<PyHeadCountDTO> pyHeadCountDTO);
+	
+	
+	
+	Map<String,Object>createUpdateBudgetAccountPayable(List<BudgetACPDTO> budgetACPDTO);
+
+
+	List<Map<String, Object>> getBudgetACPDetails(Long orgId, String year, String month, String clientCode);
+	
+	
+	Map<String,Object>createUpdateBudgetUnitWise(List<BudgetUnitWiseDTO> budgetUnitWiseDTO);
+
+
+	List<Map<String, Object>> getUnitDetails(Long orgId, String clientCode);
+
+
+
+
+	List<Map<String, Object>> getUnitLedgerDetails(Long orgId, String year, String clientCode, String mainGroup,
+			String accountCode, String unit);
 
 }
