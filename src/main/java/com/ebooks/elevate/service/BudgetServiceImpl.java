@@ -26,8 +26,10 @@ import com.ebooks.elevate.entity.BudgetVO;
 import com.ebooks.elevate.entity.GroupLedgersVO;
 import com.ebooks.elevate.entity.OrderBookingVO;
 import com.ebooks.elevate.entity.PYHeadCountVO;
+import com.ebooks.elevate.entity.PreviousYearARAPVO;
 import com.ebooks.elevate.entity.PreviousYearActualOBVO;
 import com.ebooks.elevate.entity.PreviousYearActualVO;
+import com.ebooks.elevate.entity.PreviousYearUnitwiseVO;
 import com.ebooks.elevate.repo.BudgetACPRepo;
 import com.ebooks.elevate.repo.BudgetHeadCountRepo;
 import com.ebooks.elevate.repo.BudgetRepo;
@@ -35,8 +37,10 @@ import com.ebooks.elevate.repo.BudgetUnitWiseRepo;
 import com.ebooks.elevate.repo.GroupLedgersRepo;
 import com.ebooks.elevate.repo.GroupMappingRepo;
 import com.ebooks.elevate.repo.OrderBookingRepo;
+import com.ebooks.elevate.repo.PreviousYearARAPRepo;
 import com.ebooks.elevate.repo.PreviousYearActualOBRepo;
 import com.ebooks.elevate.repo.PreviousYearActualRepo;
+import com.ebooks.elevate.repo.PreviousYearUnitwiseRepo;
 import com.ebooks.elevate.repo.PyHeadCountRepo;
 import com.ebooks.elevate.repo.SubGroupDetailsRepo;
 
@@ -57,7 +61,13 @@ public class BudgetServiceImpl implements BudgetService {
 	BudgetUnitWiseRepo budgetUnitWiseRepo;
 	
 	@Autowired
+	PreviousYearUnitwiseRepo previousYearUnitwiseRepo;
+	
+	@Autowired
 	BudgetACPRepo budgetACPRepo;
+	
+	@Autowired
+	PreviousYearARAPRepo previousYearARAPRepo;
 
 	@Autowired
 	SubGroupDetailsRepo subGroupDetailsRepo;
@@ -566,13 +576,15 @@ public class BudgetServiceImpl implements BudgetService {
 		String clientcode = null;
 		String yr = null;
 		String month = null;
+		String type=null;
 		for (BudgetACPDTO budgetDTO2 : budgetACPDTO) {
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
 			month = budgetDTO2.getMonth();
+			type=budgetDTO2.getType();		
 		}
-		List<BudgetACPVO> vo = budgetACPRepo.getClientBudgetDls(org, clientcode, yr, month);
+		List<BudgetACPVO> vo = budgetACPRepo.getClientBudgetDls(org, clientcode, yr, month,type);
 		if (vo != null) {
 			budgetACPRepo.deleteAll(vo);
 		}
@@ -598,6 +610,7 @@ public class BudgetServiceImpl implements BudgetService {
 			budgetVO.setSlab3(budgetDTO2.getSlab3());
 			budgetVO.setSlab4(budgetDTO2.getSlab4());
 			budgetVO.setSlab5(budgetDTO2.getSlab5());
+			budgetVO.setType(budgetDTO2.getType());
 			budgetVO.setActive(true);
 
 			int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
@@ -615,8 +628,8 @@ public class BudgetServiceImpl implements BudgetService {
 	}
 	
 	@Override
-	public List<Map<String, Object>> getBudgetACPDetails(Long orgId, String year,String month, String clientCode) {
-		Set<Object[]> Details = budgetACPRepo.getBudgetACPDetails(orgId, year, month, clientCode);
+	public List<Map<String, Object>> getBudgetACPDetails(Long orgId, String year,String month, String clientCode,String type) {
+		Set<Object[]> Details = budgetACPRepo.getBudgetACPDetails(orgId, year, month, clientCode,type);
 		return getACPDetails(Details);
 	}
 
@@ -726,6 +739,22 @@ public class BudgetServiceImpl implements BudgetService {
 	}
 	
 	@Override
+	public List<Map<String, Object>> getSegmentDetails(Long orgId,String clientCode,String segmentType) {
+		Set<Object[]> Details = budgetUnitWiseRepo.getSegmentDetails(orgId, clientCode,segmentType);
+		return getSegmentDetails(Details);
+	}
+
+	private List<Map<String, Object>> getSegmentDetails(Set<Object[]> Details) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : Details) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("segmentDetails", sub[0] != null ? sub[0].toString() : "");
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
+	
+	@Override
 	public List<Map<String, Object>> getUnitLedgerDetails(Long orgId,String year,String clientCode, String mainGroup,String accountCode,String unit) {
 		Set<Object[]> Details = budgetUnitWiseRepo.getUnitWiseLedgersDetails(orgId, year, clientCode, mainGroup, accountCode, unit);
 		return getUnitLedgerDetails(Details);
@@ -744,6 +773,157 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
+
+	
+	@Override
+	public List<Map<String, Object>> getGroupLedgersDetailsPYForHeadCount(Long orgId, String year, String clientCode) {
+		Set<Object[]> Details = pyHeadCountRepo.getPYHCDetails(orgId, year, clientCode);
+		return getDetails(Details);
+	}
+
+	@Override
+	public Map<String, Object> createUpdatePYAccountPayable(List<BudgetACPDTO> budgetACPDTO) {
+
+		PreviousYearARAPVO budgetVO = new PreviousYearARAPVO();
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
+		String month = null;
+		String type=null;
+		for (BudgetACPDTO budgetDTO2 : budgetACPDTO) {
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+			month = budgetDTO2.getMonth();
+			type=budgetDTO2.getType();		
+		}
+		List<PreviousYearARAPVO> vo = previousYearARAPRepo.getClientPYDetails(org, clientcode, yr, month,type);
+		if (vo != null) {
+			previousYearARAPRepo.deleteAll(vo);
+		}
+
+		for (BudgetACPDTO budgetDTO2 : budgetACPDTO) {
+
+			budgetVO = new PreviousYearARAPVO();
+			budgetVO.setOrgId(budgetDTO2.getOrgId());
+			budgetVO.setClient(budgetDTO2.getClient());
+			budgetVO.setClientCode(budgetDTO2.getClientCode());
+			budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+			budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+			budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+			budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+			budgetVO.setSupplier(budgetDTO2.getSupplier());
+			budgetVO.setPaymentTerms(budgetDTO2.getPaymentTerms());
+			budgetVO.setGrossPurchase(budgetDTO2.getGrossPurchase());
+			budgetVO.setNoOfMonthPurchase(budgetDTO2.getNoOfMonthPurchase());
+			budgetVO.setOutStanding(budgetDTO2.getOutStanding());
+			budgetVO.setPaymentPeriod(budgetDTO2.getPaymentPeriod());
+			budgetVO.setSlab1(budgetDTO2.getSlab1());
+			budgetVO.setSlab2(budgetDTO2.getSlab2());
+			budgetVO.setSlab3(budgetDTO2.getSlab3());
+			budgetVO.setSlab4(budgetDTO2.getSlab4());
+			budgetVO.setSlab5(budgetDTO2.getSlab5());
+			budgetVO.setType(budgetDTO2.getType());
+			budgetVO.setActive(true);
+
+			int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+			budgetVO.setQuater(String.valueOf(quater));
+
+			int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+			budgetVO.setMonthsequence(monthseq);
+
+			previousYearARAPRepo.save(budgetVO);
+		}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
+	}
+
+	@Override
+	public List<Map<String, Object>> getPYACPDetails(Long orgId, String year, String month, String clientCode,
+			String type) {
+		Set<Object[]> Details = previousYearARAPRepo.getPYARAPDetails(orgId, year, month, clientCode,type);
+		return getACPDetails(Details);
+	}
+
+	@Override
+	public Map<String, Object> createUpdatePYUnitWise(List<BudgetUnitWiseDTO> budgetUnitWiseDTO) {
+		PreviousYearUnitwiseVO budgetVO = new PreviousYearUnitwiseVO();
+		String maingroup = null;
+		String subgroup = null;
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
+		String unit=null;
+		for (BudgetUnitWiseDTO budgetDTO2 : budgetUnitWiseDTO) {
+			maingroup = budgetDTO2.getMainGroup();
+			
+			GroupLedgersVO groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
+					budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+			subgroup = groupLedgersVO.getGroupName();
+			org = budgetDTO2.getOrgId();
+			unit=budgetDTO2.getUnit();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+			
+			
+		}
+		
+		List<PreviousYearUnitwiseVO> vo = previousYearUnitwiseRepo.getPYUnitDetails(org, clientcode, yr, unit);
+		if (vo != null) {
+			previousYearUnitwiseRepo.deleteAll(vo);
+		}
+		
+
+		for (BudgetUnitWiseDTO budgetDTO2 : budgetUnitWiseDTO) {
+
+			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
+				budgetVO = new PreviousYearUnitwiseVO();
+				budgetVO.setOrgId(budgetDTO2.getOrgId());
+				budgetVO.setClient(budgetDTO2.getClient());
+				budgetVO.setClientCode(budgetDTO2.getClientCode());
+				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setAccountName(budgetDTO2.getAccountName());
+				budgetVO.setAccountCode(budgetDTO2.getAccountCode());
+				budgetVO.setUnit(unit);
+				budgetVO.setNatureOfAccount(budgetDTO2.getNatureOfAccount());
+				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+				budgetVO.setAmount(budgetDTO2.getAmount());
+				budgetVO.setMainGroup(budgetDTO2.getMainGroup());
+
+				GroupLedgersVO groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
+						budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+
+				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
+				budgetVO.setSubGroup(groupLedgersVO.getGroupName());
+				budgetVO.setActive(true);
+
+				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setQuater(String.valueOf(quater));
+
+				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
+
+				previousYearUnitwiseRepo.save(budgetVO);
+			}
+		}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
+	}
+
+	@Override
+	public List<Map<String, Object>> getPYUnitLedgerDetails(Long orgId, String year, String clientCode,
+			String mainGroup, String accountCode, String unit) {
+		Set<Object[]> Details = previousYearUnitwiseRepo.getPYUnitWiseLedgersDetails(orgId, year, clientCode, mainGroup, accountCode, unit);
+		return getUnitLedgerDetails(Details);
+	}
+	
+	
 
 	
 

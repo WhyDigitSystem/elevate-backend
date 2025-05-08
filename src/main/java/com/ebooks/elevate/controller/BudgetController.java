@@ -322,6 +322,31 @@ public class BudgetController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@GetMapping("/getGroupLedgersDetailsForPYHC")
+	public ResponseEntity<ResponseDTO> getGroupLedgersDetailsForPYHC(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode) {
+		String methodName = "getGroupLedgersDetailsForPYHC()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> groupLedgers = new ArrayList<>();
+		try {
+			groupLedgers = budgetService.getGroupLedgersDetailsPYForHeadCount(orgId, year, clientCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Group Ledgers information get successfully");
+			responseObjectsMap.put("groupLedgers", groupLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Group Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
 	@PutMapping("/createUpdateBudgetHC")
 	public ResponseEntity<ResponseDTO> createUpdateBudgetHC(@RequestBody List<BudgetHeadCountDTO> budgetHeadCountDTO) {
 		String methodName = "createUpdateBudgetHC()";
@@ -382,9 +407,29 @@ public class BudgetController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@PutMapping("/createUpdatePYACP")
+	public ResponseEntity<ResponseDTO> createUpdatePYACP(@RequestBody List<BudgetACPDTO> budgetACPDTO) {
+		String methodName = "createUpdatePYACP()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetACPDetails = budgetService.createUpdatePYAccountPayable(budgetACPDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetACPDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
 	
 	@GetMapping("/getACPDetails")
-	public ResponseEntity<ResponseDTO> getACPDetails(@RequestParam Long orgId,@RequestParam String year,@RequestParam String month,@RequestParam String clientCode) {
+	public ResponseEntity<ResponseDTO> getACPDetails(@RequestParam Long orgId,@RequestParam String year,@RequestParam String month,@RequestParam String clientCode,@RequestParam String type) {
 		String methodName = "getACPDetails()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -392,7 +437,7 @@ public class BudgetController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String,Object>> acpDetails = new ArrayList<>();
 		try {
-			acpDetails = budgetService.getBudgetACPDetails(orgId, year, month, clientCode);
+			acpDetails = budgetService.getBudgetACPDetails(orgId, year, month, clientCode,type);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -403,6 +448,31 @@ public class BudgetController extends BaseController {
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
 			responseDTO = createServiceResponseError(responseObjectsMap, "Account Payable Details information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getPYACPDetails")
+	public ResponseEntity<ResponseDTO> getPYACPDetails(@RequestParam Long orgId,@RequestParam String year,@RequestParam String month,@RequestParam String clientCode,@RequestParam String type) {
+		String methodName = "getPYACPDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> acpDetails = new ArrayList<>();
+		try {
+			acpDetails = budgetService.getPYACPDetails(orgId, year, month, clientCode, type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Account Payable PY Details information get successfully");
+			responseObjectsMap.put("acpDetails", acpDetails);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Account Payable PY Details information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
@@ -453,6 +523,26 @@ public class BudgetController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@PutMapping("/createUpdatePYUnitWise")
+	public ResponseEntity<ResponseDTO> createUpdatePYUnitWise(@RequestBody List<BudgetUnitWiseDTO> budgetUnitWiseDTO) {
+		String methodName = "createUpdatePYUnitWise()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> budgetUnitWise = budgetService.createUpdatePYUnitWise(budgetUnitWiseDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, budgetUnitWise.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
 	@GetMapping("/getUnitLedgers")
 	public ResponseEntity<ResponseDTO> getGroupLedgers(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String mainGroup,@RequestParam String subGroupCode,@RequestParam String unit) {
 		String methodName = "getGroupLedgers()";
@@ -473,6 +563,56 @@ public class BudgetController extends BaseController {
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
 			responseDTO = createServiceResponseError(responseObjectsMap, "Unit Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getPYUnitLedgers")
+	public ResponseEntity<ResponseDTO> getPYUnitLedgers(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String mainGroup,@RequestParam String subGroupCode,@RequestParam String unit) {
+		String methodName = "getPYUnitLedgers()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> unitLedgerDetails = new ArrayList<>();
+		try {
+			unitLedgerDetails = budgetService.getPYUnitLedgerDetails(orgId, year, clientCode, mainGroup, subGroupCode, unit);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "PY Unit Ledgers information get successfully");
+			responseObjectsMap.put("unitLedgerDetails", unitLedgerDetails);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "PY Unit Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getSegmentDetails")
+	public ResponseEntity<ResponseDTO> getSegmentDetails(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String type) {
+		String methodName = "getSegmentDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> segmentDetails = new ArrayList<>();
+		try {
+			segmentDetails = budgetService.getSegmentDetails(orgId, clientCode,type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Segment Details information get successfully");
+			responseObjectsMap.put("segmentDetails", segmentDetails);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Segment Details information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);

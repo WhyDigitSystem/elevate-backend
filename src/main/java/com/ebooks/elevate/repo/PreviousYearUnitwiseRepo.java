@@ -7,14 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.ebooks.elevate.entity.BudgetUnitWiseVO;
+import com.ebooks.elevate.entity.PreviousYearUnitwiseVO;
 
-public interface BudgetUnitWiseRepo extends JpaRepository<BudgetUnitWiseVO, Long>{
-
-	@Query(nativeQuery = true, value = "select a.* from budgetunit a where a.orgid=?1 and a.clientcode=?2 and a.year=?3 and a.unit=?4 ")
-	List<BudgetUnitWiseVO> getBudgetDls(Long org, String clientcode, String yr, String unit);
-
+public interface PreviousYearUnitwiseRepo extends JpaRepository<PreviousYearUnitwiseVO, Long> {
 	
-
 	@Query(nativeQuery = true, value = "WITH Months AS (\r\n"
 			+ "    SELECT 'April' AS month UNION ALL\r\n"
 			+ "    SELECT 'May' UNION ALL\r\n"
@@ -50,7 +46,7 @@ public interface BudgetUnitWiseRepo extends JpaRepository<BudgetUnitWiseVO, Long
 			+ "    COALESCE(SUM(b.amount), 0) AS totalamount\r\n"
 			+ "FROM Accounts a\r\n"
 			+ "CROSS JOIN Months m\r\n"
-			+ "LEFT JOIN budgetunit b \r\n"
+			+ "LEFT JOIN pyunit b \r\n"
 			+ "    ON a.accountname = b.accountname\r\n"
 			+ "    AND b.orgid = ?1 and b.unit=?6\r\n"
 			+ "    AND b.year = ?2\r\n"
@@ -66,12 +62,14 @@ public interface BudgetUnitWiseRepo extends JpaRepository<BudgetUnitWiseVO, Long
 			+ "    a.displayseq,\r\n"
 			+ "    FIELD(m.month, 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March')\r\n"
 			+ "ORDER BY \r\n"
-			+ "    a.displayseq,\r\n"
+			+ "    cast(a.displayseq as unsigned),\r\n"
 			+ "    FIELD(m.month, 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March')")
-	Set<Object[]> getUnitWiseLedgersDetails(Long orgId,String year,String clientCode, String mainGroup,String accountCode,String unit);
+	Set<Object[]> getPYUnitWiseLedgersDetails(Long orgId,String year,String clientCode, String mainGroup,String accountCode,String unit);
+	
+	@Query(nativeQuery = true, value = "select a.* from pyunit a where a.orgid=?1 and a.clientcode=?2 and a.year=?3 and a.unit=?4 ")
+	List<PreviousYearUnitwiseVO> getPYUnitDetails(Long org, String clientcode, String yr, String unit);
+
+	
 
 
-@Query(nativeQuery = true,value = "select b.segment from clientcompany a, clientsegment b , segmentmapping c,segmentmappingdetails d where a.clientcompanyid=b.clientcompanyid and c.segmentmappingid=d.segmentmappingid and  c.clientcode=a.clientcode and b.segment=d.value and a.orgid=?1 and a.clientcode=?2 and c.segmenttype=?3 and b.active=1 \r\n"
-		+ "group by b.segment")
-	Set<Object[]> getSegmentDetails(Long orgId, String clientCode,String segmentType);
 }

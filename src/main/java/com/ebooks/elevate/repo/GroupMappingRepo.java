@@ -82,7 +82,7 @@ public interface GroupMappingRepo extends JpaRepository<GroupMappingVO, Long> {
 			+ "    a.displayseq,\r\n"
 			+ "    FIELD(m.month, 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March')\r\n"
 			+ "ORDER BY \r\n"
-			+ "    a.displayseq,\r\n"
+			+ "    cast(a.displayseq as unsigned),\r\n"
 			+ "    FIELD(m.month, 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March')")
 	Set<Object[]> getGroupLedgersDetails(Long orgId,String year,String clientCode, String mainGroup,String accountCode);
 
@@ -130,7 +130,7 @@ public interface GroupMappingRepo extends JpaRepository<GroupMappingVO, Long> {
 			+ "    AND (b.subgroup = ?5 or ?5='ALL')\r\n"
 			+ "    AND b.month = m.month\r\n"
 			+ "GROUP BY a.accountname, a.accountcode, a.natureofaccount, m.month, a.displayseq\r\n"
-			+ "ORDER BY a.displayseq, \r\n"
+			+ "ORDER BY cast(a.displayseq as unsigned), \r\n"
 			+ "         FIELD(m.month, 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March')")
 	Set<Object[]> PreviousYearGroupLedgersDetails(Long orgId, String year, String clientCode, String mainGroup,
 			String subGroupCode);
@@ -189,7 +189,7 @@ public interface GroupMappingRepo extends JpaRepository<GroupMappingVO, Long> {
 			+ "    month,\r\n"
 			+ "    totalamount\r\n"
 			+ "FROM Data\r\n"
-			+ "ORDER BY displayseq, \r\n"
+			+ "ORDER BY cast(displayseq as unsigned), \r\n"
 			+ "         FIELD(month, 'April', 'May', 'June', 'July', 'August', 'September', \r\n"
 			+ "                      'October', 'November', 'December', 'January', 'February', 'March')")
 	Set<Object[]> ActualGroupLedgersDetails(Long orgId, String year, String clientCode, String mainGroup,

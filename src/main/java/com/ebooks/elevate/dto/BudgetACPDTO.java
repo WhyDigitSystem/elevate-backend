@@ -32,6 +32,7 @@ public class BudgetACPDTO {
     private BigDecimal slab4;
     private BigDecimal slab5;
     private String yearType;
+    private String type;
    
 
 }

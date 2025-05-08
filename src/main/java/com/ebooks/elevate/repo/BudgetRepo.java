@@ -145,7 +145,7 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "    AND b.clientcode = ?3\r\n"
 			+ "GROUP BY a.accountname, a.accountcode, m.month, a.displayseq\r\n"
 			+ "ORDER BY \r\n"
-			+ "    a.displayseq,\r\n"
+			+ "    cast(a.displayseq as unsigned),\r\n"
 			+ "    FIELD(m.month, 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March')")
 	Set<Object[]> getBudgetDetailsAuto(Long orgId, String finyear,  String clientCode,String mainGroupName);
 	

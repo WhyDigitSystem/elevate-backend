@@ -18,16 +18,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "budgetaccountspayable")
+@Table(name = "budgetarap")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class BudgetACPVO {
 	
 	 	@Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "budgetaccountspayablegen")
-	    @SequenceGenerator(name = "budgetaccountspayablegen", sequenceName = "budgetaccountspayableseq", initialValue = 1000000001, allocationSize = 1)
-	    @Column(name = "budgetaccountspayableid")
+	    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "budgetarapgen")
+	    @SequenceGenerator(name = "budgetarapgen", sequenceName = "budgetarapseq", initialValue = 1000000001, allocationSize = 1)
+	    @Column(name = "budgetarapid")
 	    private Long id;
 
 	    @Column(name = "year", length = 10)
@@ -62,6 +62,9 @@ public class BudgetACPVO {
 		private String quater;
 		
 		private int monthsequence;
+		
+		@Column(name = "type",length = 5)
+		private String type;
 
 	    @Column(name = "supplier", length = 100)
 	    private String supplier;

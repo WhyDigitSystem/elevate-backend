@@ -63,12 +63,16 @@ public interface BudgetService {
 
 	Map<String, Object> createUpdatePreviousYearHeadCount(List<PyHeadCountDTO> pyHeadCountDTO);
 	
-	
+	List<Map<String, Object>> getGroupLedgersDetailsPYForHeadCount(Long orgId, String year, String clientCode);
 	
 	Map<String,Object>createUpdateBudgetAccountPayable(List<BudgetACPDTO> budgetACPDTO);
 
 
-	List<Map<String, Object>> getBudgetACPDetails(Long orgId, String year, String month, String clientCode);
+	List<Map<String, Object>> getBudgetACPDetails(Long orgId, String year, String month, String clientCode,String type);
+	
+	Map<String,Object>createUpdatePYAccountPayable(List<BudgetACPDTO> budgetACPDTO);
+	
+	List<Map<String, Object>> getPYACPDetails(Long orgId, String year, String month, String clientCode,String type);
 	
 	
 	Map<String,Object>createUpdateBudgetUnitWise(List<BudgetUnitWiseDTO> budgetUnitWiseDTO);
@@ -78,8 +82,17 @@ public interface BudgetService {
 
 
 
-
 	List<Map<String, Object>> getUnitLedgerDetails(Long orgId, String year, String clientCode, String mainGroup,
 			String accountCode, String unit);
+
+	List<Map<String, Object>> getSegmentDetails(Long orgId, String clientCode, String segmentType);
+	
+	
+	Map<String,Object>createUpdatePYUnitWise(List<BudgetUnitWiseDTO> budgetUnitWiseDTO);
+	
+	List<Map<String, Object>> getPYUnitLedgerDetails(Long orgId, String year, String clientCode, String mainGroup,
+			String accountCode, String unit);
+	
+	
 
 }
