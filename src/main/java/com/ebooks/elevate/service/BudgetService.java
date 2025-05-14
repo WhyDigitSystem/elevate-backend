@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.ebooks.elevate.dto.BudgetACPDTO;
 import com.ebooks.elevate.dto.BudgetDTO;
 import com.ebooks.elevate.dto.BudgetHeadCountDTO;
+import com.ebooks.elevate.dto.BudgetRatioAnalysisDTO;
 import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
@@ -92,6 +93,20 @@ public interface BudgetService {
 	
 	List<Map<String, Object>> getPYUnitLedgerDetails(Long orgId, String year, String clientCode, String mainGroup,
 			String accountCode, String unit);
+
+
+	List<Map<String, Object>> getRatioAnalysisPYGroupLedgersDetails(Long orgId, String year, String clientCode,
+			String mainGroup, String subGroupCode);
+
+
+	Map<String, Object> createUpdateBudgetRatioAnalysis(List<BudgetRatioAnalysisDTO> budgetRatioAnalysisDTO);
+
+
+	List<Map<String, Object>> getRatioAnalysisBudgetGroupLedgersDetails(Long orgId, String year, String clientCode,
+			String mainGroup, String subGroupCode);
+
+
+	Map<String, Object> createUpdatePYRatioAnalysis(List<BudgetRatioAnalysisDTO> budgetRatioAnalysisDTO);
 	
 	
 

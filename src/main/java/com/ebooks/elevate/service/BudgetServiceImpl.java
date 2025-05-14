@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.ebooks.elevate.dto.BudgetACPDTO;
 import com.ebooks.elevate.dto.BudgetDTO;
 import com.ebooks.elevate.dto.BudgetHeadCountDTO;
+import com.ebooks.elevate.dto.BudgetRatioAnalysisDTO;
 import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
@@ -142,8 +143,15 @@ public class BudgetServiceImpl implements BudgetService {
 		for (BudgetDTO budgetDTO2 : budgetDTO) {
 			maingroup = budgetDTO2.getMainGroup();
 			
-			GroupLedgersVO groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
-					budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+			GroupLedgersVO groupLedgersVO= new GroupLedgersVO();
+			
+			try {
+				groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
+						budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+			}
+			catch (Exception e) {
+				System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
+			}
 			subgroup = groupLedgersVO.getGroupName();
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
@@ -172,12 +180,19 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
 				budgetVO.setAmount(budgetDTO2.getAmount());
 				budgetVO.setMainGroup(budgetDTO2.getMainGroup());
+				
+				GroupLedgersVO gr= new GroupLedgersVO();
 
-				GroupLedgersVO groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
-						budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+				try {
+					 gr = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
+							budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+				}
+				catch (Exception e) {
+					System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
+				}
 
 				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
-				budgetVO.setSubGroup(groupLedgersVO.getGroupName());
+				budgetVO.setSubGroup(gr.getGroupName());
 				budgetVO.setActive(true);
 
 				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
@@ -923,6 +938,159 @@ public class BudgetServiceImpl implements BudgetService {
 		return getUnitLedgerDetails(Details);
 	}
 	
+	@Override
+	public List<Map<String, Object>> getRatioAnalysisBudgetGroupLedgersDetails(Long orgId, String year, String clientCode,
+			String mainGroup, String subGroupCode) {
+
+		Set<Object[]> subGroupDetails = groupMappingRepo.getRatioAnalysisBudgetGroupLedgersDetails(orgId, year, clientCode, mainGroup,
+				subGroupCode);
+		return getRatioAnalysisGroupLedgerDetails(subGroupDetails);
+	}
+
+	private List<Map<String, Object>> getRatioAnalysisGroupLedgerDetails(Set<Object[]> subGroupDetails) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : subGroupDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("subGroupName", sub[0] != null ? sub[0].toString() : "");
+			mp.put("subGroupCode", sub[1] != null ? sub[1].toString() : "");
+			mp.put("natureOfAccount", sub[2] != null ? sub[2].toString() : "");
+			mp.put("month", sub[3] != null ? sub[3].toString() : "");
+			mp.put("amount", sub[4] != null ? new BigDecimal(sub[4].toString()) : BigDecimal.ZERO);
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
+
+	@Override
+	public Map<String, Object> createUpdateBudgetRatioAnalysis(List<BudgetRatioAnalysisDTO> budgetRatioAnalysisDTO) {
+		BudgetVO budgetVO = new BudgetVO();
+		String maingroup = null;
+		String subgroup = null;
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
+		for (BudgetRatioAnalysisDTO budgetDTO2 : budgetRatioAnalysisDTO) {
+			maingroup = budgetDTO2.getMainGroup();
+			subgroup = budgetDTO2.getSubGroup();
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+			
+			List<BudgetVO> vo = budgetRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
+			if (vo != null) {
+				budgetRepo.deleteAll(vo);
+			}
+		}
+		
+
+		for (BudgetRatioAnalysisDTO budgetDTO2 : budgetRatioAnalysisDTO) {
+
+			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
+				budgetVO = new BudgetVO();
+				budgetVO.setOrgId(budgetDTO2.getOrgId());
+				budgetVO.setClient(budgetDTO2.getClient());
+				budgetVO.setClientCode(budgetDTO2.getClientCode());
+				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setAccountName(budgetDTO2.getAccountName());
+				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+				budgetVO.setAmount(budgetDTO2.getAmount());
+				budgetVO.setMainGroup(budgetDTO2.getMainGroup());
+
+				budgetVO.setSubGroup(budgetDTO2.getSubGroup());
+				budgetVO.setActive(true);
+
+				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setQuater(String.valueOf(quater));
+
+				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
+
+				budgetRepo.save(budgetVO);
+			}
+		}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
+	}
+
+	@Override
+	public List<Map<String, Object>> getRatioAnalysisPYGroupLedgersDetails(Long orgId, String year, String clientCode,
+			String mainGroup, String subGroupCode) {
+		Set<Object[]> subGroupDetails = groupMappingRepo.getRatioAnalysisPYGroupLedgersDetails(orgId, year, clientCode, mainGroup,
+				subGroupCode);
+		return getRatioAnalysisPYGroupLedgerDetails(subGroupDetails);
+	}
+
+	private List<Map<String, Object>> getRatioAnalysisPYGroupLedgerDetails(Set<Object[]> subGroupDetails) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : subGroupDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("subGroupName", sub[0] != null ? sub[0].toString() : "");
+			mp.put("subGroupCode", sub[1] != null ? sub[1].toString() : "");
+			mp.put("natureOfAccount", sub[2] != null ? sub[2].toString() : "");
+			mp.put("month", sub[3] != null ? sub[3].toString() : "");
+			mp.put("amount", sub[4] != null ? new BigDecimal(sub[4].toString()) : BigDecimal.ZERO);
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
+	@Override
+	public Map<String, Object> createUpdatePYRatioAnalysis(List<BudgetRatioAnalysisDTO> budgetRatioAnalysisDTO) {
+		PreviousYearActualVO budgetVO = new PreviousYearActualVO();
+		String maingroup = null;
+		String subgroup = null;
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
+		for (BudgetRatioAnalysisDTO budgetDTO2 : budgetRatioAnalysisDTO) {
+			maingroup = budgetDTO2.getMainGroup();
+			subgroup = budgetDTO2.getSubGroup();
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+			
+			List<BudgetVO> vo = budgetRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
+			if (vo != null) {
+				budgetRepo.deleteAll(vo);
+			}
+		}
+		
+
+		for (BudgetRatioAnalysisDTO budgetDTO2 : budgetRatioAnalysisDTO) {
+
+			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
+				budgetVO = new PreviousYearActualVO();
+				budgetVO.setOrgId(budgetDTO2.getOrgId());
+				budgetVO.setClient(budgetDTO2.getClient());
+				budgetVO.setClientCode(budgetDTO2.getClientCode());
+				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setAccountName(budgetDTO2.getAccountName());
+				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+				budgetVO.setAmount(budgetDTO2.getAmount());
+				budgetVO.setMainGroup(budgetDTO2.getMainGroup());
+
+				budgetVO.setSubGroup(budgetDTO2.getSubGroup());
+				budgetVO.setActive(true);
+
+				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setQuater(String.valueOf(quater));
+
+				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
+
+				previousYearActualRepo.save(budgetVO);
+			}
+		}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
+	}
 	
 
 	

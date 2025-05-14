@@ -22,6 +22,7 @@ import com.ebooks.elevate.common.UserConstants;
 import com.ebooks.elevate.dto.BudgetACPDTO;
 import com.ebooks.elevate.dto.BudgetDTO;
 import com.ebooks.elevate.dto.BudgetHeadCountDTO;
+import com.ebooks.elevate.dto.BudgetRatioAnalysisDTO;
 import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
@@ -613,6 +614,96 @@ public class BudgetController extends BaseController {
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
 			responseDTO = createServiceResponseError(responseObjectsMap, "Segment Details information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getRatioAnalisysGroupLedgers")
+	public ResponseEntity<ResponseDTO> getRatioAnalisysGroupLedgers(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String mainGroup,@RequestParam String subGroupCode) {
+		String methodName = "getRatioAnalisysGroupLedgers()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> groupLedgers = new ArrayList<>();
+		try {
+			groupLedgers = budgetService.getRatioAnalysisBudgetGroupLedgersDetails(orgId, year, clientCode, mainGroup, subGroupCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Ratio Analysis Group Ledgers information get successfully");
+			responseObjectsMap.put("groupLedgers", groupLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Ratio Analysis Group Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdateBudgetRationAnalysis")
+	public ResponseEntity<ResponseDTO> createUpdateBudgetRationAnalysis(@RequestBody List<BudgetRatioAnalysisDTO> budgetRatioAnalysisDTO) {
+		String methodName = "createUpdateBudgetRationAnalysis()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetDetails = budgetService.createUpdateBudgetRatioAnalysis(budgetRatioAnalysisDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getRatioAnalisysPYGroupLedgers")
+	public ResponseEntity<ResponseDTO> getRatioAnalisysPYGroupLedgers(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String mainGroup,@RequestParam String subGroupCode) {
+		String methodName = "getRatioAnalisysPYGroupLedgers()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> groupLedgers = new ArrayList<>();
+		try {
+			groupLedgers = budgetService.getRatioAnalysisPYGroupLedgersDetails(orgId, year, clientCode, mainGroup, subGroupCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Ratio Analysis PY Group Ledgers information get successfully");
+			responseObjectsMap.put("groupLedgers", groupLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Ratio Analysis PY Group Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdatePYRationAnalysis")
+	public ResponseEntity<ResponseDTO> createUpdatePYRationAnalysis(@RequestBody List<BudgetRatioAnalysisDTO> budgetRatioAnalysisDTO) {
+		String methodName = "createUpdatePYRationAnalysis()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetDetails = budgetService.createUpdatePYRatioAnalysis(budgetRatioAnalysisDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
