@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ebooks.elevate.dto.AutomationDTO;
+import com.ebooks.elevate.dto.AutomationDetailsDTO;
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
 import com.ebooks.elevate.dto.GroupLedgersDTO;
@@ -27,6 +29,8 @@ import com.ebooks.elevate.dto.ListOfValuesDetailsDTO;
 import com.ebooks.elevate.dto.SegmentMappingDTO;
 import com.ebooks.elevate.dto.SegmentMappingDetailsDTO;
 import com.ebooks.elevate.dto.SubGroupDetailsDTO;
+import com.ebooks.elevate.entity.AutomationDetailsVO;
+import com.ebooks.elevate.entity.AutomationVO;
 import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.EmployeeVO;
@@ -41,6 +45,8 @@ import com.ebooks.elevate.entity.SetTaxRateVO;
 import com.ebooks.elevate.entity.SubGroupDetailsVO;
 import com.ebooks.elevate.entity.SubLedgerAccountVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.AutomationDetailsRepo;
+import com.ebooks.elevate.repo.AutomationRepo;
 import com.ebooks.elevate.repo.BranchRepo;
 import com.ebooks.elevate.repo.CoaRepo;
 import com.ebooks.elevate.repo.DocumentTypeMappingDetailsRepo;
@@ -74,6 +80,12 @@ public class MasterServiceImpl implements MasterService {
 
 	@Autowired
 	GroupLedgersRepo groupLedgersRepo;
+	
+	@Autowired
+	AutomationRepo automationRepo;
+	
+	@Autowired
+	AutomationDetailsRepo automationDetailsRepo;
 
 	@Autowired
 	SetTaxRateRepo setTaxRateRepo;
@@ -775,4 +787,79 @@ public class MasterServiceImpl implements MasterService {
 		return details;
 	}
 
+	@Override
+	public Map<String, Object> createUpdateAutomationGroupMapping(AutomationDTO automationDTO)
+			throws ApplicationException {
+
+		AutomationVO automationVO = new AutomationVO();
+
+		String message = null;
+
+		if (ObjectUtils.isEmpty(automationDTO.getId())) {
+
+			automationVO = getAutomationVOFromAutomationDTO(automationVO, automationDTO);
+			automationVO.setCreatedBy(automationDTO.getCreatedBy());
+			automationVO.setUpdatedBy(automationDTO.getCreatedBy());
+			message = "Automation Mapping Creation SuccessFully";
+
+		} else {
+
+			automationVO = automationRepo.findById(automationDTO.getId()).orElseThrow(
+					() -> new ApplicationException("Automation Mapping not found with id: " + automationDTO.getId()));
+			automationVO.setUpdatedBy(automationDTO.getCreatedBy());
+
+			message = "Automation Mapping Updation SuccessFully";
+		}
+
+		
+		automationRepo.save(automationVO);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", message);
+		response.put("automationVO", automationVO); // Return the list of saved records
+		return response;
+	}
+
+	private AutomationVO getAutomationVOFromAutomationDTO(AutomationVO automationVO,
+			AutomationDTO automationDTO) {
+
+		automationVO.setMainGroupName(automationDTO.getMainGroupName());
+		automationVO.setSubheading(automationDTO.getSubHeading());
+		automationVO.setCancel(false);
+		automationVO.setActive(true);
+		automationVO.setOrgId(automationDTO.getOrgId());
+		
+		if (automationDTO.getId() != null) {
+			List<AutomationDetailsVO> detailsVOs = automationDetailsRepo.findByAutomationVO(automationVO);
+			automationDetailsRepo.deleteAll(detailsVOs);
+		}
+
+		List<AutomationDetailsVO> automationDetailsVO = new ArrayList<>();
+		List<AutomationDetailsDTO> automationDetailsDTO = automationDTO.getAutomationDetailsDTO();
+		if (automationDetailsDTO != null && !automationDetailsDTO.isEmpty()) {
+			for (AutomationDetailsDTO automationDetailsDTOs : automationDetailsDTO) {
+				AutomationDetailsVO detailsVO = new AutomationDetailsVO();
+			detailsVO.setMainGroup(automationDetailsDTOs.getMainGroup());
+			detailsVO.setSubGroup(automationDetailsDTOs.getSubGroup());
+			detailsVO.setAccountCode(automationDetailsDTOs.getAccountCode());
+			detailsVO.setAccountName(automationDetailsDTOs.getAccountName());
+			detailsVO.setAutomationVO(automationVO);
+			automationDetailsVO.add(detailsVO);
+			}
+			automationVO.setAutomationDetailsVO(automationDetailsVO);
+		}
+		return automationVO;
+	}
+	
+	@Override
+	public AutomationVO getAutomationById(Long id) {
+		// TODO Auto-generated method stub
+		return automationRepo.findById(id).get();
+	}
+	
+	@Override
+	public List<AutomationVO> getAutomationByOrgId(Long orgId) {
+		// TODO Auto-generated method stub
+		return automationRepo.findByOrgId(orgId);
+	}
 }

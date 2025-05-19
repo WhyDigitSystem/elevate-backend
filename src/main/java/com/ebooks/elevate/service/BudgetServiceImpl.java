@@ -1092,6 +1092,57 @@ public class BudgetServiceImpl implements BudgetService {
 		return response;
 	}
 	
+	
+	@Override
+	public List<Map<String, Object>> getLedgerDetailsForPL(Long orgId, String mainGroupName) {
+		Set<Object[]> subGroupDetails = groupMappingRepo.getLedgerDetailsForPL(orgId,mainGroupName);
+		return getLedgerDetailsForPL(subGroupDetails);
+	}
+
+	private List<Map<String, Object>> getLedgerDetailsForPL(Set<Object[]> subGroupDetails) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : subGroupDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("subGroupName", sub[1] != null ? sub[1].toString() : "");
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getSubGroupDetailsForPL(Long orgId, String mainGroupName) {
+		Set<Object[]> subGroupDetails = groupMappingRepo.getSubGroupDetailsForPL(orgId,mainGroupName);
+		return getSubGroupDetailsForPL(subGroupDetails);
+	}
+
+	private List<Map<String, Object>> getSubGroupDetailsForPL(Set<Object[]> subGroupDetails) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : subGroupDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("subGroupName", sub[0] != null ? sub[0].toString() : "");
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getLedgerDetailsForSubGroupPL(Long orgId, String mainGroupName,String subGroupName) {
+		Set<Object[]> subGroupDetails = groupMappingRepo.getLedgerDetailsForSubGroupPL(orgId,mainGroupName,subGroupName);
+		return getLedgerDetailsForSubGroupPL(subGroupDetails);
+	}
+
+	private List<Map<String, Object>> getLedgerDetailsForSubGroupPL(Set<Object[]> subGroupDetails) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : subGroupDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("accountName", sub[0] != null ? sub[0].toString() : "");
+			mp.put("accountCode", sub[1] != null ? sub[1].toString() : "");
+			mp.put("mainGroup", sub[2] != null ? sub[2].toString() : "");
+			mp.put("subGroup", sub[3] != null ? sub[3].toString() : "");
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
 
 	
 

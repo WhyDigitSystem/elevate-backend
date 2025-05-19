@@ -709,4 +709,78 @@ public class BudgetController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@GetMapping("/getProfitLossLedgerDetails")
+	public ResponseEntity<ResponseDTO> getProfitLossLedgerDetails(@RequestParam Long orgId,@RequestParam String mainGroup) {
+		String methodName = "getProfitLossLedgerDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> groupLedgers = new ArrayList<>();
+		try {
+			groupLedgers = budgetService.getLedgerDetailsForPL(orgId, mainGroup);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "P&L Ledgers information get successfully");
+			responseObjectsMap.put("groupLedgers", groupLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "P&L Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getSubGroupForProfitLossGroupmapping")
+	public ResponseEntity<ResponseDTO> getSubGroupForProfitLossGroupmapping(@RequestParam Long orgId,@RequestParam String mainGroup) {
+		String methodName = "getSubGroupForProfitLossGroupmapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> groupLedgers = new ArrayList<>();
+		try {
+			groupLedgers = budgetService.getSubGroupDetailsForPL(orgId, mainGroup);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "P&L Ledgers information get successfully");
+			responseObjectsMap.put("groupLedgers", groupLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "P&L Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getLedgerDetailsForProfitLossGroupmapping")
+	public ResponseEntity<ResponseDTO> getLedgerDetailsForProfitLossGroupmapping(@RequestParam Long orgId,@RequestParam String mainGroup,@RequestParam String subGroup) {
+		String methodName = "getLedgerDetailsForProfitLossGroupmapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> groupLedgers = new ArrayList<>();
+		try {
+			groupLedgers = budgetService.getLedgerDetailsForSubGroupPL(orgId, mainGroup, subGroup);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "P&L Ledgers information get successfully");
+			responseObjectsMap.put("groupLedgers", groupLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "P&L Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 }

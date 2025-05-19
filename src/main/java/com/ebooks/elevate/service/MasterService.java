@@ -8,12 +8,14 @@ import javax.validation.Valid;
 
 import org.springframework.stereotype.Service;
 
+import com.ebooks.elevate.dto.AutomationDTO;
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
 import com.ebooks.elevate.dto.GroupMapping2DTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;
 import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.dto.SegmentMappingDTO;
+import com.ebooks.elevate.entity.AutomationVO;
 import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.EmployeeVO;
@@ -120,6 +122,12 @@ public interface MasterService {
 	Optional<SegmentMappingVO> getSegmentMappingById(Long id);
 
 	List<Map<String, Object>> getSegmentDetailsByClient(Long orgId);
+
+	Map<String, Object> createUpdateAutomationGroupMapping(AutomationDTO automationDTO) throws ApplicationException;
+
+	AutomationVO getAutomationById(Long id);
+
+	List<AutomationVO> getAutomationByOrgId(Long orgId);
 	
 	
 }

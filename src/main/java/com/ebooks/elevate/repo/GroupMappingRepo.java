@@ -272,4 +272,16 @@ public interface GroupMappingRepo extends JpaRepository<GroupMappingVO, Long> {
 			+ "    FIELD(m.month, 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March')")
 	Set<Object[]> getRatioAnalysisPYGroupLedgersDetails(Long orgId, String year, String clientCode, String mainGroup,
 			String subGroupCode);
+
+	@Query(nativeQuery = true,value = "select displayseq,accountname from groupledgers where groupname=?2 and orgid=?1 and active=1\r\n"
+			+ "group by accountname,displayseq order by cast(displayseq as unsigned)asc")
+	Set<Object[]> getLedgerDetailsForPL(Long orgId, String mainGroupName);
+
+	@Query(nativeQuery = true, value = "select subgroupname from groupledgers where orgid=?1 and groupname=?2 and active=1\r\n"
+			+ "group by subgroupname")
+	Set<Object[]> getSubGroupDetailsForPL(Long orgId, String mainGroupName);
+
+	@Query(nativeQuery = true,value = "select accountname,accountcode,groupname,subgroupname from groupledgers where orgid=?1 and groupname=?2 and active=1 and subgroupname=?3\r\n"
+			+ "group by accountname,accountcode,groupname,subgroupname")
+	Set<Object[]> getLedgerDetailsForSubGroupPL(Long orgId, String mainGroupName, String subGroupName);
 }

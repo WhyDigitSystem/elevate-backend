@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
+import com.ebooks.elevate.dto.AutomationDTO;
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
@@ -32,6 +33,7 @@ import com.ebooks.elevate.dto.GroupMappingDTO;
 import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.dto.SegmentMappingDTO;
+import com.ebooks.elevate.entity.AutomationVO;
 import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.EmployeeVO;
@@ -857,6 +859,79 @@ public class MasterController extends BaseController {
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
 			responseDTO = createServiceResponseError(responseObjectsMap, "Segment information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdateAutomationMapping")
+	public ResponseEntity<ResponseDTO> createUpdateAutomationMapping(@RequestBody AutomationDTO automationDTO) {
+		String methodName = "createUpdateAutomationMapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> automationVO = masterService.createUpdateAutomationGroupMapping(automationDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, automationVO.get("message"));
+			responseObjectsMap.put("automationVO", automationVO.get("automationVO"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getAllAutomationDetails")
+	public ResponseEntity<ResponseDTO> getAllAutomationDetails(@RequestParam Long orgId) {
+		String methodName = "getAllAutomationDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<AutomationVO> automationVO = new ArrayList<>();
+		try {
+			automationVO = masterService.getAutomationByOrgId(orgId);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Automation Mapping information get successfully");
+			responseObjectsMap.put("automationVO", automationVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Automation Mapping information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getAutomationById")
+	public ResponseEntity<ResponseDTO> getAutomationById(@RequestParam Long id) {
+		String methodName = "getAutomationById()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		AutomationVO automationVO = new AutomationVO();
+		try {
+			automationVO = masterService.getAutomationById(id);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Automation Mapping information get successfully");
+			responseObjectsMap.put("automationVO", automationVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Automation Mapping information receive failed",
 					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);

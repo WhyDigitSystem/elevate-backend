@@ -107,6 +107,16 @@ public interface BudgetService {
 
 
 	Map<String, Object> createUpdatePYRatioAnalysis(List<BudgetRatioAnalysisDTO> budgetRatioAnalysisDTO);
+
+
+	List<Map<String, Object>> getLedgerDetailsForPL(Long orgId, String mainGroupName);
+
+
+	List<Map<String, Object>> getSubGroupDetailsForPL(Long orgId, String mainGroupName);
+
+
+
+	List<Map<String, Object>> getLedgerDetailsForSubGroupPL(Long orgId, String mainGroupName, String subGroupName);
 	
 	
 
