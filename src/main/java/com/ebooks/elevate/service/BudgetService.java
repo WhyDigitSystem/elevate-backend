@@ -117,6 +117,9 @@ public interface BudgetService {
 
 
 	List<Map<String, Object>> getLedgerDetailsForSubGroupPL(Long orgId, String mainGroupName, String subGroupName);
+
+
+	List<Map<String, Object>> getPYDetailsAutomatic(Long orgId, String year, String clientCode, String mainGroup);
 	
 	
 

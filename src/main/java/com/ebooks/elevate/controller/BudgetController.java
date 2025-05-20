@@ -783,4 +783,29 @@ public class BudgetController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+	
+	@GetMapping("/getPYDetailsAutomatic")
+	public ResponseEntity<ResponseDTO> getPYDetailsAutomatic(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String mainGroup) {
+		String methodName = "getPYDetailsAutomatic()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> pyDetails = new ArrayList<>();
+		try {
+			pyDetails = budgetService.getPYDetailsAutomatic(orgId, year, clientCode, mainGroup);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "PY Automation information get successfully");
+			responseObjectsMap.put("pyDetails", pyDetails);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "PY Automation information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 }

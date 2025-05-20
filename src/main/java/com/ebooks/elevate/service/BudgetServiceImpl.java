@@ -464,6 +464,28 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
+	
+	@Override
+	public List<Map<String, Object>> getPYDetailsAutomatic(Long orgId, String year, String clientCode,
+			String mainGroup) {
+
+		Set<Object[]> subGroupDetails = budgetRepo.getPYDetailsAuto(orgId, year, clientCode, mainGroup);
+		return getPYAuto(subGroupDetails);
+	}
+
+	private List<Map<String, Object>> getPYAuto(Set<Object[]> subGroupDetails) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : subGroupDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("subGroupCode", sub[0] != null ? sub[0].toString() : "");
+			mp.put("subGroupName", sub[1] != null ? sub[1].toString() : "");
+			mp.put("natureOfAccount", null);
+			mp.put("month", sub[2]);
+			mp.put("amount", sub[3] != null ? new BigDecimal(sub[3].toString()) : BigDecimal.ZERO);
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
 
 	@Override
 	public Map<String, Object> createUpdateBudgetHeadCount(List<BudgetHeadCountDTO> budgetHeadCountDTO) {
