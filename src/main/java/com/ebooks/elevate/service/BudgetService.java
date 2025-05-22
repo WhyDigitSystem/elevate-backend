@@ -51,7 +51,7 @@ public interface BudgetService {
 	List<Map<String, Object>> getPYActualOBDetails(Long orgId, String year, String clientCode, String type);
 
 
-	List<Map<String, Object>> getBudgetDetailsAutomatic(Long orgId, String year, String clientCode, String mainGroup);
+	List<Map<String, Object>> getBudgetDetailsAutomatic(Long orgId, String year, String clientCode, String mainGroup,String yearType);
 	
 	
 

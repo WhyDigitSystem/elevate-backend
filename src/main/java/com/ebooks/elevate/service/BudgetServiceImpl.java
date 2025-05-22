@@ -3,6 +3,7 @@ package com.ebooks.elevate.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +25,7 @@ import com.ebooks.elevate.entity.BudgetACPVO;
 import com.ebooks.elevate.entity.BudgetHeadCountVO;
 import com.ebooks.elevate.entity.BudgetUnitWiseVO;
 import com.ebooks.elevate.entity.BudgetVO;
+import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.entity.GroupLedgersVO;
 import com.ebooks.elevate.entity.OrderBookingVO;
 import com.ebooks.elevate.entity.PYHeadCountVO;
@@ -35,6 +37,7 @@ import com.ebooks.elevate.repo.BudgetACPRepo;
 import com.ebooks.elevate.repo.BudgetHeadCountRepo;
 import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.BudgetUnitWiseRepo;
+import com.ebooks.elevate.repo.FinancialYearRepo;
 import com.ebooks.elevate.repo.GroupLedgersRepo;
 import com.ebooks.elevate.repo.GroupMappingRepo;
 import com.ebooks.elevate.repo.OrderBookingRepo;
@@ -56,17 +59,20 @@ public class BudgetServiceImpl implements BudgetService {
 	QuaterMonthService quaterMonthService;
 
 	@Autowired
+	FinancialYearRepo financialYearRepo;
+
+	@Autowired
 	PreviousYearActualOBRepo previousYearActualOBRepo;
 
 	@Autowired
 	BudgetUnitWiseRepo budgetUnitWiseRepo;
-	
+
 	@Autowired
 	PreviousYearUnitwiseRepo previousYearUnitwiseRepo;
-	
+
 	@Autowired
 	BudgetACPRepo budgetACPRepo;
-	
+
 	@Autowired
 	PreviousYearARAPRepo previousYearARAPRepo;
 
@@ -142,27 +148,25 @@ public class BudgetServiceImpl implements BudgetService {
 		String yr = null;
 		for (BudgetDTO budgetDTO2 : budgetDTO) {
 			maingroup = budgetDTO2.getMainGroup();
-			
-			GroupLedgersVO groupLedgersVO= new GroupLedgersVO();
-			
+
+			GroupLedgersVO groupLedgersVO = new GroupLedgersVO();
+
 			try {
-				groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
-						budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
-			}
-			catch (Exception e) {
+				groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(budgetDTO2.getOrgId(),
+						budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+			} catch (Exception e) {
 				System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
 			}
 			subgroup = groupLedgersVO.getGroupName();
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
-			
+
 			List<BudgetVO> vo = budgetRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
 			if (vo != null) {
 				budgetRepo.deleteAll(vo);
 			}
 		}
-		
 
 		for (BudgetDTO budgetDTO2 : budgetDTO) {
 
@@ -180,14 +184,13 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
 				budgetVO.setAmount(budgetDTO2.getAmount());
 				budgetVO.setMainGroup(budgetDTO2.getMainGroup());
-				
-				GroupLedgersVO gr= new GroupLedgersVO();
+
+				GroupLedgersVO gr = new GroupLedgersVO();
 
 				try {
-					 gr = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
-							budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
-				}
-				catch (Exception e) {
+					gr = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(budgetDTO2.getOrgId(),
+							budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+				} catch (Exception e) {
 					System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
 				}
 
@@ -445,9 +448,33 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Override
 	public List<Map<String, Object>> getBudgetDetailsAutomatic(Long orgId, String year, String clientCode,
-			String mainGroup) {
+			String mainGroup, String clientYear) {
 
-		Set<Object[]> subGroupDetails = budgetRepo.getBudgetDetailsAuto(orgId, year, clientCode, mainGroup);
+		Set<Object[]> subGroupDetails = new HashSet<Object[]>();
+		String previousYear = null;
+		if (clientYear.equals("FY")) {
+			FinancialYearVO financialYearVO = financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId, year,
+					clientYear);
+			int preYear = financialYearVO.getFinYear() - 1;
+			FinancialYearVO financialYearVO2 = financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId, preYear,
+					clientYear);
+			previousYear = financialYearVO2.getFinYearIdentifier();
+
+		} else if (clientYear.equals("CY")) {
+			FinancialYearVO financialYearVO = financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId, year,
+					clientYear);
+			int preYear = financialYearVO.getFinYear() - 1;
+			FinancialYearVO financialYearVO2 = financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId, preYear,
+					clientYear);
+			previousYear = financialYearVO2.getFinYearIdentifier();
+		}
+		if (mainGroup.equals("Profit And Loss")) {
+			subGroupDetails = budgetRepo.getProfitAndLossBudgetDetailsAuto(orgId, year, clientCode, mainGroup,
+					clientYear, previousYear);
+		} else {
+			subGroupDetails = budgetRepo.getBudgetDetailsAuto(orgId, year, clientCode, mainGroup);
+		}
+
 		return getBudgetAuto(subGroupDetails);
 	}
 
@@ -464,7 +491,7 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getPYDetailsAutomatic(Long orgId, String year, String clientCode,
 			String mainGroup) {
@@ -613,15 +640,15 @@ public class BudgetServiceImpl implements BudgetService {
 		String clientcode = null;
 		String yr = null;
 		String month = null;
-		String type=null;
+		String type = null;
 		for (BudgetACPDTO budgetDTO2 : budgetACPDTO) {
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
 			month = budgetDTO2.getMonth();
-			type=budgetDTO2.getType();		
+			type = budgetDTO2.getType();
 		}
-		List<BudgetACPVO> vo = budgetACPRepo.getClientBudgetDls(org, clientcode, yr, month,type);
+		List<BudgetACPVO> vo = budgetACPRepo.getClientBudgetDls(org, clientcode, yr, month, type);
 		if (vo != null) {
 			budgetACPRepo.deleteAll(vo);
 		}
@@ -663,10 +690,11 @@ public class BudgetServiceImpl implements BudgetService {
 		response.put("message", "Successfully Saved");
 		return response;
 	}
-	
+
 	@Override
-	public List<Map<String, Object>> getBudgetACPDetails(Long orgId, String year,String month, String clientCode,String type) {
-		Set<Object[]> Details = budgetACPRepo.getBudgetACPDetails(orgId, year, month, clientCode,type);
+	public List<Map<String, Object>> getBudgetACPDetails(Long orgId, String year, String month, String clientCode,
+			String type) {
+		Set<Object[]> Details = budgetACPRepo.getBudgetACPDetails(orgId, year, month, clientCode, type);
 		return getACPDetails(Details);
 	}
 
@@ -698,26 +726,24 @@ public class BudgetServiceImpl implements BudgetService {
 		Long org = null;
 		String clientcode = null;
 		String yr = null;
-		String unit=null;
+		String unit = null;
 		for (BudgetUnitWiseDTO budgetDTO2 : budgetUnitWiseDTO) {
 			maingroup = budgetDTO2.getMainGroup();
-			
+
 			GroupLedgersVO groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
 					budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
 			subgroup = groupLedgersVO.getGroupName();
 			org = budgetDTO2.getOrgId();
-			unit=budgetDTO2.getUnit();
+			unit = budgetDTO2.getUnit();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
-			
-			
+
 		}
-		
+
 		List<BudgetUnitWiseVO> vo = budgetUnitWiseRepo.getBudgetDls(org, clientcode, yr, unit);
 		if (vo != null) {
 			budgetUnitWiseRepo.deleteAll(vo);
 		}
-		
 
 		for (BudgetUnitWiseDTO budgetDTO2 : budgetUnitWiseDTO) {
 
@@ -758,9 +784,9 @@ public class BudgetServiceImpl implements BudgetService {
 		response.put("message", "Successfully Saved");
 		return response;
 	}
-	
+
 	@Override
-	public List<Map<String, Object>> getUnitDetails(Long orgId,String clientCode) {
+	public List<Map<String, Object>> getUnitDetails(Long orgId, String clientCode) {
 		Set<Object[]> Details = budgetACPRepo.getUnitDetails(orgId, clientCode);
 		return getUnitDetails(Details);
 	}
@@ -774,10 +800,10 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
-	
+
 	@Override
-	public List<Map<String, Object>> getSegmentDetails(Long orgId,String clientCode,String segmentType) {
-		Set<Object[]> Details = budgetUnitWiseRepo.getSegmentDetails(orgId, clientCode,segmentType);
+	public List<Map<String, Object>> getSegmentDetails(Long orgId, String clientCode, String segmentType) {
+		Set<Object[]> Details = budgetUnitWiseRepo.getSegmentDetails(orgId, clientCode, segmentType);
 		return getSegmentDetails(Details);
 	}
 
@@ -790,13 +816,15 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
-	
+
 	@Override
-	public List<Map<String, Object>> getUnitLedgerDetails(Long orgId,String year,String clientCode, String mainGroup,String accountCode,String unit) {
-		Set<Object[]> Details = budgetUnitWiseRepo.getUnitWiseLedgersDetails(orgId, year, clientCode, mainGroup, accountCode, unit);
+	public List<Map<String, Object>> getUnitLedgerDetails(Long orgId, String year, String clientCode, String mainGroup,
+			String accountCode, String unit) {
+		Set<Object[]> Details = budgetUnitWiseRepo.getUnitWiseLedgersDetails(orgId, year, clientCode, mainGroup,
+				accountCode, unit);
 		return getUnitLedgerDetails(Details);
 	}
-	
+
 	private List<Map<String, Object>> getUnitLedgerDetails(Set<Object[]> Details) {
 		List<Map<String, Object>> subgroup = new ArrayList<>();
 		for (Object[] sub : Details) {
@@ -811,7 +839,6 @@ public class BudgetServiceImpl implements BudgetService {
 		return subgroup;
 	}
 
-	
 	@Override
 	public List<Map<String, Object>> getGroupLedgersDetailsPYForHeadCount(Long orgId, String year, String clientCode) {
 		Set<Object[]> Details = pyHeadCountRepo.getPYHCDetails(orgId, year, clientCode);
@@ -826,15 +853,15 @@ public class BudgetServiceImpl implements BudgetService {
 		String clientcode = null;
 		String yr = null;
 		String month = null;
-		String type=null;
+		String type = null;
 		for (BudgetACPDTO budgetDTO2 : budgetACPDTO) {
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
 			month = budgetDTO2.getMonth();
-			type=budgetDTO2.getType();		
+			type = budgetDTO2.getType();
 		}
-		List<PreviousYearARAPVO> vo = previousYearARAPRepo.getClientPYDetails(org, clientcode, yr, month,type);
+		List<PreviousYearARAPVO> vo = previousYearARAPRepo.getClientPYDetails(org, clientcode, yr, month, type);
 		if (vo != null) {
 			previousYearARAPRepo.deleteAll(vo);
 		}
@@ -880,7 +907,7 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	public List<Map<String, Object>> getPYACPDetails(Long orgId, String year, String month, String clientCode,
 			String type) {
-		Set<Object[]> Details = previousYearARAPRepo.getPYARAPDetails(orgId, year, month, clientCode,type);
+		Set<Object[]> Details = previousYearARAPRepo.getPYARAPDetails(orgId, year, month, clientCode, type);
 		return getACPDetails(Details);
 	}
 
@@ -892,26 +919,24 @@ public class BudgetServiceImpl implements BudgetService {
 		Long org = null;
 		String clientcode = null;
 		String yr = null;
-		String unit=null;
+		String unit = null;
 		for (BudgetUnitWiseDTO budgetDTO2 : budgetUnitWiseDTO) {
 			maingroup = budgetDTO2.getMainGroup();
-			
+
 			GroupLedgersVO groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
 					budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
 			subgroup = groupLedgersVO.getGroupName();
 			org = budgetDTO2.getOrgId();
-			unit=budgetDTO2.getUnit();
+			unit = budgetDTO2.getUnit();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
-			
-			
+
 		}
-		
+
 		List<PreviousYearUnitwiseVO> vo = previousYearUnitwiseRepo.getPYUnitDetails(org, clientcode, yr, unit);
 		if (vo != null) {
 			previousYearUnitwiseRepo.deleteAll(vo);
 		}
-		
 
 		for (BudgetUnitWiseDTO budgetDTO2 : budgetUnitWiseDTO) {
 
@@ -956,16 +981,17 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	public List<Map<String, Object>> getPYUnitLedgerDetails(Long orgId, String year, String clientCode,
 			String mainGroup, String accountCode, String unit) {
-		Set<Object[]> Details = previousYearUnitwiseRepo.getPYUnitWiseLedgersDetails(orgId, year, clientCode, mainGroup, accountCode, unit);
+		Set<Object[]> Details = previousYearUnitwiseRepo.getPYUnitWiseLedgersDetails(orgId, year, clientCode, mainGroup,
+				accountCode, unit);
 		return getUnitLedgerDetails(Details);
 	}
-	
-	@Override
-	public List<Map<String, Object>> getRatioAnalysisBudgetGroupLedgersDetails(Long orgId, String year, String clientCode,
-			String mainGroup, String subGroupCode) {
 
-		Set<Object[]> subGroupDetails = groupMappingRepo.getRatioAnalysisBudgetGroupLedgersDetails(orgId, year, clientCode, mainGroup,
-				subGroupCode);
+	@Override
+	public List<Map<String, Object>> getRatioAnalysisBudgetGroupLedgersDetails(Long orgId, String year,
+			String clientCode, String mainGroup, String subGroupCode) {
+
+		Set<Object[]> subGroupDetails = groupMappingRepo.getRatioAnalysisBudgetGroupLedgersDetails(orgId, year,
+				clientCode, mainGroup, subGroupCode);
 		return getRatioAnalysisGroupLedgerDetails(subGroupDetails);
 	}
 
@@ -997,13 +1023,12 @@ public class BudgetServiceImpl implements BudgetService {
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
-			
+
 			List<BudgetVO> vo = budgetRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
 			if (vo != null) {
 				budgetRepo.deleteAll(vo);
 			}
 		}
-		
 
 		for (BudgetRatioAnalysisDTO budgetDTO2 : budgetRatioAnalysisDTO) {
 
@@ -1041,8 +1066,8 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	public List<Map<String, Object>> getRatioAnalysisPYGroupLedgersDetails(Long orgId, String year, String clientCode,
 			String mainGroup, String subGroupCode) {
-		Set<Object[]> subGroupDetails = groupMappingRepo.getRatioAnalysisPYGroupLedgersDetails(orgId, year, clientCode, mainGroup,
-				subGroupCode);
+		Set<Object[]> subGroupDetails = groupMappingRepo.getRatioAnalysisPYGroupLedgersDetails(orgId, year, clientCode,
+				mainGroup, subGroupCode);
 		return getRatioAnalysisPYGroupLedgerDetails(subGroupDetails);
 	}
 
@@ -1059,6 +1084,7 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
+
 	@Override
 	public Map<String, Object> createUpdatePYRatioAnalysis(List<BudgetRatioAnalysisDTO> budgetRatioAnalysisDTO) {
 		PreviousYearActualVO budgetVO = new PreviousYearActualVO();
@@ -1073,13 +1099,12 @@ public class BudgetServiceImpl implements BudgetService {
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
-			
+
 			List<BudgetVO> vo = budgetRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
 			if (vo != null) {
 				budgetRepo.deleteAll(vo);
 			}
 		}
-		
 
 		for (BudgetRatioAnalysisDTO budgetDTO2 : budgetRatioAnalysisDTO) {
 
@@ -1113,11 +1138,10 @@ public class BudgetServiceImpl implements BudgetService {
 		response.put("message", "Successfully Saved");
 		return response;
 	}
-	
-	
+
 	@Override
 	public List<Map<String, Object>> getLedgerDetailsForPL(Long orgId, String mainGroupName) {
-		Set<Object[]> subGroupDetails = groupMappingRepo.getLedgerDetailsForPL(orgId,mainGroupName);
+		Set<Object[]> subGroupDetails = groupMappingRepo.getLedgerDetailsForPL(orgId, mainGroupName);
 		return getLedgerDetailsForPL(subGroupDetails);
 	}
 
@@ -1130,10 +1154,10 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getSubGroupDetailsForPL(Long orgId, String mainGroupName) {
-		Set<Object[]> subGroupDetails = groupMappingRepo.getSubGroupDetailsForPL(orgId,mainGroupName);
+		Set<Object[]> subGroupDetails = groupMappingRepo.getSubGroupDetailsForPL(orgId, mainGroupName);
 		return getSubGroupDetailsForPL(subGroupDetails);
 	}
 
@@ -1146,10 +1170,12 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
-	
+
 	@Override
-	public List<Map<String, Object>> getLedgerDetailsForSubGroupPL(Long orgId, String mainGroupName,String subGroupName) {
-		Set<Object[]> subGroupDetails = groupMappingRepo.getLedgerDetailsForSubGroupPL(orgId,mainGroupName,subGroupName);
+	public List<Map<String, Object>> getLedgerDetailsForSubGroupPL(Long orgId, String mainGroupName,
+			String subGroupName) {
+		Set<Object[]> subGroupDetails = groupMappingRepo.getLedgerDetailsForSubGroupPL(orgId, mainGroupName,
+				subGroupName);
 		return getLedgerDetailsForSubGroupPL(subGroupDetails);
 	}
 
@@ -1165,7 +1191,5 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
-
-	
 
 }

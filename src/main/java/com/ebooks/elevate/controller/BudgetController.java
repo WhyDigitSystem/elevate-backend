@@ -274,7 +274,7 @@ public class BudgetController extends BaseController {
 	
 	
 	@GetMapping("/getBudgetAutomatic")
-	public ResponseEntity<ResponseDTO> getBudgetAutomatic(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode, @RequestParam String mainGroup) {
+	public ResponseEntity<ResponseDTO> getBudgetAutomatic(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode, @RequestParam String mainGroup,@RequestParam String clientYear) {
 		String methodName = "getBudgetAutomatic()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -282,7 +282,7 @@ public class BudgetController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String,Object>> subGroup = new ArrayList<>();
 		try {
-			subGroup = budgetService.getBudgetDetailsAutomatic(orgId, year, clientCode, mainGroup);
+			subGroup = budgetService.getBudgetDetailsAutomatic(orgId, year, clientCode, mainGroup,clientYear);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
