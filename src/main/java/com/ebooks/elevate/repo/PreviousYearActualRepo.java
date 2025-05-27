@@ -1,5 +1,6 @@
 package com.ebooks.elevate.repo;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,7 +33,7 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 	Set<Object[]> getClientPreviousYearActualDetails(Long orgId, String year, String client, String clientCode);
 
 	@Query(nativeQuery = true,value = "select * from previousyearactual where orgid=?1 and clientcode=?2 and year=?3 and month=?4 and maingroup=?5 and subgroupcode=?6 and accountcode=?7")
-	PreviousYearActualVO getPreviousYearDetails(Long orgId, String clientCode, String year, String month,
+	List<PreviousYearActualVO> getPreviousYearDetails1(Long orgId, String clientCode, String year, String month,
 			String mainGroup, String subGroupCode, String accountCode);
 
 	@Query(nativeQuery = true,value = "SELECT \r\n"
@@ -122,6 +123,16 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 			+ " where a.maingroup=?6 and a.subgroup=?7 group by a.maingroup,a.subgroup,a.subgroupcode,a.accountcode,a.accountname,a.natureofaccount,quater")
 	Set<Object[]> getELActualQuaterDetails(Long orgId, String clientCode, String finyear, String previousYear, String month,
 			String mainGroupName, String subGroupCode);
+
+	
+	
+	@Query(nativeQuery = true,value = "select * from previousyearactual where orgid=?1 and clientcode=?2 and year=?3 and month=?4 and maingroup=?5 and subgroupcode=?6 and accountcode=?7 ")
+	PreviousYearActualVO getPreviousYearDetails(Long orgId, String clientCode, String year, String month,
+			String mainGroup, String subGroupCode, String accountCode);
+
+	@Query(nativeQuery = true,value = "select a.* from previousyearactual a where a.orgid=?1 and a.clientcode=?2 and a.year=?3 and a.maingroup=?4 and a.subgroup=?5")
+	List<PreviousYearActualVO> getClientBudgetDls(Long org, String clientcode, String yr, String maingroup,
+			String subgroup);
 
 	
 	

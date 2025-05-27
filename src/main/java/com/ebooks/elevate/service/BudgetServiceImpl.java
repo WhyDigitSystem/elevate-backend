@@ -216,11 +216,36 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	public Map<String, Object> createUpdatePreviousYear(List<PreviousYearDTO> budgetDTO) {
 		PreviousYearActualVO budgetVO = new PreviousYearActualVO();
+		String maingroup = null;
+		String subgroup = null;
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
 		for (PreviousYearDTO budgetDTO2 : budgetDTO) {
-			budgetVO = previousYearActualRepo.getPreviousYearDetails(budgetDTO2.getOrgId(), budgetDTO2.getClientCode(),
-					budgetDTO2.getYear(), budgetDTO2.getMonth(), budgetDTO2.getMainGroup(),
-					budgetDTO2.getSubGroupCode(), budgetDTO2.getAccountCode());
-			if (budgetVO == null) {
+			maingroup = budgetDTO2.getMainGroup();
+
+			GroupLedgersVO groupLedgersVO = new GroupLedgersVO();
+
+			try {
+				groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(budgetDTO2.getOrgId(),
+						budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+			} catch (Exception e) {
+				System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
+			}
+			subgroup = groupLedgersVO.getGroupName();
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+
+			List<PreviousYearActualVO> vo = previousYearActualRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
+			if (vo != null) {
+				previousYearActualRepo.deleteAll(vo);
+			}
+		}
+
+		for (PreviousYearDTO budgetDTO2 : budgetDTO) {
+
+			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
 				budgetVO = new PreviousYearActualVO();
 				budgetVO.setOrgId(budgetDTO2.getOrgId());
 				budgetVO.setClient(budgetDTO2.getClient());
@@ -234,45 +259,25 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
 				budgetVO.setAmount(budgetDTO2.getAmount());
 				budgetVO.setMainGroup(budgetDTO2.getMainGroup());
-				GroupLedgersVO groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
-						budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+
+				GroupLedgersVO gr = new GroupLedgersVO();
+
+				try {
+					gr = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(budgetDTO2.getOrgId(),
+							budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+				} catch (Exception e) {
+					System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
+				}
 
 				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
-				budgetVO.setSubGroup(groupLedgersVO.getGroupName());
-				budgetVO.setSubGroup(budgetDTO2.getSubGroup());
+				budgetVO.setSubGroup(gr.getGroupName());
 				budgetVO.setActive(true);
+
 				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
-				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
-				budgetVO.setMonthsequence(monthseq);
 				budgetVO.setQuater(String.valueOf(quater));
 
-				previousYearActualRepo.save(budgetVO);
-			} else {
-				budgetVO = previousYearActualRepo.getPreviousYearDetails(budgetDTO2.getOrgId(),
-						budgetDTO2.getClientCode(), budgetDTO2.getYear(), budgetDTO2.getMonth(),
-						budgetDTO2.getMainGroup(), budgetDTO2.getSubGroupCode(), budgetDTO2.getAccountCode());
-				budgetVO.setOrgId(budgetDTO2.getOrgId());
-				budgetVO.setClient(budgetDTO2.getClient());
-				budgetVO.setClientCode(budgetDTO2.getClientCode());
-				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
-				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
-				budgetVO.setAccountName(budgetDTO2.getAccountName());
-				budgetVO.setAccountCode(budgetDTO2.getAccountCode());
-				budgetVO.setNatureOfAccount(budgetDTO2.getNatureOfAccount());
-				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
-				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
-				budgetVO.setAmount(budgetDTO2.getAmount());
-				budgetVO.setMainGroup(budgetDTO2.getMainGroup());
-				GroupLedgersVO groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
-						budgetDTO2.getOrgId(), budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
-
-				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
-				budgetVO.setSubGroup(groupLedgersVO.getGroupName());
-				budgetVO.setActive(true);
-				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
 				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
 				budgetVO.setMonthsequence(monthseq);
-				budgetVO.setQuater(String.valueOf(quater));
 
 				previousYearActualRepo.save(budgetVO);
 			}
