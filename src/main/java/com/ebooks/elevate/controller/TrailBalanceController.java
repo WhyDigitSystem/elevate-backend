@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,7 @@ import com.ebooks.elevate.dto.ExcelUploadResultDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.dto.TbHeaderDTO;
 import com.ebooks.elevate.entity.CoaVO;
+import com.ebooks.elevate.entity.SubLedgerAccountVO;
 import com.ebooks.elevate.entity.TbHeaderVO;
 import com.ebooks.elevate.service.TrailBalanceService;
 
@@ -39,6 +42,9 @@ public class TrailBalanceController extends BaseController {
 
 	@Autowired
 	TrailBalanceService trailBalanceService;
+	
+	int totalRows = 0;
+	int successfulUploads = 0;
 
 	@PostMapping("/excelUploadForTb")
 	public ResponseEntity<ResponseDTO> excelUploadForTb(@RequestParam MultipartFile[] files,
@@ -46,6 +52,7 @@ public class TrailBalanceController extends BaseController {
 			@RequestParam Long orgId, @RequestParam String clientName, @RequestParam String month,
 			@RequestParam String finYear) {
 
+		
 		String methodName = "excelUploadForTb()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 
@@ -57,21 +64,27 @@ public class TrailBalanceController extends BaseController {
 			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForTb(files, createdBy, clientCode,
 					finYear, month, clientName, orgId);
 
-			responseObjectsMap.put("status", uploadResult.getFailureReasons().isEmpty());
-			// Populate success response
+			totalRows = trailBalanceService.getTotalRows(); // Get total rows processed
+			successfulUploads = trailBalanceService.getSuccessfulUploads();
 			responseObjectsMap.put("statusFlag", "Ok");
-			responseObjectsMap.put("uploadResult", uploadResult);
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("totalRows", totalRows);
+			responseObjectsMap.put("successfulUploads", successfulUploads);
+			responseObjectsMap.put("message", "Excel Upload For Client TB successful");
+//			// Populate success response
+//			responseObjectsMap.put("statusFlag", "Ok");
+//			responseObjectsMap.put("status", true);
+//			responseObjectsMap.put("uploadResult", uploadResult);
 			responseDTO = createServiceResponse(responseObjectsMap);
 
 		} catch (Exception e) {
-			// Handle any exceptions and populate error response
+			String errorMsg = e.getMessage();
 			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
-
 			responseObjectsMap.put("statusFlag", "Error");
 			responseObjectsMap.put("status", false);
-			responseObjectsMap.put("errorMessage", e.getMessage());
+			responseObjectsMap.put("errorMessage", errorMsg);
 
-			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client Trial Balance Failed",
 					e.getMessage());
 		}
 
@@ -135,7 +148,8 @@ public class TrailBalanceController extends BaseController {
 	}
 
 	@GetMapping("/getTBDocId")
-	public ResponseEntity<ResponseDTO> getTBDocId(@RequestParam Long orgId, @RequestParam String finYear,@RequestParam String clientCode) {
+	public ResponseEntity<ResponseDTO> getTBDocId(@RequestParam Long orgId, @RequestParam String finYear,
+			@RequestParam String clientCode) {
 
 		String methodName = "getTBDocId()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
@@ -145,7 +159,7 @@ public class TrailBalanceController extends BaseController {
 		String mapp = "";
 
 		try {
-			mapp = trailBalanceService.getTBDocId(orgId, finYear,clientCode);
+			mapp = trailBalanceService.getTBDocId(orgId, finYear, clientCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -163,9 +177,10 @@ public class TrailBalanceController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getAllTrialBalanceByClient")
-	public ResponseEntity<ResponseDTO> getAllTrialBalanceByClient(@RequestParam Long orgId,@RequestParam String finYear,@RequestParam String client) {
+	public ResponseEntity<ResponseDTO> getAllTrialBalanceByClient(@RequestParam Long orgId,
+			@RequestParam String finYear, @RequestParam String client) {
 		String methodName = "getAllTrialBalanceByClient()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -173,7 +188,7 @@ public class TrailBalanceController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<TbHeaderVO> tbHeaderVO = new ArrayList<>();
 		try {
-			tbHeaderVO = trailBalanceService.getAllTbByClient(orgId,finYear,client);
+			tbHeaderVO = trailBalanceService.getAllTbByClient(orgId, finYear, client);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -183,8 +198,120 @@ public class TrailBalanceController extends BaseController {
 			responseObjectsMap.put("tbHeaderVO", tbHeaderVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "Trial Balance information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Trial Balance information receive failed",
+					errorMsg);
 		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getTrialBalanceById")
+	public ResponseEntity<ResponseDTO> getTrialBalanceById(@RequestParam(required = false) Long id) {
+		String methodName = "getTrialBalanceById()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		TbHeaderVO tbHeaderVO = new TbHeaderVO();
+		try {
+			tbHeaderVO = trailBalanceService.getTrialBalanceVOById(id);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Trial Balance information get successfully By Id");
+			responseObjectsMap.put("tbHeaderVO", tbHeaderVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					"Trial Balance information receive failedByOrgId", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@Transactional
+	@PostMapping("/excelUploadForBudget")
+	public ResponseEntity<ResponseDTO> excelUploadForBudget(@RequestParam MultipartFile[] files,
+			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
+			@RequestParam String clientName, @RequestParam Long orgId) {
+
+		String methodName = "excelUploadForBudget()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+
+		ResponseDTO responseDTO;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+
+		try {
+			// Call the service method and get the result
+			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForBudget(files, createdBy, clientCode,
+					clientName, orgId);
+
+			// Retrieve the counts after processing
+			totalRows = trailBalanceService.getTotalRows(); // Get total rows processed
+			successfulUploads = trailBalanceService.getSuccessfulUploads(); // Get successful uploads count
+			responseObjectsMap.put("statusFlag", "Ok");
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("totalRows", totalRows);
+			responseObjectsMap.put("successfulUploads", successfulUploads);
+			responseObjectsMap.put("message", "Excel Upload For Budget successful");
+			responseDTO = createServiceResponse(responseObjectsMap);
+
+		} catch (Exception e) {
+			// Handle any exceptions and populate error response
+			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
+
+			responseObjectsMap.put("statusFlag", "Error");
+			responseObjectsMap.put("status", false);
+			responseObjectsMap.put("errorMessage", e.getMessage());
+
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
+					e.getMessage());
+		}
+
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@Transactional
+	@PostMapping("/excelUploadForPreviousYear")
+	public ResponseEntity<ResponseDTO> excelUploadForPreviousYear(@RequestParam MultipartFile[] files,
+			@RequestParam(required = false) String createdBy, @RequestParam(required = false) String clientCode,
+			@RequestParam String clientName, @RequestParam Long orgId) {
+
+		String methodName = "excelUploadForPreviousYear()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+
+		ResponseDTO responseDTO;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+
+		try {
+			// Call the service method and get the result
+			ExcelUploadResultDTO uploadResult = trailBalanceService.excelUploadForPreviousYear(files, createdBy,
+					clientCode, clientName, orgId);
+
+			totalRows = trailBalanceService.getTotalRows(); // Get total rows processed
+			successfulUploads = trailBalanceService.getSuccessfulUploads(); // Get successful uploads count
+			responseObjectsMap.put("statusFlag", "Ok");
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("totalRows", totalRows);
+			responseObjectsMap.put("successfulUploads", successfulUploads);
+			responseObjectsMap.put("message", "Excel Upload For Previous Year Actuals successful");
+			responseDTO = createServiceResponse(responseObjectsMap);
+
+		} catch (Exception e) {
+			// Handle any exceptions and populate error response
+			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
+
+			responseObjectsMap.put("statusFlag", "Error");
+			responseObjectsMap.put("status", false);
+			responseObjectsMap.put("errorMessage", e.getMessage());
+
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
+					e.getMessage());
+		}
+
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}

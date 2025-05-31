@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -15,10 +16,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.ClientCompanyDTO;
+import com.ebooks.elevate.entity.ClientCompanyReportAccessVO;
 import com.ebooks.elevate.entity.ClientCompanyVO;
+import com.ebooks.elevate.entity.ClientSegmentVO;
+import com.ebooks.elevate.entity.ClientUnitVO;
 import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.ClientCompanyRepo;
+import com.ebooks.elevate.repo.ClientCompanyReportAccessRepo;
+import com.ebooks.elevate.repo.ClientSegmentRepo;
+import com.ebooks.elevate.repo.ClientUnitRepo;
 import com.ebooks.elevate.util.CryptoUtils;
 
 @Service
@@ -31,6 +38,15 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 	
 	@Autowired
 	PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	ClientCompanyReportAccessRepo clientCompanyReportAccessRepo;
+	
+	@Autowired
+	ClientUnitRepo clientUnitRepo;
+	
+	@Autowired
+	ClientSegmentRepo clientSegmentRepo;
 	
 	@Override
 	public List<ClientCompanyVO> getClientCompanyByOrgId(Long orgId) {
@@ -140,22 +156,22 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 			message = "Client Company Updation Successfully";
 
 		}
-		clientCompanyVO = getClientCompanyVOFromClientCompanyDTO(clientCompanyVO, clientCompanyDTO);
-		clientCompanyRepo.save(clientCompanyVO);
+		ClientCompanyVO clientCompanyVOs = getClientCompanyVOFromClientCompanyDTO(clientCompanyVO, clientCompanyDTO);
+		clientCompanyRepo.save(clientCompanyVOs);
 		
 		UserVO userVO= new UserVO();
-		userVO.setOrgId(clientCompanyVO.getOrgId());
+		userVO.setOrgId(clientCompanyVOs.getOrgId());
 		userVO.setActive(true);
-		userVO.setClient(clientCompanyVO.getClientName());
-		userVO.setClientId(clientCompanyVO.getId());
-		userVO.setEmail(clientCompanyVO.getUserName());
-		userVO.setUserName(clientCompanyVO.getUserName());
+		userVO.setClient(clientCompanyVOs.getClientName());
+		userVO.setClientId(clientCompanyVOs.getId());
+		userVO.setEmail(clientCompanyVOs.getUserName());
+		userVO.setUserName(clientCompanyVOs.getUserName());
 		userVO.setUserType("GUEST");
 		userVO.setPassword(passwordEncoder.encode(CryptoUtils.getDecrypt(clientCompanyDTO.getPassword())));
 
 		Map<String, Object> response = new HashMap<>();
 		response.put("message", message);
-		response.put("clientCompanyVO", clientCompanyVO);
+		response.put("clientCompanyVO", clientCompanyVOs);
 		return response;
 
 	}
@@ -169,6 +185,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		clientCompanyVO.setPhone(clientCompanyDTO.getPhone());
 		clientCompanyVO.setWebSite(clientCompanyDTO.getWebSite());
 		clientCompanyVO.setOrgId(clientCompanyDTO.getOrgId());
+		clientCompanyVO.setClientYear(clientCompanyDTO.getClientYear());
 		clientCompanyVO.setActive(clientCompanyDTO.isActive());
 		clientCompanyVO.setBussinessType(clientCompanyDTO.getBussinessType());
 		clientCompanyVO.setLevelOfService(clientCompanyDTO.getLevelOfService());
@@ -176,6 +193,62 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		clientCompanyVO.setTurnOver(clientCompanyDTO.getTurnOver());
 		clientCompanyVO.setUserName(clientCompanyDTO.getUserName());
 		clientCompanyVO.setPassword(clientCompanyDTO.getPassword());
+		clientCompanyVO.setCurrency(clientCompanyDTO.getCurrency());
+		clientCompanyVO.setYearStartDate(clientCompanyDTO.getYearStartDate());
+		clientCompanyVO.setYearEndDate(clientCompanyDTO.getYearEndDate());
+		
+		
+	 	
+		if(ObjectUtils.isNotEmpty(clientCompanyDTO.getId()))
+		{
+			List<ClientCompanyReportAccessVO> clientCompanyReportAccessVO= clientCompanyReportAccessRepo.findByClientCompanyVO(clientCompanyVO);
+			clientCompanyReportAccessRepo.deleteAll(clientCompanyReportAccessVO);
+			
+			List<ClientUnitVO>clientUnitVOs= clientUnitRepo.findByClientCompanyVO(clientCompanyVO);
+			clientUnitRepo.deleteAll(clientUnitVOs);
+			
+			List<ClientSegmentVO>clientSegment= clientSegmentRepo.findByClientCompanyVO(clientCompanyVO);
+			clientSegmentRepo.deleteAll(clientSegment);
+		}
+		
+		if (!ObjectUtils.isEmpty(clientCompanyDTO.getClientCompanyReportAccessDTO())) {
+			List<ClientCompanyReportAccessVO>accessList= clientCompanyDTO.getClientCompanyReportAccessDTO().stream()
+					.map(accessDTO -> {
+						ClientCompanyReportAccessVO clientCompanyReportAccessVOs= new ClientCompanyReportAccessVO();
+						clientCompanyReportAccessVOs.setElCode(accessDTO.getElCode());
+						clientCompanyReportAccessVOs.setDescription(accessDTO.getDescription());
+						clientCompanyReportAccessVOs.setAccess(accessDTO.isAccess());
+						clientCompanyReportAccessVOs.setClientCompanyVO(clientCompanyVO);
+						return clientCompanyReportAccessVOs;
+					}).collect(Collectors.toList());
+			clientCompanyVO.setClientCompanyReportAccessVO(accessList);
+		}	
+		
+		if (!ObjectUtils.isEmpty(clientCompanyDTO.getClientUnitDTO())) {
+			List<ClientUnitVO>unitList= clientCompanyDTO.getClientUnitDTO().stream()
+					.map(accessDTO -> {
+						ClientUnitVO clientUnitVOs= new ClientUnitVO();
+						clientUnitVOs.setUnit(accessDTO.getUnit());
+						clientUnitVOs.setLocation(accessDTO.getLocation());
+						clientUnitVOs.setActive(accessDTO.isActive());
+						clientUnitVOs.setClientCompanyVO(clientCompanyVO);
+						return clientUnitVOs;
+					}).collect(Collectors.toList());
+			clientCompanyVO.setClientUnitVO(unitList);
+		}
+		
+		if (!ObjectUtils.isEmpty(clientCompanyDTO.getClientSegmentDTO())) {
+			List<ClientSegmentVO>segmentList= clientCompanyDTO.getClientSegmentDTO().stream()
+					.map(accessDTO -> {
+						ClientSegmentVO clientSegmentVOs= new ClientSegmentVO();
+						clientSegmentVOs.setUnit(accessDTO.getUnit());
+						clientSegmentVOs.setSegment(accessDTO.getSegment());
+						clientSegmentVOs.setActive(accessDTO.isActive());
+						clientSegmentVOs.setClientCompanyVO(clientCompanyVO);
+						return clientSegmentVOs;
+					}).collect(Collectors.toList());
+			clientCompanyVO.setClientSegmentVO(segmentList);
+		}
 		return clientCompanyVO;
 	}
 

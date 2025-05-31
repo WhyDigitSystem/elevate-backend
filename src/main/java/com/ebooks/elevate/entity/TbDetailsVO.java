@@ -50,14 +50,18 @@ public class TbDetailsVO {
 	private String client;
 	@Column(name = "tbmonth",length =30 )
 	private String tbMonth;
-	@Column(name = "opbalance",precision = 20,scale = 2)
-	private BigDecimal openingBalance;
-	@Column(name = "credit",precision = 20,scale = 2)
-	private BigDecimal credit;
-	@Column(name = "debit",precision = 20,scale = 2)
-	private BigDecimal debit;
-	@Column(name = "clbalance",precision = 20,scale = 2)
-	private BigDecimal closingBalance;
+	@Column(name = "opbalancedb",precision = 20,scale = 2)
+	private BigDecimal openingBalanceDb;
+	@Column(name = "opbalancecr",precision = 20,scale = 2)
+	private BigDecimal openingBalanceCr;
+	@Column(name = "transcredit",precision = 20,scale = 2)
+	private BigDecimal transCredit;
+	@Column(name = "transdebit",precision = 20,scale = 2)
+	private BigDecimal transDebit;
+	@Column(name = "clbalancedb",precision = 20,scale = 2)
+	private BigDecimal closingBalanceDb;
+	@Column(name = "clbalancecr",precision = 20,scale = 2)
+	private BigDecimal closingBalanceCr;
 	@Column(name = "finyear",length =10)
 	private String finYear;
 	@Column(name = "remarks",length =100)

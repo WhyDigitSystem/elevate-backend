@@ -15,7 +15,6 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -29,8 +28,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ebooks.elevate.dto.ElMfrDTO;
 import com.ebooks.elevate.entity.ElMfrVO;
+import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.ElMfrRepo;
+import com.ebooks.elevate.repo.FinancialYearRepo;
+import com.ebooks.elevate.repo.PreviousYearActualRepo;
+import com.ebooks.elevate.repo.TrialBalanceRepo;
 
 import io.jsonwebtoken.io.IOException;
 @Service
@@ -40,7 +44,19 @@ public class ELReportServiceImpl implements ELReportService {
 
 	@Autowired
 	ElMfrRepo elMfrRepo;
+	
+	@Autowired
+	TrialBalanceRepo trialBalanceRepo;
+	
+	@Autowired
+	FinancialYearRepo financialYearRepo;
 
+	@Autowired
+	BudgetRepo budgetRepo;
+	
+	@Autowired
+	PreviousYearActualRepo previousYearActualRepo;
+	
 	@Override
 	public Map<String, Object> createUpdateElMfr(ElMfrDTO elMfrDTO) throws ApplicationException {
 
@@ -308,6 +324,331 @@ public class ELReportServiceImpl implements ELReportService {
 			return List1;
 
 		}
-	
 
+		@Override
+		public List<Map<String, Object>> getClientBudgetDetails(Long orgId, String year, String client,
+				String clientCode) {
+			Set<Object[]> budget=budgetRepo.getClientBudgetDetails(orgId,year,client,clientCode);
+			return budgetDetails(budget);
+		}
+
+		private List<Map<String, Object>> budgetDetails(Set<Object[]> budget) {
+			List<Map<String, Object>>budgets=new ArrayList<>();
+			for(Object[] bud:budget)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("id", Integer.parseInt(bud[0].toString()));
+				b.put("accountName", bud[1] != null ? bud[1].toString() : "");
+				b.put("accountCode", bud[2] != null ? bud[2].toString() : "");
+				b.put("natureOfAccount", bud[3] != null ? bud[3].toString() : "");
+				b.put("january", ((Number) bud[4]).intValue());
+				b.put("february", ((Number) bud[5]).intValue());
+				b.put("march", ((Number) bud[6]).intValue());
+				b.put("april", ((Number) bud[7]).intValue());
+				b.put("may", ((Number) bud[8]).intValue());
+				b.put("june", ((Number) bud[9]).intValue());
+				b.put("july", ((Number) bud[10]).intValue());
+				b.put("august", ((Number) bud[11]).intValue());
+				b.put("september", ((Number) bud[12]).intValue());
+				b.put("october", ((Number) bud[13]).intValue());
+				b.put("november", ((Number) bud[14]).intValue());
+				b.put("december", ((Number) bud[15]).intValue());
+				
+				budgets.add(b);
+			}
+			return budgets;
+		}
+
+		@Override
+		public List<Map<String, Object>> getClientPreviousYearActualDetails(Long orgId, String year, String client,
+				String clientCode) {
+			Set<Object[]> actual=previousYearActualRepo.getClientPreviousYearActualDetails(orgId,year,client,clientCode);
+			return actualDetails(actual);
+		}
+
+		private List<Map<String, Object>> actualDetails(Set<Object[]> actual) {
+			List<Map<String, Object>>actuals=new ArrayList<>();
+			for(Object[] bud:actual)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("id", Integer.parseInt(bud[0].toString()));
+				b.put("accountName", bud[1] != null ? bud[1].toString() : "");
+				b.put("accountCode", bud[2] != null ? bud[2].toString() : "");
+				b.put("natureOfAccount", bud[3] != null ? bud[3].toString() : "");
+				b.put("january", ((Number) bud[4]).intValue());
+				b.put("february", ((Number) bud[5]).intValue());
+				b.put("march", ((Number) bud[6]).intValue());
+				b.put("april", ((Number) bud[7]).intValue());
+				b.put("may", ((Number) bud[8]).intValue());
+				b.put("june", ((Number) bud[9]).intValue());
+				b.put("july", ((Number) bud[10]).intValue());
+				b.put("august", ((Number) bud[11]).intValue());
+				b.put("september", ((Number) bud[12]).intValue());
+				b.put("october", ((Number) bud[13]).intValue());
+				b.put("november", ((Number) bud[14]).intValue());
+				b.put("december", ((Number) bud[15]).intValue());
+				
+				actuals.add(b);
+			}
+			return actuals;
+		}
+
+		@Override
+		public List<Map<String, Object>> getElevateYTDTBDetails(Long orgId, String clientCode, String finyear,
+				String month) {
+			
+			Set<Object[]> ElTBdetails=trialBalanceRepo.getElYTDTbdetails(orgId,clientCode,finyear,month);
+			return getELYTDTB(ElTBdetails);
+		}
+
+		private List<Map<String, Object>> getELYTDTB(Set<Object[]> elTBdetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:elTBdetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("id", Integer.parseInt(bud[0].toString()));
+				b.put("clientGlCode", bud[1] != null ? bud[1].toString() : "");
+				b.put("clientGlLedger", bud[2] != null ? bud[2].toString() : "");
+				b.put("elglCode", bud[3] != null ? bud[3].toString() : "");
+				b.put("elglLedger", bud[4] != null ? bud[4].toString() : "");
+				b.put("opBalDebit", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+				b.put("opBalCredit", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+				b.put("transDebit", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("transCredit", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("clBalDebit", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+				b.put("clBalCredit", bud[10] != null ? new BigDecimal(bud[10].toString()) : BigDecimal.ZERO);
+				b.put("closingBalance", bud[11] != null ? new BigDecimal(bud[11].toString()) : BigDecimal.ZERO);
+				b.put("natureOfAccount", bud[12] != null ? bud[12].toString() : "");
+				b.put("segment", bud[13] != null ? bud[13].toString() : "");
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
+		@Override
+		public List<Map<String, Object>> getMonthlyProcess(Long orgId, String clientCode, String finyear,
+				String month,String yearType,String mainGroupName,String subGroupCode) {
+			String previousYear=finyear;
+			if(yearType.equals("FY")&& month.equals("April"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY")&& month.equals("January"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			else
+			{
+				previousYear=finyear;
+			}
+			
+			Set<Object[]> ElTBdetails=trialBalanceRepo.getElYTDTbdetailsforMonthlyProcess(orgId, clientCode, finyear, month,previousYear,mainGroupName,subGroupCode);
+			return getMonthlyProcess(ElTBdetails);
+		}
+
+		private List<Map<String, Object>> getMonthlyProcess(Set<Object[]> elTBdetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:elTBdetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("id", Integer.parseInt(bud[0].toString()));
+				b.put("elGlCode", bud[1] != null ? bud[1].toString() : "");
+				b.put("elGl", bud[2] != null ? bud[2].toString() : "");
+				b.put("natureOfAccount", bud[3] != null ? bud[3].toString() : "");
+				b.put("segment", bud[4] != null ? bud[4].toString() : "");
+				b.put("currentMonthDebit", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+				b.put("currentMonthCredit", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+				b.put("currentMonthClosing", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("previousMonthDebit", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("previousMonthCredit", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+				b.put("previousMonthClosing", bud[10] != null ? new BigDecimal(bud[10].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthActDebit", bud[11] != null ? new BigDecimal(bud[11].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthActCredit", bud[12] != null ? new BigDecimal(bud[12].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthActClosing", bud[13] != null ? new BigDecimal(bud[13].toString()) : BigDecimal.ZERO);
+				b.put("mismatch", "Yes".equalsIgnoreCase(bud[14] != null ? bud[14].toString() : "No"));
+				b.put("provisionDebit", bud[15] != null ? new BigDecimal(bud[15].toString()) : BigDecimal.ZERO);
+				b.put("provisionCredit", bud[16] != null ? new BigDecimal(bud[16].toString()) : BigDecimal.ZERO);
+				b.put("provisionClosing", bud[17] != null ? new BigDecimal(bud[17].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthDebit", bud[18] != null ? new BigDecimal(bud[18].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthCredit", bud[19] != null ? new BigDecimal(bud[19].toString()) : BigDecimal.ZERO);
+				b.put("forTheMonthClosing", bud[20] != null ? new BigDecimal(bud[20].toString()) : BigDecimal.ZERO);
+				b.put("approveStatus", "Yes".equalsIgnoreCase(bud[21] != null ? bud[21].toString() : "No"));
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+
+		@Override
+		public List<Map<String, Object>> getELBudgetReport(Long orgId, String clientCode, String finyear,
+				String yearType, String mainGroupName, String subGroupCode) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELBudgetDetails=budgetRepo.getELBudgetDetails(orgId,finyear,previousYear,clientCode,mainGroupName,subGroupCode);
+			return budgetReport(ELBudgetDetails);
+		}
+
+		private List<Map<String, Object>> budgetReport(Set<Object[]> eLBudgetDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:eLBudgetDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("mainGroup", bud[0] != null ? bud[0].toString() : "");
+				b.put("subGroup", bud[1] != null ? bud[1].toString() : "");
+				b.put("subGroupCode", bud[2] != null ? bud[2].toString() : "");
+				b.put("ElGlCode", bud[3] != null ? bud[3].toString() : "");
+				b.put("ElGl", bud[4] != null ? bud[4].toString() : "");
+				b.put("natureOfAccount", bud[5] != null ? bud[5].toString() : "");
+				b.put("quater", bud[6] != null ? bud[6].toString() : "");
+				b.put("currentYear", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("previousYear", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
+		
+		@Override
+		public List<Map<String, Object>> getELPYReport(Long orgId, String finyear,String clientCode,
+			 String mainGroupName, String subGroupCode,String month) {
+			
+			Set<Object[]> ELPYDetails=previousYearActualRepo.getELPYDetails(orgId,finyear,clientCode,mainGroupName,subGroupCode,month);
+			return PyReport(ELPYDetails);
+		}
+
+		private List<Map<String, Object>> PyReport(Set<Object[]> eLPYDetails) {
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:eLPYDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("mainGroup", bud[0] != null ? bud[0].toString() : "");
+				b.put("subGroup", bud[1] != null ? bud[1].toString() : "");
+				b.put("subGroupCode", bud[2] != null ? bud[2].toString() : "");
+				b.put("ElGlCode", bud[3] != null ? bud[3].toString() : "");
+				b.put("ElGl", bud[4] != null ? bud[4].toString() : "");
+				b.put("natureOfAccount", bud[5] != null ? bud[5].toString() : "");
+				b.put("quater", bud[6] != null ? bud[6].toString() : "");
+				b.put("amount", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
+		
+		@Override
+		public List<Map<String, Object>> getELActualReport(Long orgId, String clientCode, String finyear,
+				String yearType,String month, String mainGroupName, String subGroupCode) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELactualDetails=budgetRepo.getELActualDetails(orgId,clientCode,finyear,previousYear,month,mainGroupName,subGroupCode);
+			return ElActual(ELactualDetails);
+		}
+		
+		private List<Map<String, Object>> ElActual(Set<Object[]> ELactualDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELactualDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("elGlCode", bud[3] != null ? bud[3].toString() : "");
+				b.put("elGl", bud[4] != null ? bud[4].toString() : "");
+				b.put("natureOfAccount", bud[5] != null ? bud[5].toString() : "");
+				b.put("budget", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+				b.put("actual", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("py", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("budgetYTD", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+				b.put("ActualYTD", bud[10] != null ? new BigDecimal(bud[10].toString()) : BigDecimal.ZERO);
+				b.put("pyYTD", bud[11] != null ? new BigDecimal(bud[11].toString()) : BigDecimal.ZERO);
+				b.put("fullBudget", bud[12] != null ? new BigDecimal(bud[12].toString()) : BigDecimal.ZERO);
+				b.put("estimate", bud[13] != null ? new BigDecimal(bud[13].toString()) : BigDecimal.ZERO);
+				b.put("fullPy", bud[14] != null ? new BigDecimal(bud[14].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
+		@Override
+		public List<Map<String, Object>> getELActualQuaterReport(Long orgId, String clientCode, String finyear,
+				String yearType,String month, String mainGroupName, String subGroupCode) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELactualDetails=previousYearActualRepo.getELActualQuaterDetails(orgId,clientCode,finyear,previousYear,month,mainGroupName,subGroupCode);
+			return ElActualQuater(ELactualDetails);
+		}
+		
+		private List<Map<String, Object>> ElActualQuater(Set<Object[]> ELactualDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELactualDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("elGlCode", bud[3] != null ? bud[3].toString() : "");
+				b.put("elGl", bud[4] != null ? bud[4].toString() : "");
+				b.put("natureOfAccount", bud[5] != null ? bud[5].toString() : "");
+				b.put("quater", bud[6] != null ? bud[6].toString() : "");
+				b.put("budget", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("actual", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("py", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
 }

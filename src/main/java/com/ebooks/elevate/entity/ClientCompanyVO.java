@@ -1,16 +1,22 @@
 package com.ebooks.elevate.entity;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.ebooks.elevate.dto.CreatedUpdatedDate;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,8 +37,6 @@ public class ClientCompanyVO {
 	
 	@Column(name = "orgid")
 	private Long orgId;
-	@Column(name = "code", length = 10)
-	private String companyCode;
 	@Column(name = "name" , length = 100)
 	private String clientName;
 	@Column(name = "clientcode",length = 10)
@@ -51,8 +55,21 @@ public class ClientCompanyVO {
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
+	@Column(name = "clientyear",length = 50)
+	private String clientYear;
 	
-	@Column(name = "bussinesstype",length = 100)
+	@Column(name = "clientGLCode",length = 50)
+	private String clientGLCode;
+	@Column(name = "startno")
+	private Long startNo;
+	@Column(name = "currency",length = 50)
+	private String currency;
+	@Column(name = "yearstartdate")
+	private LocalDate yearStartDate;
+	@Column(name = "yearenddate")
+	private LocalDate yearEndDate;
+	
+	@Column(name = "bussinesstype",length = 255)
 	private String bussinessType;
 	
 	@Column(name = "turnover",length = 100)
@@ -70,7 +87,17 @@ public class ClientCompanyVO {
 	@Column(name = "password")
 	private String password;
 	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "clientCompanyVO", cascade = CascadeType.ALL)
+	private List<ClientCompanyReportAccessVO>clientCompanyReportAccessVO;
 	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "clientCompanyVO", cascade = CascadeType.ALL)
+	private List<ClientUnitVO>clientUnitVO;
+	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "clientCompanyVO", cascade = CascadeType.ALL)
+	private List<ClientSegmentVO>clientSegmentVO;
 
 	@JsonGetter("active")
 	public String getActive() {

@@ -55,6 +55,9 @@ public class CCoaVO {
 	@Column(name = "clientname", length = 100)
 	private String clientName;
 	
+	@Column(name = "natureofaccount", length = 10)
+	private String natureOfAccount;
+	
 	private boolean cancel=false;
 	
 	private boolean active;

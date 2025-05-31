@@ -30,15 +30,13 @@ import com.ebooks.elevate.service.ELReportService;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/eLReportController")
-public class ELReportController extends BaseController{
+public class ELReportController extends BaseController {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(ELReportController.class);
 
-	
 	@Autowired
 	ELReportService elReportService;
-	
-	
+
 	@PutMapping("/createUpdateElMfr")
 	public ResponseEntity<ResponseDTO> createUpdateElMfr(@RequestBody ElMfrDTO elMfrDTO) {
 		String methodName = "createUpdateElMfr()";
@@ -61,7 +59,7 @@ public class ELReportController extends BaseController{
 	}
 
 	@GetMapping("/getAllElMfr")
-	public ResponseEntity<ResponseDTO> getAllElMfr(@RequestParam(required =false) Long orgId) {
+	public ResponseEntity<ResponseDTO> getAllElMfr(@RequestParam(required = false) Long orgId) {
 		String methodName = "getAllCao()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -84,10 +82,10 @@ public class ELReportController extends BaseController{
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@PostMapping("/excelUploadForElMfr")
-	public ResponseEntity<ResponseDTO> excelUploadForElMfr(@RequestParam MultipartFile[] files,@RequestParam(required = false) String createdBy,
-			@RequestParam(required = false) Long orgId) {
+	public ResponseEntity<ResponseDTO> excelUploadForElMfr(@RequestParam MultipartFile[] files,
+			@RequestParam(required = false) String createdBy, @RequestParam(required = false) Long orgId) {
 		String methodName = "excelUploadForElMfr()";
 		int totalRows = 0;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
@@ -95,33 +93,33 @@ public class ELReportController extends BaseController{
 		ResponseDTO responseDTO = null;
 		try {
 			// Call service method to process Excel upload
-			elReportService.excelUploadForElMfr(files,createdBy,orgId);
+			elReportService.excelUploadForElMfr(files, createdBy, orgId);
 
 			// Retrieve the counts after processing
 			totalRows = elReportService.getTotalRows(); // Get total rows processed
 			successfulUploads = elReportService.getSuccessfulUploads(); // Get successful uploads count
 			responseObjectsMap.put("statusFlag", "Ok");
-	        responseObjectsMap.put("status", true);
-	        responseObjectsMap.put("totalRows", totalRows);
-	        responseObjectsMap.put("successfulUploads", successfulUploads);
-	        responseObjectsMap.put("message", "Excel Upload For ElMfr successful"); // Directly include the message here
-	        responseDTO = createServiceResponse(responseObjectsMap);
+			responseObjectsMap.put("status", true);
+			responseObjectsMap.put("totalRows", totalRows);
+			responseObjectsMap.put("successfulUploads", successfulUploads);
+			responseObjectsMap.put("message", "Excel Upload For ElMfr successful"); // Directly include the message here
+			responseDTO = createServiceResponse(responseObjectsMap);
 
-	    } catch (Exception e) {
-	        String errorMsg = e.getMessage();
-	        LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
-	        responseObjectsMap.put("statusFlag", "Error");
-	        responseObjectsMap.put("status", false);
-	        responseObjectsMap.put("errorMessage", errorMsg);
+		} catch (Exception e) {
+			String errorMsg = e.getMessage();
+			LOGGER.error(CommonConstant.EXCEPTION, methodName, e);
+			responseObjectsMap.put("statusFlag", "Error");
+			responseObjectsMap.put("status", false);
+			responseObjectsMap.put("errorMessage", errorMsg);
 
-	        responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For ElMfr Failed", errorMsg);
-	    }
-	    LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
-	    return ResponseEntity.ok().body(responseDTO);
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For ElMfr Failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getMisMatchClientTb")
-	public ResponseEntity<ResponseDTO> getMisMatchClientTb(@RequestParam Long orgId,@RequestParam String clientCode) {
+	public ResponseEntity<ResponseDTO> getMisMatchClientTb(@RequestParam Long orgId, @RequestParam String clientCode) {
 		String methodName = "getMisMatchClientTb()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -129,7 +127,7 @@ public class ELReportController extends BaseController{
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> coaVO = new ArrayList<Map<String, Object>>();
 		try {
-			coaVO = elReportService.getMisMatchClientTb(orgId,clientCode);
+			coaVO = elReportService.getMisMatchClientTb(orgId, clientCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -139,11 +137,227 @@ public class ELReportController extends BaseController{
 			responseObjectsMap.put("coaVO", coaVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "MisMatch ClientTb information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "MisMatch ClientTb information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
+	@GetMapping("/getClientBudgetDetails")
+	public ResponseEntity<ResponseDTO> getClientBudgetDetails(@RequestParam Long orgId, @RequestParam String year,
+			@RequestParam String client, @RequestParam String clientCode) {
+		String methodName = "getClientBudgetDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> budgetVO = new ArrayList<Map<String, Object>>();
+		try {
+			budgetVO = elReportService.getClientBudgetDetails(orgId, year, client, clientCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Client Budget information get successfully");
+			responseObjectsMap.put("budgetVO", budgetVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Client Budget information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getClientPreviousYearActualDetails")
+	public ResponseEntity<ResponseDTO> getClientPreviousYearActualDetails(@RequestParam Long orgId,
+			@RequestParam String year, @RequestParam String client, @RequestParam String clientCode) {
+		String methodName = "getClientPreviousYearActualDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> actualVO = new ArrayList<Map<String, Object>>();
+		try {
+			actualVO = elReportService.getClientPreviousYearActualDetails(orgId, year, client, clientCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Client Actual information get successfully");
+			responseObjectsMap.put("actualVO", actualVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Client Actual information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getElYtdTD")
+	public ResponseEntity<ResponseDTO> getElYtdTD(@RequestParam Long orgId, @RequestParam String clientCode,
+			@RequestParam String finyear, @RequestParam String month) {
+		String methodName = "getElYtdTD()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elYtdDetails = new ArrayList<Map<String, Object>>();
+		try {
+			elYtdDetails = elReportService.getElevateYTDTBDetails(orgId, clientCode, finyear, month);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "El YTD information get successfully");
+			responseObjectsMap.put("elYtdDetailsVO", elYtdDetails);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "El YTD information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getMonthlyProcessDetails")
+	public ResponseEntity<ResponseDTO> getMonthlyProcessDetails(@RequestParam Long orgId,
+			@RequestParam String clientCode, @RequestParam String finYear, @RequestParam String month,
+			@RequestParam String yearType, String mainGroup, String subGroupCode) {
+		String methodName = "getMonthlyProcessDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elYtdDetails = new ArrayList<Map<String, Object>>();
+		try {
+			elYtdDetails = elReportService.getMonthlyProcess(orgId, clientCode, finYear, month, yearType, mainGroup,
+					subGroupCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Monthly Process information get successfully");
+			responseObjectsMap.put("elYtdDetailsVO", elYtdDetails);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Monthly Process information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getElBudgetReport")
+	public ResponseEntity<ResponseDTO> getElBudgetReport(@RequestParam Long orgId, @RequestParam String clientCode,
+			@RequestParam String finyear, @RequestParam String yearType, @RequestParam String mainGroupName,
+			@RequestParam String subGroupCode) {
+		String methodName = "getElBudgetReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elBudgetReport = new ArrayList<Map<String, Object>>();
+		try {
+			elBudgetReport = elReportService.getELBudgetReport(orgId, clientCode, finyear, yearType, mainGroupName,
+					subGroupCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Budget Report information get successfully");
+			responseObjectsMap.put("elBudgetReport", elBudgetReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Budget Report information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getElPYReport")
+	public ResponseEntity<ResponseDTO> getElPYReport(@RequestParam Long orgId,@RequestParam String finyear,@RequestParam String clientCode,
+			@RequestParam String mainGroupName,@RequestParam String subGroupCode,@RequestParam String month) {
+		String methodName = "getElPYReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elPYReport = new ArrayList<Map<String, Object>>();
+		try {
+			elPYReport = elReportService.getELPYReport(orgId,finyear,clientCode, mainGroupName, subGroupCode,month);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL PY Report information get successfully");
+			responseObjectsMap.put("elPYReport", elPYReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL PY Report information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getElActualReport")
+	public ResponseEntity<ResponseDTO> getElActualReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String yearType
+			,@RequestParam String month,@RequestParam String mainGroupName,@RequestParam String subGroupCode) {
+		String methodName = "getElActualReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elActualReport = new ArrayList<Map<String, Object>>();
+		try {
+			elActualReport = elReportService.getELActualReport(orgId, clientCode, finyear, yearType, month, mainGroupName, subGroupCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Actual Report information get successfully");
+			responseObjectsMap.put("elActualReport", elActualReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getElActualQuaterReport")
+	public ResponseEntity<ResponseDTO> getElActualQuaterReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String yearType
+			,@RequestParam String month,@RequestParam String mainGroupName,@RequestParam String subGroupCode) {
+		String methodName = "getElActualQuaterReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elActualQuaterReport = new ArrayList<Map<String, Object>>();
+		try {
+			elActualQuaterReport = elReportService.getELActualQuaterReport(orgId, clientCode, finyear, yearType, month, mainGroupName, subGroupCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Actual Quater Report information get successfully");
+			responseObjectsMap.put("elActualQuaterReport", elActualQuaterReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Quater Report information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 	
 }

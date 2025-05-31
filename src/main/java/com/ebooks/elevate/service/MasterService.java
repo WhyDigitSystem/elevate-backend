@@ -8,14 +8,21 @@ import javax.validation.Valid;
 
 import org.springframework.stereotype.Service;
 
+import com.ebooks.elevate.dto.AutomationDTO;
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
-import com.ebooks.elevate.dto.SacCodeDTO;
-import com.ebooks.elevate.dto.SetTaxRateDTO;
-import com.ebooks.elevate.dto.SubLedgerAccountDTO;
+import com.ebooks.elevate.dto.GroupMapping2DTO;
+import com.ebooks.elevate.dto.GroupMappingDTO;
+import com.ebooks.elevate.dto.ListOfValuesDTO;
+import com.ebooks.elevate.dto.SegmentMappingDTO;
+import com.ebooks.elevate.entity.AutomationVO;
 import com.ebooks.elevate.entity.BranchVO;
+import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.EmployeeVO;
+import com.ebooks.elevate.entity.GroupMappingVO;
+import com.ebooks.elevate.entity.ListOfValuesVO;
 import com.ebooks.elevate.entity.SacCodeVO;
+import com.ebooks.elevate.entity.SegmentMappingVO;
 import com.ebooks.elevate.entity.SetTaxRateVO;
 import com.ebooks.elevate.entity.SubLedgerAccountVO;
 import com.ebooks.elevate.exception.ApplicationException;
@@ -50,7 +57,6 @@ public interface MasterService {
 
 	List<SetTaxRateVO> getAllSetTaxRateById(Long id);
 
-	SetTaxRateVO updateCreateSetTaxRate(@Valid SetTaxRateDTO setTaxRateDTO) throws Exception;
 
 	List<SetTaxRateVO> getSetTaxRateByActive();
 
@@ -62,20 +68,68 @@ public interface MasterService {
 
 	List<SacCodeVO> getAllActiveSacCodeByOrgId(Long orgId);
 
-	SacCodeVO updateCreateSacCode(@Valid SacCodeDTO sacCodeDTO) throws ApplicationException;
 
 //	List<SacCodeVO> getSacCodeByActive();
 
 //	SubLedgerAccount
 	List<SubLedgerAccountVO> getAllSubLedgerAccountByOrgId(Long orgId);
 
-	SubLedgerAccountVO updateCreateSubLedgerAccount(@Valid SubLedgerAccountDTO subLedgerAccountDTO)
-			throws ApplicationException;
 
 	List<SubLedgerAccountVO> getAllSubLedgerAccountById(Long id);
 
 	List<SubLedgerAccountVO> getSubLedgerAccountByActive();
 
+	
+	//List Of Values
+	
+
+	List<ListOfValuesVO> getAllListOfValuesByOrgId(Long orgId);
+
+	List<ListOfValuesVO> getListOfValuesById(Long listOfValuesId);
 
 
+	ListOfValuesVO updateCreateListOfValues(@Valid ListOfValuesDTO listOfValuesDTO) throws ApplicationException;
+
+	
+	
+	
+	// Group Mapping\
+	List<Map<String, Object>> getBudgetGroup(Long orgId,String name) throws ApplicationException;
+	
+	List<CoaVO>getSubGroup(Long orgId);
+
+	List<CoaVO> getLegders(Long orgId, List<String> accountCode);
+	
+	Map<String, Object> createUpdateGroupMapping(GroupMappingDTO groupMappingDTO) throws ApplicationException;
+
+	List<GroupMappingVO> getGroupMappingAll(Long orgId);
+
+	Optional<GroupMappingVO> getGroupMappingById(Long id);
+
+	Map<String, Object> createUpdateGroupMapping2(GroupMapping2DTO groupMapping2DTO) throws ApplicationException;
+
+
+	List<Map<String, Object>> getLedgersDetailsForGroupMapping(Long orgId, String segment);
+	
+	
+	
+	// Segment Mapping
+	
+	Map<String, Object> createUpdateSegmentMapping(SegmentMappingDTO segmentMappingDTO) throws ApplicationException;
+
+	List<SegmentMappingVO> getAllSegmentMapping(Long orgId);
+
+	Optional<SegmentMappingVO> getSegmentMappingById(Long id);
+
+	List<Map<String, Object>> getSegmentDetailsByClient(Long orgId);
+
+	Map<String, Object> createUpdateAutomationGroupMapping(AutomationDTO automationDTO) throws ApplicationException;
+
+	AutomationVO getAutomationById(Long id);
+
+	List<AutomationVO> getAutomationByOrgId(Long orgId);
+	
+	
 }
+
+

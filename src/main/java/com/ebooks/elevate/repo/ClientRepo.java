@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.ebooks.elevate.entity.ClientCompanyVO;
 import com.ebooks.elevate.entity.ClientVO;
 @Repository
 public interface ClientRepo extends JpaRepository<ClientVO, Long>{
@@ -25,6 +26,8 @@ public interface ClientRepo extends JpaRepository<ClientVO, Long>{
     @Query(nativeQuery =true,value ="select ul.clientcode,ul.clientname from users u join \r\n"
     		+ "    		   	userloginclientaccess ul On u.userid=ul.usersid where u.is_active=1 and username=?1")
 	Set<Object[]> getClientCode(String userName);
+
+	ClientCompanyVO findByClientCode(String clientCode);
 
 
 }

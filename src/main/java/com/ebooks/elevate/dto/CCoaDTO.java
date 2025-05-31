@@ -1,7 +1,5 @@
 package com.ebooks.elevate.dto;
 
-import javax.persistence.Column;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,6 +27,8 @@ public class CCoaDTO {
 
 	private String clientId;
 
-	public String clientName;
+	private String clientName;
+	
+	private String natureOfAccount;
 
 }

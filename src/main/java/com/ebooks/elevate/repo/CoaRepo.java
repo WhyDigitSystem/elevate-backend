@@ -1,6 +1,7 @@
 package com.ebooks.elevate.repo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,7 +40,6 @@ public interface CoaRepo extends JpaRepository<CoaVO, Long>{
 	CoaVO findByOrgIdAndAccountCode(Long orgId, String elAccountCode);
 
 
-	boolean existsByOrgIdAndAccountCode(Long orgId, String accountCode);
 
 	@Query(value = "select * from coa a where a.orgid=?1",nativeQuery = true)
 	List<CoaVO> getAllCaoByOrgId(Long orgId);
@@ -49,5 +49,17 @@ public interface CoaRepo extends JpaRepository<CoaVO, Long>{
 
 	@Query(nativeQuery =true,value ="select * from  coa where active=1 and orgid=?1 and accountgroupname=?2  and type='group' and groupname is not null")
 	CoaVO getOrgIdAndSubAccountGroupName(Long orgId, String groupName);
+
+	Optional<CoaVO> findByAccountCode(String code);
+
+	boolean existsByOrgIdAndAccountGroupNameIgnoreCase(Long orgId, String accountName);
+
+	boolean existsByOrgIdAndAccountCodeIgnoreCase(Long orgId, String accountCode);
+	
+	@Query(nativeQuery = true,value = "select a.* from coa a where a.orgid=?1 and a.type='Group' and groupname is not null ")
+	List<CoaVO> getOrgIdAndSubGroupName(Long orgId);
+
+	@Query(nativeQuery = true,value = "select a.* from coa a where a.orgid=?1 and a.type='Account' and parentcode in(?2)")
+	List<CoaVO> getOrgIdAndSubGroupName(Long orgId, List<String> accountCode);
 
 }

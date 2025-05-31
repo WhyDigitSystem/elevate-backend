@@ -136,6 +136,8 @@ public interface CommonMasterService {
 
 	Optional<ClientVO> getClientById(Long id);
 
+	List<Map<String, Object>> getFinYearByClient(Long orgId, String clientCode);
+
 	
 
 }

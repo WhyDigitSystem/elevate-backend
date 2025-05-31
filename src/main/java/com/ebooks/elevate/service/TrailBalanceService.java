@@ -32,6 +32,14 @@ public interface TrailBalanceService {
 
 	List<TbHeaderVO> getAllTbByClient(Long orgId, String finYear, String client);
 	
+	TbHeaderVO getTrialBalanceVOById(Long Id);
+	
+	ExcelUploadResultDTO excelUploadForBudget(MultipartFile[] files, String createdBy, String clientCode,
+			String clientName, Long orgId) throws ApplicationException, IOException;
+
+	ExcelUploadResultDTO excelUploadForPreviousYear(MultipartFile[] files, String createdBy, String clientCode,
+			String clientName, Long orgId)throws ApplicationException, IOException;
+	
 	
 
 }

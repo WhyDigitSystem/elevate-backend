@@ -16,8 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.GlobalParameterDTO;
+import com.ebooks.elevate.entity.ClientCompanyVO;
+import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.entity.GlobalParameterVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.ClientCompanyRepo;
 import com.ebooks.elevate.repo.ClientRepo;
 import com.ebooks.elevate.repo.FinancialYearRepo;
 import com.ebooks.elevate.repo.GlobalParameterRepo;
@@ -34,6 +37,9 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 
 	@Autowired
 	UserRepo userRepo;
+	
+	@Autowired
+	FinancialYearRepo financialYearRepo;
 
 	@Autowired
 	UserBranchAccessRepo userBranchAccessRepo;
@@ -43,6 +49,9 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 
 	@Autowired
 	ClientRepo clientRepo;
+	
+	@Autowired
+	ClientCompanyRepo clientCompanyRepo;
 
 	// Global Parametre
 
@@ -70,9 +79,30 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 
 	    String message;
 	    GlobalParameterVO globalParameterVO;
+	    
+	    
 
 	    // Check if a record with the same UserId exists
 	    GlobalParameterVO existingRecord = globalParameterRepo.findByUserid(globalParameterDTO.getUserId());
+	    
+	    ClientCompanyVO clientCompanyVO= clientCompanyRepo.findByClientCode(globalParameterDTO.getClientCode()); 
+	    
+	    String previousYear=null;
+		if(clientCompanyVO.getClientYear().equals("FY"))
+		{
+			FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(clientCompanyVO.getOrgId(),globalParameterDTO.getFinYear(),clientCompanyVO.getClientYear());
+			int preYear=financialYearVO.getFinYear()-1;
+			FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(clientCompanyVO.getOrgId(),preYear,clientCompanyVO.getClientYear());
+			previousYear=financialYearVO2.getFinYearIdentifier();
+			
+		}
+		else if(clientCompanyVO.getClientYear().equals("CY"))
+		{
+			FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(clientCompanyVO.getOrgId(),globalParameterDTO.getFinYear(),clientCompanyVO.getClientYear());
+			int preYear=financialYearVO.getFinYear()-1;
+			FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(clientCompanyVO.getOrgId(),preYear,clientCompanyVO.getClientYear());
+			previousYear=financialYearVO2.getFinYearIdentifier();
+		}
 
 	    if (existingRecord != null) {
 	        // Update the existing record
@@ -80,7 +110,8 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 	        existingRecord.setClientName(globalParameterDTO.getClientName());
 	        existingRecord.setFinYear(globalParameterDTO.getFinYear());
 	        existingRecord.setMonth(globalParameterDTO.getMonth());
-
+	        existingRecord.setClientYear(clientCompanyVO.getClientYear());
+	        existingRecord.setPy(previousYear);
 	        globalParameterVO = globalParameterRepo.save(existingRecord);
 	        message = "GlobalParameter Updation Successfully";
 	    } else {
@@ -90,7 +121,9 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 	        globalParameterVO.setClientCode(globalParameterDTO.getClientCode());
 	        globalParameterVO.setUserid(globalParameterDTO.getUserId());
 	        globalParameterVO.setMonth(globalParameterDTO.getMonth());
+	        globalParameterVO.setClientYear(globalParameterDTO.getClientYear());
 	        globalParameterVO.setClientName(globalParameterDTO.getClientName());
+	        globalParameterVO.setPy(previousYear);
 	        globalParameterVO = globalParameterRepo.save(globalParameterVO);
 	        message = "GlobalParameter Creation Successfully";
 	    }

@@ -25,5 +25,27 @@ public interface ELReportService {
 	void excelUploadForElMfr(MultipartFile[] files, String createdBy, Long orgId) throws ApplicationException, IOException;
 
 	List<Map<String, Object>> getMisMatchClientTb(Long orgId, String clientCode);
+	
+	List<Map<String, Object>> getClientBudgetDetails(Long orgId,String year, String client,String clientCode);
+	
+	List<Map<String, Object>> getClientPreviousYearActualDetails(Long orgId,String year, String client,String clientCode);
+	
+	List<Map<String, Object>> getElevateYTDTBDetails(Long orgId,String clientCode, String finyear,String month);
 
+	List<Map<String, Object>> getMonthlyProcess(Long orgId, String clientCode, String finyear, String month,
+			String yearType, String mainGroupName, String subGroupCode);
+	
+	List<Map<String, Object>> getELBudgetReport(Long orgId, String clientCode, String finyear,
+			String yearType, String mainGroupName, String subGroupCode);
+
+	List<Map<String, Object>> getELPYReport(Long orgId, String finyear,String clientCode, 
+			String mainGroupName, String subGroupCode,String month);
+
+	List<Map<String, Object>> getELActualReport(Long orgId, String clientCode, String finyear, String yearType,
+			String month, String mainGroupName, String subGroupCode);
+
+	List<Map<String, Object>> getELActualQuaterReport(Long orgId, String clientCode, String finyear, String yearType,
+			String month, String mainGroupName, String subGroupCode);
+
+	
 }
