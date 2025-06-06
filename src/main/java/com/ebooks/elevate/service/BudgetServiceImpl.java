@@ -1105,9 +1105,9 @@ public class BudgetServiceImpl implements BudgetService {
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
 
-			List<BudgetVO> vo = budgetRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
+			List<PreviousYearActualVO> vo = previousYearActualRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
 			if (vo != null) {
-				budgetRepo.deleteAll(vo);
+				previousYearActualRepo.deleteAll(vo);
 			}
 		}
 

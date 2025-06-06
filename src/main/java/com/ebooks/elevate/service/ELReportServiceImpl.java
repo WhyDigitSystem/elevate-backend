@@ -651,4 +651,52 @@ public class ELReportServiceImpl implements ELReportService {
 			return YTDTB;
 		}
 		
+		@Override
+		public List<Map<String, Object>> getELActualAutomaticReport(Long orgId,String finyear, String clientCode,String mainGroupName, String month,String yearType) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELactualDetails=budgetRepo.getELActualDetailsAutomatic(orgId, finyear, clientCode, mainGroupName, month, previousYear);
+			return ElActualAutomatic(ELactualDetails);
+		}
+		
+		
+		private List<Map<String, Object>> ElActualAutomatic(Set<Object[]> ELactualDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELactualDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("elGlCode", bud[0] != null ? bud[0].toString() : "");
+				b.put("elGl", bud[1] != null ? bud[1].toString() : "");
+				b.put("natureOfAccount", "");
+				b.put("budget", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+				b.put("actual", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+				b.put("py", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
+				b.put("budgetYTD", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+				b.put("ActualYTD", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+				b.put("pyYTD", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("fullBudget", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("estimate", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+				b.put("fullPy", bud[10] != null ? new BigDecimal(bud[10].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
 }
