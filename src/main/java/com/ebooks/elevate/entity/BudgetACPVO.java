@@ -98,6 +98,9 @@ public class BudgetACPVO {
 	    
 	    @Column(name = "slab5", precision = 15, scale = 2)
 	    private BigDecimal slab5;
+	    
+	    @Column(name = "slab6", precision = 15, scale = 2)
+	    private BigDecimal slab6;
 
 	   
 	    

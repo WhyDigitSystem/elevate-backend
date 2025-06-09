@@ -2,6 +2,7 @@ package com.ebooks.elevate.dto;
 
 import java.math.BigDecimal;
 
+import javax.persistence.Column;
 import javax.persistence.Embedded;
 
 import lombok.AllArgsConstructor;
@@ -31,6 +32,7 @@ public class BudgetACPDTO {
     private BigDecimal slab3;
     private BigDecimal slab4;
     private BigDecimal slab5;
+    private BigDecimal slab6;
     private String yearType;
     private String type;
    

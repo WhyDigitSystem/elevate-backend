@@ -679,6 +679,7 @@ public class BudgetServiceImpl implements BudgetService {
 			budgetVO.setSlab3(budgetDTO2.getSlab3());
 			budgetVO.setSlab4(budgetDTO2.getSlab4());
 			budgetVO.setSlab5(budgetDTO2.getSlab5());
+			budgetVO.setSlab6(budgetDTO2.getSlab6());
 			budgetVO.setType(budgetDTO2.getType());
 			budgetVO.setActive(true);
 
@@ -718,6 +719,7 @@ public class BudgetServiceImpl implements BudgetService {
 			mp.put("slab3", sub[8] != null ? new BigDecimal(sub[8].toString()) : BigDecimal.ZERO);
 			mp.put("slab4", sub[9] != null ? new BigDecimal(sub[9].toString()) : BigDecimal.ZERO);
 			mp.put("slab5", sub[10] != null ? new BigDecimal(sub[10].toString()) : BigDecimal.ZERO);
+			mp.put("slab6", sub[11] != null ? new BigDecimal(sub[11].toString()) : BigDecimal.ZERO);
 			subgroup.add(mp);
 		}
 		return subgroup;
@@ -892,6 +894,7 @@ public class BudgetServiceImpl implements BudgetService {
 			budgetVO.setSlab3(budgetDTO2.getSlab3());
 			budgetVO.setSlab4(budgetDTO2.getSlab4());
 			budgetVO.setSlab5(budgetDTO2.getSlab5());
+			budgetVO.setSlab6(budgetDTO2.getSlab6());
 			budgetVO.setType(budgetDTO2.getType());
 			budgetVO.setActive(true);
 
