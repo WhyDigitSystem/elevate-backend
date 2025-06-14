@@ -43,13 +43,13 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 			throws ApplicationException {
 		MonthlyProcessVO monthlyProcessVO = new MonthlyProcessVO();
 		String message;
-		MonthlyProcessVO monthly = monthlyProcessRepo.getOrgIdAndClientCodeAndYearAndMonthAndMainGroupAndSubGroupCode(
+		MonthlyProcessVO monthly = monthlyProcessRepo.getOrgIdAndClientCodeAndYearAndMonthAndMainGroupAndSubGroup(
 				monthlyProcessDTO.getOrgId(), monthlyProcessDTO.getClientCode(), monthlyProcessDTO.getYear(),
-				monthlyProcessDTO.getMonth(), monthlyProcessDTO.getMainGroup(), monthlyProcessDTO.getSubGroupCode());
+				monthlyProcessDTO.getMonth(), monthlyProcessDTO.getMainGroup(), monthlyProcessDTO.getSubGroup());
 		if (monthly != null) {
-			monthlyProcessVO = monthlyProcessRepo.findByOrgIdAndClientCodeAndYearAndMonthAndMainGroupAndSubGroupCode(
+			monthlyProcessVO = monthlyProcessRepo.findByOrgIdAndClientCodeAndYearAndMonthAndMainGroupAndSubGroup(
 					monthlyProcessDTO.getOrgId(), monthlyProcessDTO.getClientCode(), monthlyProcessDTO.getYear(),
-					monthlyProcessDTO.getMonth(), monthlyProcessDTO.getMainGroup(), monthlyProcessDTO.getSubGroupCode())
+					monthlyProcessDTO.getMonth(), monthlyProcessDTO.getMainGroup(), monthlyProcessDTO.getSubGroup())
 					.orElseThrow(() -> new ApplicationException("Monthly Process not found"));
 
 			monthlyProcessVO.setUpdatedBy(monthlyProcessDTO.getCreatedBy());

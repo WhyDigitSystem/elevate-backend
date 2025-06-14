@@ -643,9 +643,9 @@ public class ELReportServiceImpl implements ELReportService {
 				b.put("elGl", bud[4] != null ? bud[4].toString() : "");
 				b.put("natureOfAccount", bud[5] != null ? bud[5].toString() : "");
 				b.put("quater", bud[6] != null ? bud[6].toString() : "");
-				b.put("budget", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
-				b.put("actual", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
-				b.put("py", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+				b.put("budgetYTD", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+				b.put("ActualYTD", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+				b.put("pyYTD", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
 				YTDTB.add(b);
 			}
 			return YTDTB;
