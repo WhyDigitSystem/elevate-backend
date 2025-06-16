@@ -10,6 +10,7 @@ import com.ebooks.elevate.dto.BudgetDTO;
 import com.ebooks.elevate.dto.BudgetHeadCountDTO;
 import com.ebooks.elevate.dto.BudgetRatioAnalysisDTO;
 import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
+import com.ebooks.elevate.dto.IncrementalProfitDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
@@ -120,6 +121,12 @@ public interface BudgetService {
 
 
 	List<Map<String, Object>> getPYDetailsAutomatic(Long orgId, String year, String clientCode, String mainGroup);
+
+
+	Map<String, Object> createUpdateIncrementalProfitBudget(List<IncrementalProfitDTO> budgetDTO);
+
+
+	Map<String, Object> createUpdateIncrementalProfitPY(List<IncrementalProfitDTO> budgetDTO);
 	
 	
 

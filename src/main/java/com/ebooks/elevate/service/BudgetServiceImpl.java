@@ -18,11 +18,13 @@ import com.ebooks.elevate.dto.BudgetDTO;
 import com.ebooks.elevate.dto.BudgetHeadCountDTO;
 import com.ebooks.elevate.dto.BudgetRatioAnalysisDTO;
 import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
+import com.ebooks.elevate.dto.IncrementalProfitDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
 import com.ebooks.elevate.entity.BudgetACPVO;
 import com.ebooks.elevate.entity.BudgetHeadCountVO;
+import com.ebooks.elevate.entity.BudgetIncrementalProfitVO;
 import com.ebooks.elevate.entity.BudgetUnitWiseVO;
 import com.ebooks.elevate.entity.BudgetVO;
 import com.ebooks.elevate.entity.FinancialYearVO;
@@ -32,9 +34,11 @@ import com.ebooks.elevate.entity.PYHeadCountVO;
 import com.ebooks.elevate.entity.PreviousYearARAPVO;
 import com.ebooks.elevate.entity.PreviousYearActualOBVO;
 import com.ebooks.elevate.entity.PreviousYearActualVO;
+import com.ebooks.elevate.entity.PreviousYearIncrementalProfitVO;
 import com.ebooks.elevate.entity.PreviousYearUnitwiseVO;
 import com.ebooks.elevate.repo.BudgetACPRepo;
 import com.ebooks.elevate.repo.BudgetHeadCountRepo;
+import com.ebooks.elevate.repo.BudgetIncrementalProfitRepo;
 import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.BudgetUnitWiseRepo;
 import com.ebooks.elevate.repo.FinancialYearRepo;
@@ -44,6 +48,7 @@ import com.ebooks.elevate.repo.OrderBookingRepo;
 import com.ebooks.elevate.repo.PreviousYearARAPRepo;
 import com.ebooks.elevate.repo.PreviousYearActualOBRepo;
 import com.ebooks.elevate.repo.PreviousYearActualRepo;
+import com.ebooks.elevate.repo.PreviousYearIncrementalProfitRepo;
 import com.ebooks.elevate.repo.PreviousYearUnitwiseRepo;
 import com.ebooks.elevate.repo.PyHeadCountRepo;
 import com.ebooks.elevate.repo.SubGroupDetailsRepo;
@@ -96,6 +101,12 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Autowired
 	PreviousYearActualRepo previousYearActualRepo;
+	
+	@Autowired
+	BudgetIncrementalProfitRepo budgetIncrementalProfitRepo;
+	
+	@Autowired
+	PreviousYearIncrementalProfitRepo previousYearIncrementalProfitRepo;
 
 	@Override
 	public List<Map<String, Object>> getSubGroupDetails(Long orgId, String mainGroup) {
@@ -1200,4 +1211,85 @@ public class BudgetServiceImpl implements BudgetService {
 		return subgroup;
 	}
 
+	@Override
+	public Map<String, Object> createUpdateIncrementalProfitBudget(List<IncrementalProfitDTO> budgetDTO) {
+		BudgetIncrementalProfitVO budgetVO = new BudgetIncrementalProfitVO();
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
+		for (IncrementalProfitDTO budgetDTO2 : budgetDTO) {
+
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+
+			List<BudgetIncrementalProfitVO> vo = budgetIncrementalProfitRepo.getClientBudgetDls(org, clientcode, yr);
+			if (vo != null) {
+				budgetIncrementalProfitRepo.deleteAll(vo);
+			}
+		}
+
+		for (IncrementalProfitDTO budgetDTO2 : budgetDTO) {
+
+			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
+				budgetVO = new BudgetIncrementalProfitVO();
+				budgetVO.setOrgId(budgetDTO2.getOrgId());
+				budgetVO.setClient(budgetDTO2.getClient());
+				budgetVO.setClientCode(budgetDTO2.getClientCode());
+				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setParticulars(budgetDTO2.getParticulars());
+				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+				budgetVO.setAmount(budgetDTO2.getAmount());
+				budgetVO.setActive(true);
+				budgetIncrementalProfitRepo.save(budgetVO);
+			}
+		}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
+	}
+	
+	@Override
+	public Map<String, Object> createUpdateIncrementalProfitPY(List<IncrementalProfitDTO> budgetDTO) {
+		PreviousYearIncrementalProfitVO budgetVO = new PreviousYearIncrementalProfitVO();
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
+		for (IncrementalProfitDTO budgetDTO2 : budgetDTO) {
+
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+
+			List<PreviousYearIncrementalProfitVO> vo = previousYearIncrementalProfitRepo.getClientBudgetDls(org, clientcode, yr);
+			if (vo != null) {
+				previousYearIncrementalProfitRepo.deleteAll(vo);
+			}
+		}
+
+		for (IncrementalProfitDTO budgetDTO2 : budgetDTO) {
+
+			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
+				budgetVO = new PreviousYearIncrementalProfitVO();
+				budgetVO.setOrgId(budgetDTO2.getOrgId());
+				budgetVO.setClient(budgetDTO2.getClient());
+				budgetVO.setClientCode(budgetDTO2.getClientCode());
+				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setParticulars(budgetDTO2.getParticulars());
+				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+				budgetVO.setAmount(budgetDTO2.getAmount());
+				budgetVO.setActive(true);
+				previousYearIncrementalProfitRepo.save(budgetVO);
+			}
+		}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
+	}
 }

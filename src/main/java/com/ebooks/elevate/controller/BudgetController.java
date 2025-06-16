@@ -25,6 +25,7 @@ import com.ebooks.elevate.dto.BudgetHeadCountDTO;
 import com.ebooks.elevate.dto.BudgetRatioAnalysisDTO;
 import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;
+import com.ebooks.elevate.dto.IncrementalProfitDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
@@ -804,6 +805,46 @@ public class BudgetController extends BaseController {
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
 			responseDTO = createServiceResponseError(responseObjectsMap, "PY Automation information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdateBudgetIncrementalProfit")
+	public ResponseEntity<ResponseDTO> createUpdateBudgetIncrementalProfit(@RequestBody List<IncrementalProfitDTO> incrementalProfitDTO) {
+		String methodName = "createUpdateBudgetIncrementalProfit()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetIncrementalProfitDetails = budgetService.createUpdateIncrementalProfitBudget(incrementalProfitDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetIncrementalProfitDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdatePYIncrementalProfit")
+	public ResponseEntity<ResponseDTO> createUpdatePYIncrementalProfit(@RequestBody List<IncrementalProfitDTO> incrementalProfitDTO) {
+		String methodName = "createUpdatePYIncrementalProfit()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> PYIncrementalProfitDetails = budgetService.createUpdateIncrementalProfitPY(incrementalProfitDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, PYIncrementalProfitDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
