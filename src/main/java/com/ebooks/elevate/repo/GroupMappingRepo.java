@@ -284,4 +284,36 @@ public interface GroupMappingRepo extends JpaRepository<GroupMappingVO, Long> {
 	@Query(nativeQuery = true,value = "select accountname,accountcode,groupname,subgroupname from groupledgers where orgid=?1 and groupname=?2 and active=1 and subgroupname=?3\r\n"
 			+ "group by accountname,accountcode,groupname,subgroupname")
 	Set<Object[]> getLedgerDetailsForSubGroupPL(Long orgId, String mainGroupName, String subGroupName);
+	
+	
+	@Query(nativeQuery =  true, value = "with accounts as(  \r\n"
+			+ "    SELECT \r\n"
+			+ "        a.accountname,\r\n"
+			+ "        a.accountcode,\r\n"
+			+ "        CAST(a.displayseq AS UNSIGNED) AS displayseq\r\n"
+			+ "    FROM groupledgers a\r\n"
+			+ "    WHERE a.groupname = ?4\r\n"
+			+ "      AND a.orgid = ?1\r\n"
+			+ "      AND (a.subgroupname = ?5 OR ?5 = 'ALL') \r\n"
+			+ "      AND a.active = 1)\r\n"
+			+ "      select a.accountcode,a.accountname,amount,a.displayseq from Accounts a left join budgetincrementalprofit b ON a.accountname = b.accountname and b.orgid = ?1\r\n"
+			+ "    AND b.year = ?2\r\n"
+			+ "    AND b.clientcode = ?3 order by a.displayseq asc")
+	Set<Object[]> getBudgetIncrementalLedgersDetails(Long orgId,String year,String clientCode, String mainGroup,String subGroup);
+	
+	
+	@Query(nativeQuery =  true, value = "with accounts as(  \r\n"
+			+ "    SELECT \r\n"
+			+ "        a.accountname,\r\n"
+			+ "        a.accountcode,\r\n"
+			+ "        CAST(a.displayseq AS UNSIGNED) AS displayseq\r\n"
+			+ "    FROM groupledgers a\r\n"
+			+ "    WHERE a.groupname = ?4\r\n"
+			+ "      AND a.orgid = ?1\r\n"
+			+ "      AND (a.subgroupname = ?5 OR ?5 = 'ALL') \r\n"
+			+ "      AND a.active = 1)\r\n"
+			+ "      select a.accountcode,a.accountname,amount,a.displayseq from Accounts a left join pyincrementalprofit b ON a.accountname = b.accountname and b.orgid = ?1\r\n"
+			+ "    AND b.year = ?2\r\n"
+			+ "    AND b.clientcode = ?3 order by a.displayseq asc")
+	Set<Object[]> getPYIncrementalLedgersDetails(Long orgId,String year,String clientCode, String mainGroup,String subGroup);
 }

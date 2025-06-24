@@ -28,6 +28,7 @@ import com.ebooks.elevate.dto.GroupMappingDTO;
 import com.ebooks.elevate.dto.IncrementalProfitDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
+import com.ebooks.elevate.dto.PyAdvancePaymentReceiptDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.service.BudgetService;
@@ -840,6 +841,102 @@ public class BudgetController extends BaseController {
 		try {
 			Map<String, Object> PYIncrementalProfitDetails = budgetService.createUpdateIncrementalProfitPY(incrementalProfitDTO);
 			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, PYIncrementalProfitDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getBudgetIncrementalProfitLedgers")
+	public ResponseEntity<ResponseDTO> getBudgetIncrementalProfitLedgers(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String mainGroup,@RequestParam String subGroup) {
+		String methodName = "getBudgetIncrementalProfitLedgers()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> budgetIncrementalProfitLedgers = new ArrayList<>();
+		try {
+			budgetIncrementalProfitLedgers = budgetService.getBudgetIncrementalGroupLedgersDetails(orgId, year, clientCode, mainGroup,subGroup);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Budget Incremental Profit Ledgers information get successfully");
+			responseObjectsMap.put("budgetIncrementalProfitLedgers", budgetIncrementalProfitLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Budget Incremental Profit Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getPYIncrementalProfitLedgers")
+	public ResponseEntity<ResponseDTO> getPYIncrementalProfitLedgers(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String mainGroup,@RequestParam String subGroup) {
+		String methodName = "getPYIncrementalProfitLedgers()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> pyIncrementalProfitLedgers = new ArrayList<>();
+		try {
+			pyIncrementalProfitLedgers = budgetService.getPYIncrementalGroupLedgersDetails(orgId, year, clientCode, mainGroup,subGroup);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "PY Incremental Profit Ledgers information get successfully");
+			responseObjectsMap.put("pyIncrementalProfitLedgers", pyIncrementalProfitLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "PY Incremental Profit Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	
+	@GetMapping("/getAdvancePaymentReceiptDetails")
+	public ResponseEntity<ResponseDTO> getAdvancePaymentReceiptDetails(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String type) {
+		String methodName = "getAdvancePaymentReceiptDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> paymentReceiptDetails = new ArrayList<>();
+		try {
+			paymentReceiptDetails = budgetService.getAdvancePaymentReceiptDetails(orgId, year, clientCode, type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Payment Receipt Details get successfully");
+			responseObjectsMap.put("paymentReceiptDetails", paymentReceiptDetails);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Payment Receipt Details receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdateAdvancePaymentReceipt")
+	public ResponseEntity<ResponseDTO> createUpdateAdvancePaymentReceipt(@RequestBody List<PyAdvancePaymentReceiptDTO> pyAdvancePaymentReceiptDTO) {
+		String methodName = "createUpdateAdvancePaymentReceipt()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> paymentReceiptDetails = budgetService.createUpdateAdvancePaymentPY(pyAdvancePaymentReceiptDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, paymentReceiptDetails.get("message"));
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();

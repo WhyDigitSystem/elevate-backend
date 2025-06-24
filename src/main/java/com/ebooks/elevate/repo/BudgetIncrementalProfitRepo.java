@@ -9,7 +9,7 @@ import com.ebooks.elevate.entity.BudgetIncrementalProfitVO;
 
 public interface BudgetIncrementalProfitRepo extends JpaRepository<BudgetIncrementalProfitVO, Long> {
 
-	@Query(nativeQuery = true,value = "select * from budgetincrementalprofit where orgid=?1 and clientcode=?2 and year=?3 ")
-	List<BudgetIncrementalProfitVO> getClientBudgetDls(Long org, String clientcode, String yr);
+	@Query(nativeQuery = true,value = "select * from budgetincrementalprofit where orgid=?1 and clientcode=?2 and year=?3 and subgroup=?4")
+	List<BudgetIncrementalProfitVO> getClientBudgetDls(Long org, String clientcode, String yr,String subGroup);
 
 }

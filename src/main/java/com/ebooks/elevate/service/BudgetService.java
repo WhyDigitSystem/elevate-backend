@@ -13,8 +13,8 @@ import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
 import com.ebooks.elevate.dto.IncrementalProfitDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
+import com.ebooks.elevate.dto.PyAdvancePaymentReceiptDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
-import com.ebooks.elevate.entity.PYHeadCountVO;
 
 @Service
 public interface BudgetService {
@@ -127,7 +127,27 @@ public interface BudgetService {
 
 
 	Map<String, Object> createUpdateIncrementalProfitPY(List<IncrementalProfitDTO> budgetDTO);
+
+
+	List<Map<String, Object>> getBudgetIncrementalGroupLedgersDetails(Long orgId, String year, String clientCode,
+			String mainGroup,String subGroup);
+
+
+	List<Map<String, Object>> getPYIncrementalGroupLedgersDetails(Long orgId, String year, String clientCode,
+			String mainGroup,String subGroup);
 	
+	
+	// Advance Payment
+	
+	Map<String, Object> createUpdateAdvancePaymentPY(List<PyAdvancePaymentReceiptDTO> advancePaymentReceiptDTO);
+
+
+	List<Map<String, Object>> getAdvancePaymentReceiptDetails(Long orgId, String year, String clientCode, String type);
+	
+	
+	
+	
+	// Advance Receipt
 	
 
 }

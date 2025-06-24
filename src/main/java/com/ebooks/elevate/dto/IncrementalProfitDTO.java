@@ -18,7 +18,10 @@ public class IncrementalProfitDTO {
 	private String client;
 	private String clientCode;
 	private String createdBy;
-	private String particulars;
+	private String mainGroup;
+	private String subGroup;
+	private String accountName;
+	private String accountCode;
 	private BigDecimal amount;
 	
 	private String yearType;

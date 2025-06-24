@@ -9,7 +9,7 @@ import com.ebooks.elevate.entity.PreviousYearIncrementalProfitVO;
 
 public interface PreviousYearIncrementalProfitRepo extends JpaRepository<PreviousYearIncrementalProfitVO, Long> {
 
-	@Query(nativeQuery = true,value = "select * from pyincrementalprofit where orgid=?1 and clientcode=?2 and year=?3 ")
-	List<PreviousYearIncrementalProfitVO> getClientBudgetDls(Long org, String clientcode, String yr);
+	@Query(nativeQuery = true,value = "select * from pyincrementalprofit where orgid=?1 and clientcode=?2 and year=?3 and subgroup=?4 ")
+	List<PreviousYearIncrementalProfitVO> getClientBudgetDls(Long org, String clientcode, String yr,String subGroup);
 
 }

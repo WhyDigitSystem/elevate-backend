@@ -57,9 +57,13 @@ public class BudgetIncrementalProfitVO {
 	private boolean cancel = false;
 
 	private boolean active = true;
-
-
-	private String particulars;
+	
+	@Column(name = "subgroup", length = 150)
+	private String subGroup;
+	@Column(name = "accountname", length = 150)
+	private String accountName;
+	@Column(name = "accountcode", length = 150)
+	private String accountCode;
 
 	@Column(name = "amount", precision = 15, scale = 2)
 	private BigDecimal amount;
