@@ -1436,7 +1436,7 @@ public class BudgetServiceImpl implements BudgetService {
 		List<Map<String, Object>> subgroup = new ArrayList<>();
 		for (Object[] sub : paymentReceiptDetails) {
 			Map<String, Object> mp = new HashMap<>();
-			mp.put("party", sub[0] != null ? sub[0].toString() : "");
+			mp.put("party", sub[0] != null ? sub[0].toString() : null);
 			mp.put("month", sub[1] != null ? sub[1].toString() : "");
 			mp.put("amount", sub[2] != null ? new BigDecimal(sub[2].toString()) : BigDecimal.ZERO);
 			subgroup.add(mp);
