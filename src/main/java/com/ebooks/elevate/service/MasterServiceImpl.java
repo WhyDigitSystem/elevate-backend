@@ -807,7 +807,7 @@ public class MasterServiceImpl implements MasterService {
 			automationVO = automationRepo.findById(automationDTO.getId()).orElseThrow(
 					() -> new ApplicationException("Automation Mapping not found with id: " + automationDTO.getId()));
 			automationVO.setUpdatedBy(automationDTO.getCreatedBy());
-
+			automationVO = getAutomationVOFromAutomationDTO(automationVO, automationDTO);
 			message = "Automation Mapping Updation SuccessFully";
 		}
 
