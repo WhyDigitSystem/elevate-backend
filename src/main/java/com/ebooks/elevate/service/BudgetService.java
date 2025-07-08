@@ -11,10 +11,13 @@ import com.ebooks.elevate.dto.BudgetHeadCountDTO;
 import com.ebooks.elevate.dto.BudgetRatioAnalysisDTO;
 import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
 import com.ebooks.elevate.dto.IncrementalProfitDTO;
+import com.ebooks.elevate.dto.LoanOutstandingDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyAdvancePaymentReceiptDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
+import com.ebooks.elevate.entity.BudgetLoansOutStandingVO;
+import com.ebooks.elevate.entity.PyLoansOutStandingVO;
 
 @Service
 public interface BudgetService {
@@ -143,11 +146,15 @@ public interface BudgetService {
 
 
 	List<Map<String, Object>> getAdvancePaymentReceiptDetails(Long orgId, String year, String clientCode, String type);
+
+	List<BudgetLoansOutStandingVO> BudgetLoanOutStandingLedger(Long orgId, String year, String clientCode);
+
+	Map<String, Object> createUpdateBudgetLoanOutStanding(List<LoanOutstandingDTO> loanOutstandingDTO);
+
+	Map<String, Object> createUpdatePyLoanOutStanding(List<LoanOutstandingDTO> loanOutstandingDTO);
+
+	List<PyLoansOutStandingVO> PyLoanOutStandingLedger(Long orgId, String year, String clientCode);
 	
-	
-	
-	
-	// Advance Receipt
 	
 
 }

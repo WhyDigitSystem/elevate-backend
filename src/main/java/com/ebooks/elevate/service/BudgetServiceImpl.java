@@ -1,6 +1,7 @@
 package com.ebooks.elevate.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ebooks.elevate.dto.BudgetACPDTO;
 import com.ebooks.elevate.dto.BudgetDTO;
@@ -19,6 +21,7 @@ import com.ebooks.elevate.dto.BudgetHeadCountDTO;
 import com.ebooks.elevate.dto.BudgetRatioAnalysisDTO;
 import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
 import com.ebooks.elevate.dto.IncrementalProfitDTO;
+import com.ebooks.elevate.dto.LoanOutstandingDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyAdvancePaymentReceiptDTO;
@@ -26,6 +29,7 @@ import com.ebooks.elevate.dto.PyHeadCountDTO;
 import com.ebooks.elevate.entity.BudgetACPVO;
 import com.ebooks.elevate.entity.BudgetHeadCountVO;
 import com.ebooks.elevate.entity.BudgetIncrementalProfitVO;
+import com.ebooks.elevate.entity.BudgetLoansOutStandingVO;
 import com.ebooks.elevate.entity.BudgetUnitWiseVO;
 import com.ebooks.elevate.entity.BudgetVO;
 import com.ebooks.elevate.entity.FinancialYearVO;
@@ -38,9 +42,11 @@ import com.ebooks.elevate.entity.PreviousYearActualVO;
 import com.ebooks.elevate.entity.PreviousYearIncrementalProfitVO;
 import com.ebooks.elevate.entity.PreviousYearUnitwiseVO;
 import com.ebooks.elevate.entity.PyAdvancePaymentReceiptVO;
+import com.ebooks.elevate.entity.PyLoansOutStandingVO;
 import com.ebooks.elevate.repo.BudgetACPRepo;
 import com.ebooks.elevate.repo.BudgetHeadCountRepo;
 import com.ebooks.elevate.repo.BudgetIncrementalProfitRepo;
+import com.ebooks.elevate.repo.BudgetLoansOutStandingRepo;
 import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.BudgetUnitWiseRepo;
 import com.ebooks.elevate.repo.FinancialYearRepo;
@@ -54,6 +60,7 @@ import com.ebooks.elevate.repo.PreviousYearIncrementalProfitRepo;
 import com.ebooks.elevate.repo.PreviousYearUnitwiseRepo;
 import com.ebooks.elevate.repo.PyAdvancePaymentReceiptRepo;
 import com.ebooks.elevate.repo.PyHeadCountRepo;
+import com.ebooks.elevate.repo.PyLoansOutStandingRepo;
 import com.ebooks.elevate.repo.SubGroupDetailsRepo;
 
 @Service
@@ -115,6 +122,12 @@ public class BudgetServiceImpl implements BudgetService {
 	
 	@Autowired
 	PyAdvancePaymentReceiptRepo pyAdvancePaymentReceiptRepo;
+	
+	@Autowired
+	BudgetLoansOutStandingRepo budgetLoansOutStandingRepo;
+	
+	@Autowired
+	PyLoansOutStandingRepo pyLoansOutStandingRepo;
 
 	@Override
 	public List<Map<String, Object>> getSubGroupDetails(Long orgId, String mainGroup) {
@@ -1442,5 +1455,138 @@ public class BudgetServiceImpl implements BudgetService {
 			subgroup.add(mp);
 		}
 		return subgroup;
+	}
+
+	@Override
+	public List<BudgetLoansOutStandingVO> BudgetLoanOutStandingLedger(Long orgId, String year, String clientCode) {
+		
+		return budgetLoansOutStandingRepo.findByOrgIdAndYearAndClientCode(orgId,year,clientCode);
+	}
+
+	@Override
+	@Transactional
+	public Map<String, Object> createUpdateBudgetLoanOutStanding(List<LoanOutstandingDTO> loanOutstandingDTO) {
+		BudgetLoansOutStandingVO budgetVO = new BudgetLoansOutStandingVO();
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
+		for (LoanOutstandingDTO budgetDTO2 : loanOutstandingDTO) {
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+
+			
+			List<BudgetLoansOutStandingVO> vo = budgetLoansOutStandingRepo.getClientBudgetDls(org, clientcode, yr);
+			if (vo != null) {
+				budgetLoansOutStandingRepo.deleteAll(vo);
+			}
+		}
+
+		for (LoanOutstandingDTO budgetDTO2 : loanOutstandingDTO) {
+
+			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
+				budgetVO = new BudgetLoansOutStandingVO();
+				budgetVO.setOrgId(budgetDTO2.getOrgId());
+				budgetVO.setClient(budgetDTO2.getClient());
+				budgetVO.setClientCode(budgetDTO2.getClientCode());
+				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setAccountName(budgetDTO2.getAccountName());
+				budgetVO.setAccountCode(budgetDTO2.getAccountCode());
+				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+				budgetVO.setAmount(budgetDTO2.getAmount());
+				budgetVO.setBanckName(budgetDTO2.getBanckName());
+				budgetVO.setSanctionAmount(budgetDTO2.getSanctionAmount());
+				budgetVO.setOutstanding(budgetDTO2.getOutstanding());
+				budgetVO.setInterestRate(budgetDTO2.getInterestRate());
+				budgetVO.setTenure(budgetDTO2.getTenure());
+				budgetVO.setInterest(budgetDTO2.getInterest());
+				budgetVO.setPrincipal(budgetDTO2.getPrincipal());
+				budgetVO.setEmiTotal(budgetDTO2.getEmiTotal());
+				budgetVO.setTenureDate(budgetDTO2.getTenureDate());
+				budgetVO.setBalanceMonth(budgetDTO2.getBalanceMonth());
+				budgetVO.setActive(true);
+
+				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setQuater(String.valueOf(quater));
+
+				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
+
+				budgetLoansOutStandingRepo.save(budgetVO);
+			}
+		}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
+	}
+
+	@Override
+	@Transactional
+	public Map<String, Object> createUpdatePyLoanOutStanding(List<LoanOutstandingDTO> loanOutstandingDTO) {
+		
+		PyLoansOutStandingVO budgetVO = new PyLoansOutStandingVO();
+		Long org = null;
+		String clientcode = null;
+		String yr = null;
+		for (LoanOutstandingDTO budgetDTO2 : loanOutstandingDTO) {
+			org = budgetDTO2.getOrgId();
+			clientcode = budgetDTO2.getClientCode();
+			yr = budgetDTO2.getYear();
+
+			
+			List<PyLoansOutStandingVO> vo = pyLoansOutStandingRepo.getClientBudgetDls(org, clientcode, yr);
+			if (vo != null) {
+				pyLoansOutStandingRepo.deleteAll(vo);
+			}
+		}
+
+		for (LoanOutstandingDTO budgetDTO2 : loanOutstandingDTO) {
+
+			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
+				budgetVO = new PyLoansOutStandingVO();
+				budgetVO.setOrgId(budgetDTO2.getOrgId());
+				budgetVO.setClient(budgetDTO2.getClient());
+				budgetVO.setClientCode(budgetDTO2.getClientCode());
+				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
+				budgetVO.setAccountName(budgetDTO2.getAccountName());
+				budgetVO.setAccountCode(budgetDTO2.getAccountCode());
+				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
+				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
+				budgetVO.setAmount(budgetDTO2.getAmount());
+				budgetVO.setBanckName(budgetDTO2.getBanckName());
+				budgetVO.setSanctionAmount(budgetDTO2.getSanctionAmount());
+				budgetVO.setOutstanding(budgetDTO2.getOutstanding());
+				budgetVO.setInterestRate(budgetDTO2.getInterestRate());
+				budgetVO.setTenure(budgetDTO2.getTenure());
+				budgetVO.setInterest(budgetDTO2.getInterest());
+				budgetVO.setPrincipal(budgetDTO2.getPrincipal());
+				budgetVO.setEmiTotal(budgetDTO2.getEmiTotal());
+				budgetVO.setTenureDate(budgetDTO2.getTenureDate());
+				budgetVO.setBalanceMonth(budgetDTO2.getBalanceMonth());
+				budgetVO.setActive(true);
+
+				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setQuater(String.valueOf(quater));
+
+				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
+				budgetVO.setMonthsequence(monthseq);
+
+				pyLoansOutStandingRepo.save(budgetVO);
+			}
+		}
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Successfully Saved");
+		return response;
+	}
+
+	@Override
+	public List<PyLoansOutStandingVO> PyLoanOutStandingLedger(Long orgId, String year, String clientCode) {
+		// TODO Auto-generated method stub
+		return pyLoansOutStandingRepo.findByOrgIdAndYearAndClientCode(orgId,year,clientCode);
 	}
 }

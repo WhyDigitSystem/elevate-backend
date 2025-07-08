@@ -26,11 +26,14 @@ import com.ebooks.elevate.dto.BudgetRatioAnalysisDTO;
 import com.ebooks.elevate.dto.BudgetUnitWiseDTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;
 import com.ebooks.elevate.dto.IncrementalProfitDTO;
+import com.ebooks.elevate.dto.LoanOutstandingDTO;
 import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyAdvancePaymentReceiptDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
+import com.ebooks.elevate.entity.BudgetLoansOutStandingVO;
+import com.ebooks.elevate.entity.PyLoansOutStandingVO;
 import com.ebooks.elevate.service.BudgetService;
 
 @RestController
@@ -937,6 +940,96 @@ public class BudgetController extends BaseController {
 		try {
 			Map<String, Object> paymentReceiptDetails = budgetService.createUpdateAdvancePaymentPY(pyAdvancePaymentReceiptDTO);
 			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, paymentReceiptDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getBudgetLoanOutStandingLedgers")
+	public ResponseEntity<ResponseDTO> getBudgetLoanOutStandingLedgers(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode) {
+		String methodName = "getBudgetLoanOutStandingLedgers()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<BudgetLoansOutStandingVO> groupLedgers = new ArrayList<>();
+		try {
+			groupLedgers = budgetService.BudgetLoanOutStandingLedger(orgId, year, clientCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Group Ledgers information get successfully");
+			responseObjectsMap.put("groupLedgers", groupLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Group Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdateBudgetLoanOutStanding")
+	public ResponseEntity<ResponseDTO> createUpdateBudgetLoanOutStanding(@RequestBody List<LoanOutstandingDTO> loanOutstandingDTO) {
+		String methodName = "createUpdateBudget()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetDetails = budgetService.createUpdateBudgetLoanOutStanding(loanOutstandingDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getPyLoanOutStandingLedgers")
+	public ResponseEntity<ResponseDTO> getPyLoanOutStandingLedgers(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode) {
+		String methodName = "getPyLoanOutStandingLedgers()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<PyLoansOutStandingVO> groupLedgers = new ArrayList<>();
+		try {
+			groupLedgers = budgetService.PyLoanOutStandingLedger(orgId, year, clientCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Group Ledgers information get successfully");
+			responseObjectsMap.put("groupLedgers", groupLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Group Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdatePyLoanOutStanding")
+	public ResponseEntity<ResponseDTO> createUpdatePyLoanOutStanding(@RequestBody List<LoanOutstandingDTO> loanOutstandingDTO) {
+		String methodName = "createUpdateBudget()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetDetails = budgetService.createUpdatePyLoanOutStanding(loanOutstandingDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetDetails.get("message"));
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
