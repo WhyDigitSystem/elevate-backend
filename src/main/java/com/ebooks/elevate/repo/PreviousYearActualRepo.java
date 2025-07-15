@@ -134,6 +134,14 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 	List<PreviousYearActualVO> getClientBudgetDls(Long org, String clientcode, String yr, String maingroup,
 			String subgroup);
 
+	@Query(nativeQuery = true,value = "SELECT p.month, SUM(p.amount) FROM previousyearactual p \r\n"
+			+ "		       WHERE p.orgid = ?1 AND p.clientcode = ?2 AND p.year = ?3 \r\n"
+			+ "		       AND p.maingroup = 'Closing Stock' GROUP BY p.month")
+	List<Object[]> getMonthWiseSumAmountForClosingStock(Long orgId, String clientcode, String yr);
+
+	@Query(nativeQuery = true, value = "select * from previousyearactual where orgid=?1 and clientcode=?2 and year=?3 and maingroup=?4 and subgroup=?5")
+	List<PreviousYearActualVO> findStockDetails(Long org, String clientcode, String yr, String mGroup, String subGroup);
+
 	
 	
 

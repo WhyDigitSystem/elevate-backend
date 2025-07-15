@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.ebooks.elevate.entity.BudgetVO;
+import com.ebooks.elevate.entity.PreviousYearActualVO;
 
 public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 
@@ -454,6 +455,14 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "    m.month_order")
 	Set<Object[]> getProfitAndLossBudgetDetailsAuto(Long orgId, String year, String clientCode, String mainGroup,
 			String clientYear, String previousYear);
+
+	@Query(nativeQuery = true, value = "select * from budget where orgid=?1 and clientcode=?2 and year=?3 and maingroup=?4 and subgroup=?5")
+	List<BudgetVO> findStockDetails(Long org, String clientcode, String yr, String mGroup, String subGroup);
+
+	@Query(nativeQuery = true,value = "SELECT p.month, SUM(p.amount) FROM budget p \r\n"
+			+ "		       WHERE p.orgid = ?1 AND p.clientcode = ?2 AND p.year = ?3 \r\n"
+			+ "		       AND p.maingroup = 'Closing Stock' GROUP BY p.month")
+	List<Object[]> getMonthWiseSumAmountForClosingStock(Long org, String clientcode, String yr);
 	
 	
 

@@ -30,6 +30,8 @@ public interface ClientCompanyRepo extends JpaRepository<ClientCompanyVO, Long>{
 
 	ClientCompanyVO findByClientCode(String clientCode);
 
+	
+
 
 
 }

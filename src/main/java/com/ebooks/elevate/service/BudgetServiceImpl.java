@@ -65,7 +65,7 @@ import com.ebooks.elevate.repo.SubGroupDetailsRepo;
 
 @Service
 public class BudgetServiceImpl implements BudgetService {
-	
+
 	public static final Logger LOGGER = LoggerFactory.getLogger(BudgetServiceImpl.class);
 
 	@Autowired
@@ -112,20 +112,19 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Autowired
 	PreviousYearActualRepo previousYearActualRepo;
-	
+
 	@Autowired
 	BudgetIncrementalProfitRepo budgetIncrementalProfitRepo;
-	
+
 	@Autowired
 	PreviousYearIncrementalProfitRepo previousYearIncrementalProfitRepo;
-	
-	
+
 	@Autowired
 	PyAdvancePaymentReceiptRepo pyAdvancePaymentReceiptRepo;
-	
+
 	@Autowired
 	BudgetLoansOutStandingRepo budgetLoansOutStandingRepo;
-	
+
 	@Autowired
 	PyLoansOutStandingRepo pyLoansOutStandingRepo;
 
@@ -178,6 +177,9 @@ public class BudgetServiceImpl implements BudgetService {
 		Long org = null;
 		String clientcode = null;
 		String yr = null;
+		String createdBy = null;
+		String yearType = null;
+		String client = null;
 		for (BudgetDTO budgetDTO2 : budgetDTO) {
 			maingroup = budgetDTO2.getMainGroup();
 
@@ -193,6 +195,9 @@ public class BudgetServiceImpl implements BudgetService {
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
+			createdBy = budgetDTO2.getCreatedBy();
+			yearType=budgetDTO2.getYearType();
+			client=budgetDTO2.getClient();
 
 			List<BudgetVO> vo = budgetRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
 			if (vo != null) {
@@ -237,6 +242,52 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetVO.setMonthsequence(monthseq);
 
 				budgetRepo.save(budgetVO);
+				
+				// ➕ Add logic for Closing Stock → Balance Sheet Schedule:Stock
+				if ("Closing Stock".equalsIgnoreCase(maingroup)) {
+
+					String mGroup = "Balance Sheet Schedule";
+					String subGroup = "Stock";
+					List<BudgetVO> stockdetails = budgetRepo.findStockDetails(org, clientcode,
+							yr, mGroup, subGroup);
+
+					if (stockdetails != null) {
+						budgetRepo.deleteAll(stockdetails);
+					}
+
+					// Group by month and sum amount for Closing Stock
+					List<Object[]> closingStockSums = budgetRepo.getMonthWiseSumAmountForClosingStock(org,
+							clientcode, yr);
+
+					for (Object[] row : closingStockSums) {
+						String month = (String) row[0];
+						BigDecimal amount = (BigDecimal) row[1];
+
+						BudgetVO bsStockVO = new BudgetVO();
+						bsStockVO.setOrgId(org);
+						bsStockVO.setClientCode(clientcode);
+						bsStockVO.setClient(client); // or derive from DTO
+						bsStockVO.setYear(yr);
+						bsStockVO.setMonth(month);
+						bsStockVO.setAmount(amount);
+						bsStockVO.setMainGroup(mGroup);
+						bsStockVO.setSubGroup(subGroup);
+						bsStockVO.setActive(true);
+						bsStockVO.setCreatedBy(createdBy);
+						bsStockVO.setUpdatedBy(createdBy);
+						bsStockVO.setAccountName("Stock");
+						bsStockVO.setAccountCode("4000");
+						bsStockVO.setNatureOfAccount("Cr");
+
+						int quater1 = quaterMonthService.getQuaterMonthDetails(yearType, month);
+						bsStockVO.setQuater(String.valueOf(quater1));
+
+						int monthseq1 = quaterMonthService.getMonthNumber(yearType, month);
+						bsStockVO.setMonthsequence(monthseq1);
+
+						budgetRepo.save(bsStockVO);
+					}
+				}
 			}
 		}
 
@@ -246,6 +297,7 @@ public class BudgetServiceImpl implements BudgetService {
 	}
 
 	@Override
+	@Transactional
 	public Map<String, Object> createUpdatePreviousYear(List<PreviousYearDTO> budgetDTO) {
 		PreviousYearActualVO budgetVO = new PreviousYearActualVO();
 		String maingroup = null;
@@ -253,6 +305,10 @@ public class BudgetServiceImpl implements BudgetService {
 		Long org = null;
 		String clientcode = null;
 		String yr = null;
+		String createdBy = null;
+		String yearType = null;
+		String client = null;
+
 		for (PreviousYearDTO budgetDTO2 : budgetDTO) {
 			maingroup = budgetDTO2.getMainGroup();
 
@@ -268,8 +324,12 @@ public class BudgetServiceImpl implements BudgetService {
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
+			createdBy = budgetDTO2.getCreatedBy();
+			yearType=budgetDTO2.getYearType();
+			client=budgetDTO2.getClient();			
 
-			List<PreviousYearActualVO> vo = previousYearActualRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
+			List<PreviousYearActualVO> vo = previousYearActualRepo.getClientBudgetDls(org, clientcode, yr, maingroup,
+					subgroup);
 			if (vo != null) {
 				previousYearActualRepo.deleteAll(vo);
 			}
@@ -312,6 +372,52 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetVO.setMonthsequence(monthseq);
 
 				previousYearActualRepo.save(budgetVO);
+
+				// ➕ Add logic for Closing Stock → Balance Sheet Schedule:Stock
+				if ("Closing Stock".equalsIgnoreCase(maingroup)) {
+
+					String mGroup = "Balance Sheet Schedule";
+					String subGroup = "Stock";
+					List<PreviousYearActualVO> stockdetails = previousYearActualRepo.findStockDetails(org, clientcode,
+							yr, mGroup, subGroup);
+
+					if (stockdetails != null) {
+						previousYearActualRepo.deleteAll(stockdetails);
+					}
+
+					// Group by month and sum amount for Closing Stock
+					List<Object[]> closingStockSums = previousYearActualRepo.getMonthWiseSumAmountForClosingStock(org,
+							clientcode, yr);
+
+					for (Object[] row : closingStockSums) {
+						String month = (String) row[0];
+						BigDecimal amount = (BigDecimal) row[1];
+
+						PreviousYearActualVO bsStockVO = new PreviousYearActualVO();
+						bsStockVO.setOrgId(org);
+						bsStockVO.setClientCode(clientcode);
+						bsStockVO.setClient(client); // or derive from DTO
+						bsStockVO.setYear(yr);
+						bsStockVO.setMonth(month);
+						bsStockVO.setAmount(amount);
+						bsStockVO.setMainGroup(mGroup);
+						bsStockVO.setSubGroup(subGroup);
+						bsStockVO.setActive(true);
+						bsStockVO.setCreatedBy(createdBy);
+						bsStockVO.setUpdatedBy(createdBy);
+						bsStockVO.setAccountName("Stock");
+						bsStockVO.setAccountCode("4000");
+						bsStockVO.setNatureOfAccount("Cr");
+
+						int quater1 = quaterMonthService.getQuaterMonthDetails(yearType, month);
+						bsStockVO.setQuater(String.valueOf(quater1));
+
+						int monthseq1 = quaterMonthService.getMonthNumber(yearType, month);
+						bsStockVO.setMonthsequence(monthseq1);
+
+						previousYearActualRepo.save(bsStockVO);
+					}
+				}
 			}
 		}
 
@@ -1140,7 +1246,8 @@ public class BudgetServiceImpl implements BudgetService {
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
 
-			List<PreviousYearActualVO> vo = previousYearActualRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
+			List<PreviousYearActualVO> vo = previousYearActualRepo.getClientBudgetDls(org, clientcode, yr, maingroup,
+					subgroup);
 			if (vo != null) {
 				previousYearActualRepo.deleteAll(vo);
 			}
@@ -1238,9 +1345,9 @@ public class BudgetServiceImpl implements BudgetService {
 		Long org = null;
 		String clientcode = null;
 		String yr = null;
-		String subGroup= null;
+		String subGroup = null;
 		for (IncrementalProfitDTO budgetDTO2 : budgetDTO) {
-			
+
 			GroupLedgersVO groupLedgersVO = new GroupLedgersVO();
 
 			try {
@@ -1255,7 +1362,8 @@ public class BudgetServiceImpl implements BudgetService {
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
 
-			List<BudgetIncrementalProfitVO> vo = budgetIncrementalProfitRepo.getClientBudgetDls(org, clientcode, yr,subGroup);
+			List<BudgetIncrementalProfitVO> vo = budgetIncrementalProfitRepo.getClientBudgetDls(org, clientcode, yr,
+					subGroup);
 			if (vo != null) {
 				budgetIncrementalProfitRepo.deleteAll(vo);
 			}
@@ -1294,16 +1402,16 @@ public class BudgetServiceImpl implements BudgetService {
 		response.put("message", "Successfully Saved");
 		return response;
 	}
-	
+
 	@Override
 	public Map<String, Object> createUpdateIncrementalProfitPY(List<IncrementalProfitDTO> budgetDTO) {
 		PreviousYearIncrementalProfitVO budgetVO = new PreviousYearIncrementalProfitVO();
 		Long org = null;
 		String clientcode = null;
 		String yr = null;
-		String subGroup= null;
+		String subGroup = null;
 		for (IncrementalProfitDTO budgetDTO2 : budgetDTO) {
-			
+
 			GroupLedgersVO groupLedgersVO = new GroupLedgersVO();
 
 			try {
@@ -1318,7 +1426,8 @@ public class BudgetServiceImpl implements BudgetService {
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
 
-			List<PreviousYearIncrementalProfitVO> vo = previousYearIncrementalProfitRepo.getClientBudgetDls(org, clientcode, yr,subGroup);
+			List<PreviousYearIncrementalProfitVO> vo = previousYearIncrementalProfitRepo.getClientBudgetDls(org,
+					clientcode, yr, subGroup);
 			if (vo != null) {
 				previousYearIncrementalProfitRepo.deleteAll(vo);
 			}
@@ -1357,12 +1466,13 @@ public class BudgetServiceImpl implements BudgetService {
 		response.put("message", "Successfully Saved");
 		return response;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getBudgetIncrementalGroupLedgersDetails(Long orgId, String year, String clientCode,
-			String mainGroup,String subGroup) {
+			String mainGroup, String subGroup) {
 
-		Set<Object[]> particularDetails = groupMappingRepo.getBudgetIncrementalLedgersDetails(orgId, year, clientCode, mainGroup,subGroup);
+		Set<Object[]> particularDetails = groupMappingRepo.getBudgetIncrementalLedgersDetails(orgId, year, clientCode,
+				mainGroup, subGroup);
 		return getIncrementalProfitLedgerDetails(particularDetails);
 	}
 
@@ -1377,29 +1487,32 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getPYIncrementalGroupLedgersDetails(Long orgId, String year, String clientCode,
-			String mainGroup,String subGroup) {
+			String mainGroup, String subGroup) {
 
-		Set<Object[]> particularDetails = groupMappingRepo.getPYIncrementalLedgersDetails(orgId, year, clientCode, mainGroup,subGroup);
+		Set<Object[]> particularDetails = groupMappingRepo.getPYIncrementalLedgersDetails(orgId, year, clientCode,
+				mainGroup, subGroup);
 		return getIncrementalProfitLedgerDetails(particularDetails);
 	}
 
 	@Override
-	public Map<String, Object> createUpdateAdvancePaymentPY(List<PyAdvancePaymentReceiptDTO> pyAdvancePaymentReceiptDTO) {
+	public Map<String, Object> createUpdateAdvancePaymentPY(
+			List<PyAdvancePaymentReceiptDTO> pyAdvancePaymentReceiptDTO) {
 		PyAdvancePaymentReceiptVO budgetVO = new PyAdvancePaymentReceiptVO();
 		Long org = null;
 		String clientcode = null;
 		String yr = null;
-		String type= null;
+		String type = null;
 		for (PyAdvancePaymentReceiptDTO budgetDTO2 : pyAdvancePaymentReceiptDTO) {
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
-			type=budgetDTO2.getType();
-			
-			List<PyAdvancePaymentReceiptVO> vo = pyAdvancePaymentReceiptRepo.getClientBudgetDls(org, clientcode, yr, type);
+			type = budgetDTO2.getType();
+
+			List<PyAdvancePaymentReceiptVO> vo = pyAdvancePaymentReceiptRepo.getClientBudgetDls(org, clientcode, yr,
+					type);
 			if (vo != null) {
 				pyAdvancePaymentReceiptRepo.deleteAll(vo);
 			}
@@ -1415,7 +1528,8 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
 				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
 				budgetVO.setType(budgetDTO2.getType());
-				budgetVO.setParty(budgetDTO2.getParty());;
+				budgetVO.setParty(budgetDTO2.getParty());
+				;
 				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
 				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
 				budgetVO.setAmount(budgetDTO2.getAmount());
@@ -1426,7 +1540,7 @@ public class BudgetServiceImpl implements BudgetService {
 
 				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
 				budgetVO.setMonthsequence(monthseq);
-				
+
 				pyAdvancePaymentReceiptRepo.save(budgetVO);
 			}
 		}
@@ -1434,14 +1548,15 @@ public class BudgetServiceImpl implements BudgetService {
 		Map<String, Object> response = new HashMap<>();
 		response.put("message", "Successfully Saved");
 		return response;
-		
-	}
-	
-	
-	@Override
-	public List<Map<String, Object>> getAdvancePaymentReceiptDetails(Long orgId, String year, String clientCode,String type) {
 
-		Set<Object[]> paymentReceiptDetails = pyAdvancePaymentReceiptRepo.getPaymentReceiptDetails(orgId, year, clientCode, type);
+	}
+
+	@Override
+	public List<Map<String, Object>> getAdvancePaymentReceiptDetails(Long orgId, String year, String clientCode,
+			String type) {
+
+		Set<Object[]> paymentReceiptDetails = pyAdvancePaymentReceiptRepo.getPaymentReceiptDetails(orgId, year,
+				clientCode, type);
 		return getPRDetails(paymentReceiptDetails);
 	}
 
@@ -1459,8 +1574,8 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Override
 	public List<BudgetLoansOutStandingVO> BudgetLoanOutStandingLedger(Long orgId, String year, String clientCode) {
-		
-		return budgetLoansOutStandingRepo.findByOrgIdAndYearAndClientCode(orgId,year,clientCode);
+
+		return budgetLoansOutStandingRepo.findByOrgIdAndYearAndClientCode(orgId, year, clientCode);
 	}
 
 	@Override
@@ -1475,7 +1590,6 @@ public class BudgetServiceImpl implements BudgetService {
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
 
-			
 			List<BudgetLoansOutStandingVO> vo = budgetLoansOutStandingRepo.getClientBudgetDls(org, clientcode, yr);
 			if (vo != null) {
 				budgetLoansOutStandingRepo.deleteAll(vo);
@@ -1526,7 +1640,7 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	@Transactional
 	public Map<String, Object> createUpdatePyLoanOutStanding(List<LoanOutstandingDTO> loanOutstandingDTO) {
-		
+
 		PyLoansOutStandingVO budgetVO = new PyLoansOutStandingVO();
 		Long org = null;
 		String clientcode = null;
@@ -1536,7 +1650,6 @@ public class BudgetServiceImpl implements BudgetService {
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
 
-			
 			List<PyLoansOutStandingVO> vo = pyLoansOutStandingRepo.getClientBudgetDls(org, clientcode, yr);
 			if (vo != null) {
 				pyLoansOutStandingRepo.deleteAll(vo);
@@ -1587,6 +1700,6 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	public List<PyLoansOutStandingVO> PyLoanOutStandingLedger(Long orgId, String year, String clientCode) {
 		// TODO Auto-generated method stub
-		return pyLoansOutStandingRepo.findByOrgIdAndYearAndClientCode(orgId,year,clientCode);
+		return pyLoansOutStandingRepo.findByOrgIdAndYearAndClientCode(orgId, year, clientCode);
 	}
 }
