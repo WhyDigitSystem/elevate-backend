@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.ebooks.elevate.entity.BudgetVO;
 import com.ebooks.elevate.entity.PreviousYearActualVO;
 
 public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActualVO, Long>{
@@ -141,6 +142,28 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 
 	@Query(nativeQuery = true, value = "select * from previousyearactual where orgid=?1 and clientcode=?2 and year=?3 and maingroup=?4 and subgroup=?5")
 	List<PreviousYearActualVO> findStockDetails(Long org, String clientcode, String yr, String mGroup, String subGroup);
+
+	@Query(nativeQuery = true,value ="SELECT p.month, SUM(p.amount) FROM previousyearactual p " +
+		       "WHERE p.orgId = ?1 AND p.clientCode = ?2 AND p.year = ?3 " +
+		       "AND p.mainGroup = 'Closing Stock' AND p.accountCode IN (?4) "+
+		       "GROUP BY p.month")
+	List<Object[]> getDrawingPowerMonthWiseSum(Long org, String clientcode, String yr, List<String> accountCodeList);
+
+	@Query(nativeQuery = true,value ="SELECT p.month, SUM(p.amount) FROM previousyearactual p " +
+		       "WHERE p.orgId = ?1 AND p.clientCode = ?2 AND p.year = ?3 " +
+		       "AND p.mainGroup = 'Closing Stock' AND p.accountCode = '4009' " +
+		       "GROUP BY p.month")
+	List<Object[]> getMonthWiseSumForWIP(Long org, String clientcode, String yr);
+
+	@Query(nativeQuery = true,value ="SELECT p.month, SUM(p.amount) FROM previousyearactual p " +
+		       "WHERE p.orgId = ?1 AND p.clientCode = ?2 AND p.year = ?3 " +
+		       "AND p.mainGroup = 'Closing Stock' AND p.accountCode IN (?4) "+
+		       "GROUP BY p.month")
+	List<Object[]> getMonthWiseSumForFinishedGoods(Long org, String clientcode, String yr,
+			List<String> finishedGoodsCodes);
+	
+	@Query(nativeQuery = true, value = "select * from previousyearactual where orgid=?1 and clientcode=?2 and year=?3 and maingroup=?4 and subgroup=?5 and accountname=?6 ")
+	List<PreviousYearActualVO> findOldDetails(Long orgId, String clientCode, String year, String mg, String mg2, String raw);
 
 	
 	

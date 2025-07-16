@@ -1,8 +1,8 @@
 package com.ebooks.elevate.service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -168,263 +168,337 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
-
-	@Override
-	public Map<String, Object> createUpdateBudget(List<BudgetDTO> budgetDTO) {
-		BudgetVO budgetVO = new BudgetVO();
-		String maingroup = null;
-		String subgroup = null;
-		Long org = null;
-		String clientcode = null;
-		String yr = null;
-		String createdBy = null;
-		String yearType = null;
-		String client = null;
-		for (BudgetDTO budgetDTO2 : budgetDTO) {
-			maingroup = budgetDTO2.getMainGroup();
-
-			GroupLedgersVO groupLedgersVO = new GroupLedgersVO();
-
-			try {
-				groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(budgetDTO2.getOrgId(),
-						budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
-			} catch (Exception e) {
-				System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
-			}
-			subgroup = groupLedgersVO.getGroupName();
-			org = budgetDTO2.getOrgId();
-			clientcode = budgetDTO2.getClientCode();
-			yr = budgetDTO2.getYear();
-			createdBy = budgetDTO2.getCreatedBy();
-			yearType=budgetDTO2.getYearType();
-			client=budgetDTO2.getClient();
-
-			List<BudgetVO> vo = budgetRepo.getClientBudgetDls(org, clientcode, yr, maingroup, subgroup);
-			if (vo != null) {
-				budgetRepo.deleteAll(vo);
-			}
-		}
-
-		for (BudgetDTO budgetDTO2 : budgetDTO) {
-
-			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
-				budgetVO = new BudgetVO();
-				budgetVO.setOrgId(budgetDTO2.getOrgId());
-				budgetVO.setClient(budgetDTO2.getClient());
-				budgetVO.setClientCode(budgetDTO2.getClientCode());
-				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
-				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
-				budgetVO.setAccountName(budgetDTO2.getAccountName());
-				budgetVO.setAccountCode(budgetDTO2.getAccountCode());
-				budgetVO.setNatureOfAccount(budgetDTO2.getNatureOfAccount());
-				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
-				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
-				budgetVO.setAmount(budgetDTO2.getAmount());
-				budgetVO.setMainGroup(budgetDTO2.getMainGroup());
-
-				GroupLedgersVO gr = new GroupLedgersVO();
-
-				try {
-					gr = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(budgetDTO2.getOrgId(),
-							budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
-				} catch (Exception e) {
-					System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
-				}
-
-				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
-				budgetVO.setSubGroup(gr.getGroupName());
-				budgetVO.setActive(true);
-
-				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
-				budgetVO.setQuater(String.valueOf(quater));
-
-				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
-				budgetVO.setMonthsequence(monthseq);
-
-				budgetRepo.save(budgetVO);
-				
-				// ➕ Add logic for Closing Stock → Balance Sheet Schedule:Stock
-				if ("Closing Stock".equalsIgnoreCase(maingroup)) {
-
-					String mGroup = "Balance Sheet Schedule";
-					String subGroup = "Stock";
-					List<BudgetVO> stockdetails = budgetRepo.findStockDetails(org, clientcode,
-							yr, mGroup, subGroup);
-
-					if (stockdetails != null) {
-						budgetRepo.deleteAll(stockdetails);
-					}
-
-					// Group by month and sum amount for Closing Stock
-					List<Object[]> closingStockSums = budgetRepo.getMonthWiseSumAmountForClosingStock(org,
-							clientcode, yr);
-
-					for (Object[] row : closingStockSums) {
-						String month = (String) row[0];
-						BigDecimal amount = (BigDecimal) row[1];
-
-						BudgetVO bsStockVO = new BudgetVO();
-						bsStockVO.setOrgId(org);
-						bsStockVO.setClientCode(clientcode);
-						bsStockVO.setClient(client); // or derive from DTO
-						bsStockVO.setYear(yr);
-						bsStockVO.setMonth(month);
-						bsStockVO.setAmount(amount);
-						bsStockVO.setMainGroup(mGroup);
-						bsStockVO.setSubGroup(subGroup);
-						bsStockVO.setActive(true);
-						bsStockVO.setCreatedBy(createdBy);
-						bsStockVO.setUpdatedBy(createdBy);
-						bsStockVO.setAccountName("Stock");
-						bsStockVO.setAccountCode("4000");
-						bsStockVO.setNatureOfAccount("Cr");
-
-						int quater1 = quaterMonthService.getQuaterMonthDetails(yearType, month);
-						bsStockVO.setQuater(String.valueOf(quater1));
-
-						int monthseq1 = quaterMonthService.getMonthNumber(yearType, month);
-						bsStockVO.setMonthsequence(monthseq1);
-
-						budgetRepo.save(bsStockVO);
-					}
-				}
-			}
-		}
-
-		Map<String, Object> response = new HashMap<>();
-		response.put("message", "Successfully Saved");
-		return response;
-	}
-
+	
 	@Override
 	@Transactional
-	public Map<String, Object> createUpdatePreviousYear(List<PreviousYearDTO> budgetDTO) {
-		PreviousYearActualVO budgetVO = new PreviousYearActualVO();
-		String maingroup = null;
-		String subgroup = null;
-		Long org = null;
-		String clientcode = null;
-		String yr = null;
-		String createdBy = null;
-		String yearType = null;
-		String client = null;
+	public Map<String, Object> createUpdateBudget(List<BudgetDTO> budgetDTOList) {
+	    Map<String, Object> response = new HashMap<>();
+	    if (budgetDTOList == null || budgetDTOList.isEmpty()) {
+	        response.put("message", "No data to save");
+	        return response;
+	    }
 
-		for (PreviousYearDTO budgetDTO2 : budgetDTO) {
-			maingroup = budgetDTO2.getMainGroup();
+	    String createdBy = null;
+	    String year = null;
+	    Long orgId = null;
+	    String clientCode = null;
+	    String client = null;
+	    String yearType = null;
 
-			GroupLedgersVO groupLedgersVO = new GroupLedgersVO();
+	    // Delete existing records
+	    for (BudgetDTO dto : budgetDTOList) {
+	        try {
+	            GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
+	                    dto.getOrgId(), dto.getAccountName(), dto.getMainGroup());
 
-			try {
-				groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(budgetDTO2.getOrgId(),
-						budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
-			} catch (Exception e) {
-				System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
-			}
-			subgroup = groupLedgersVO.getGroupName();
-			org = budgetDTO2.getOrgId();
-			clientcode = budgetDTO2.getClientCode();
-			yr = budgetDTO2.getYear();
-			createdBy = budgetDTO2.getCreatedBy();
-			yearType=budgetDTO2.getYearType();
-			client=budgetDTO2.getClient();			
+	            List<BudgetVO> existing = budgetRepo.getClientBudgetDls(
+	                    dto.getOrgId(), dto.getClientCode(), dto.getYear(), dto.getMainGroup(), groupVO.getGroupName());
 
-			List<PreviousYearActualVO> vo = previousYearActualRepo.getClientBudgetDls(org, clientcode, yr, maingroup,
-					subgroup);
-			if (vo != null) {
-				previousYearActualRepo.deleteAll(vo);
-			}
-		}
+	            if (existing != null && !existing.isEmpty()) {
+	            	budgetRepo.deleteAll(existing);
+	            }
 
-		for (PreviousYearDTO budgetDTO2 : budgetDTO) {
+	        } catch (Exception e) {
+	            System.out.println("Error fetching group: " + dto.getAccountName() + " | " + dto.getMainGroup());
+	        }
 
-			if (!budgetDTO2.getAmount().equals(BigDecimal.ZERO)) {
-				budgetVO = new PreviousYearActualVO();
-				budgetVO.setOrgId(budgetDTO2.getOrgId());
-				budgetVO.setClient(budgetDTO2.getClient());
-				budgetVO.setClientCode(budgetDTO2.getClientCode());
-				budgetVO.setCreatedBy(budgetDTO2.getCreatedBy());
-				budgetVO.setUpdatedBy(budgetDTO2.getCreatedBy());
-				budgetVO.setAccountName(budgetDTO2.getAccountName());
-				budgetVO.setAccountCode(budgetDTO2.getAccountCode());
-				budgetVO.setNatureOfAccount(budgetDTO2.getNatureOfAccount());
-				budgetVO.setYear(budgetDTO2.getYear()); // Extract year
-				budgetVO.setMonth(budgetDTO2.getMonth()); // Extract month (first three letters)
-				budgetVO.setAmount(budgetDTO2.getAmount());
-				budgetVO.setMainGroup(budgetDTO2.getMainGroup());
+	        createdBy = dto.getCreatedBy();
+	        year = dto.getYear();
+	        orgId = dto.getOrgId();
+	        clientCode = dto.getClientCode();
+	        client = dto.getClient();
+	        yearType = dto.getYearType();
+	    }
 
-				GroupLedgersVO gr = new GroupLedgersVO();
+	    for (BudgetDTO dto : budgetDTOList) {
+	        if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0) continue;
 
-				try {
-					gr = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(budgetDTO2.getOrgId(),
-							budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
-				} catch (Exception e) {
-					System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
-				}
+	        BudgetVO vo = new BudgetVO();
+	        vo.setOrgId(dto.getOrgId());
+	        vo.setClient(dto.getClient());
+	        vo.setClientCode(dto.getClientCode());
+	        vo.setCreatedBy(dto.getCreatedBy());
+	        vo.setUpdatedBy(dto.getCreatedBy());
+	        vo.setAccountName(dto.getAccountName());
+	        vo.setAccountCode(dto.getAccountCode());
+	        vo.setNatureOfAccount(dto.getNatureOfAccount());
+	        vo.setYear(dto.getYear());
+	        vo.setMonth(dto.getMonth());
+	        vo.setAmount(dto.getAmount());
+	        vo.setMainGroup(dto.getMainGroup());
 
-				budgetVO.setSubGroupCode(budgetDTO2.getSubGroupCode());
-				budgetVO.setSubGroup(gr.getGroupName());
-				budgetVO.setActive(true);
+	        try {
+	            GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
+	                    dto.getOrgId(), dto.getAccountName(), dto.getMainGroup());
+	            vo.setSubGroup(groupVO.getGroupName());
+	        } catch (Exception e) {
+	            System.out.println("Group fetch failed: " + dto.getAccountName() + " | " + dto.getMainGroup());
+	        }
 
-				int quater = quaterMonthService.getQuaterMonthDetails(budgetDTO2.getYearType(), budgetDTO2.getMonth());
-				budgetVO.setQuater(String.valueOf(quater));
+	        vo.setSubGroupCode(dto.getSubGroupCode());
+	        vo.setActive(true);
 
-				int monthseq = quaterMonthService.getMonthNumber(budgetDTO2.getYearType(), budgetDTO2.getMonth());
-				budgetVO.setMonthsequence(monthseq);
+	        int quarter = quaterMonthService.getQuaterMonthDetails(dto.getYearType(), dto.getMonth());
+	        int monthSeq = quaterMonthService.getMonthNumber(dto.getYearType(), dto.getMonth());
 
-				previousYearActualRepo.save(budgetVO);
+	        vo.setQuater(String.valueOf(quarter));
+	        vo.setMonthsequence(monthSeq);
 
-				// ➕ Add logic for Closing Stock → Balance Sheet Schedule:Stock
-				if ("Closing Stock".equalsIgnoreCase(maingroup)) {
+	        budgetRepo.save(vo);
+	    }
 
-					String mGroup = "Balance Sheet Schedule";
-					String subGroup = "Stock";
-					List<PreviousYearActualVO> stockdetails = previousYearActualRepo.findStockDetails(org, clientcode,
-							yr, mGroup, subGroup);
+	    // 🔁 Handle "Closing Stock" logic once
+	    boolean containsClosingStock = budgetDTOList.stream()
+	            .anyMatch(dto -> "Closing Stock".equalsIgnoreCase(dto.getMainGroup()));
 
-					if (stockdetails != null) {
-						previousYearActualRepo.deleteAll(stockdetails);
-					}
+	    if (containsClosingStock) {
+	        String mGroup = "Balance Sheet Schedule";
+	        String subGroup = "Stock";
 
-					// Group by month and sum amount for Closing Stock
-					List<Object[]> closingStockSums = previousYearActualRepo.getMonthWiseSumAmountForClosingStock(org,
-							clientcode, yr);
+	        // 🔁 Delete old Balance Sheet entries
+	        List<BudgetVO> bsList = budgetRepo.findStockDetails(orgId, clientCode, year, mGroup, subGroup);
+	        if (bsList != null && !bsList.isEmpty()) budgetRepo.deleteAll(bsList);
 
-					for (Object[] row : closingStockSums) {
-						String month = (String) row[0];
-						BigDecimal amount = (BigDecimal) row[1];
+	        // 🔁 Closing Stock Monthly Summary
+	        List<Object[]> closingStockSums = budgetRepo.getMonthWiseSumAmountForClosingStock(orgId, clientCode, year);
+	        for (Object[] row : closingStockSums) {
+	        	saveStockEntryBudget(orgId, clientCode, client, year, yearType, createdBy, (String) row[0], (BigDecimal) row[1],
+	                    mGroup, subGroup, "Stock", "4000", "Cr");
+	        }
 
-						PreviousYearActualVO bsStockVO = new PreviousYearActualVO();
-						bsStockVO.setOrgId(org);
-						bsStockVO.setClientCode(clientcode);
-						bsStockVO.setClient(client); // or derive from DTO
-						bsStockVO.setYear(yr);
-						bsStockVO.setMonth(month);
-						bsStockVO.setAmount(amount);
-						bsStockVO.setMainGroup(mGroup);
-						bsStockVO.setSubGroup(subGroup);
-						bsStockVO.setActive(true);
-						bsStockVO.setCreatedBy(createdBy);
-						bsStockVO.setUpdatedBy(createdBy);
-						bsStockVO.setAccountName("Stock");
-						bsStockVO.setAccountCode("4000");
-						bsStockVO.setNatureOfAccount("Cr");
+	        
+	        String mg="Drawing Power";
+	        String raw="Raw Material";
+	        List<BudgetVO> rawMaterial = budgetRepo.findOldDetails(orgId, clientCode, year, mg, mg,raw);
+	        if (rawMaterial != null && !rawMaterial.isEmpty()) budgetRepo.deleteAll(rawMaterial);
+	        // 🔁 Drawing Power (Raw Material)
+	        List<String> dpCodes = Arrays.asList("4001", "4002", "4003", "4004", "4005", "4006", "4007", "4008", "4012", "4013");
+	        List<Object[]> dpSums = budgetRepo.getDrawingPowerMonthWiseSum(orgId, clientCode, year, dpCodes);
+	        for (Object[] row : dpSums) {
+	        	saveStockEntryBudget(orgId, clientCode, client, year, yearType, createdBy, (String) row[0], (BigDecimal) row[1],
+	                    "Drawing Power", "Drawing Power", "Raw Material", null, null);
+	        }
 
-						int quater1 = quaterMonthService.getQuaterMonthDetails(yearType, month);
-						bsStockVO.setQuater(String.valueOf(quater1));
+	        String wip="WIP";
+	        List<BudgetVO> wipdetails = budgetRepo.findOldDetails(orgId, clientCode, year, mg, mg,wip);
+	        if (wipdetails != null && !wipdetails.isEmpty()) budgetRepo.deleteAll(wipdetails);
+	        // 🔁 WIP
+	        List<Object[]> wipSums = budgetRepo.getMonthWiseSumForWIP(orgId, clientCode, year);
+	        for (Object[] row : wipSums) {
+	        	saveStockEntryBudget(orgId, clientCode, client, year, yearType, createdBy, (String) row[0], (BigDecimal) row[1],
+	                    "Drawing Power", "Drawing Power", "WIP", null, "Db");
+	        }
 
-						int monthseq1 = quaterMonthService.getMonthNumber(yearType, month);
-						bsStockVO.setMonthsequence(monthseq1);
+	        String finishedGoods="Finished Goods";
+	        List<BudgetVO> finishedGoodsdetails = budgetRepo.findOldDetails(orgId, clientCode, year, mg, mg,finishedGoods);
+	        if (finishedGoodsdetails != null && !finishedGoodsdetails.isEmpty()) budgetRepo.deleteAll(finishedGoodsdetails);
+	        // 🔁 Finished Goods
+	        List<Object[]> fgSums = budgetRepo.getMonthWiseSumForFinishedGoods(orgId, clientCode, year,
+	                Arrays.asList("4010", "4011"));
+	        for (Object[] row : fgSums) {
+	        	saveStockEntryBudget(orgId, clientCode, client, year, yearType, createdBy, (String) row[0], (BigDecimal) row[1],
+	                    "Drawing Power", "Drawing Power", "Finished Goods", null, "Db");
+	        }
+	    }
 
-						previousYearActualRepo.save(bsStockVO);
-					}
-				}
-			}
-		}
-
-		Map<String, Object> response = new HashMap<>();
-		response.put("message", "Successfully Saved");
-		return response;
+	    response.put("message", "Successfully Saved");
+	    return response;
 	}
+
+	private void saveStockEntryBudget(Long orgId, String clientCode, String client, String year, String yearType,
+	                            String createdBy, String month, BigDecimal amount, String mainGroup, String subGroup,
+	                            String accountName, String accountCode, String natureOfAccount) {
+	    BudgetVO vo = new BudgetVO();
+	    vo.setOrgId(orgId);
+	    vo.setClientCode(clientCode);
+	    vo.setClient(client);
+	    vo.setYear(year);
+	    vo.setMonth(month);
+	    vo.setAmount(amount);
+	    vo.setMainGroup(mainGroup);
+	    vo.setSubGroup(subGroup);
+	    vo.setActive(true);
+	    vo.setCreatedBy(createdBy);
+	    vo.setUpdatedBy(createdBy);
+	    vo.setAccountName(accountName);
+	    vo.setAccountCode(accountCode);
+	    vo.setNatureOfAccount(natureOfAccount);
+
+	    int quarter = quaterMonthService.getQuaterMonthDetails(yearType, month);
+	    int monthSeq = quaterMonthService.getMonthNumber(yearType, month);
+	    vo.setQuater(String.valueOf(quarter));
+	    vo.setMonthsequence(monthSeq);
+
+	    budgetRepo.save(vo);
+	}
+
+
+
+
+	
+	@Override
+	@Transactional
+	public Map<String, Object> createUpdatePreviousYear(List<PreviousYearDTO> budgetDTOList) {
+	    Map<String, Object> response = new HashMap<>();
+	    if (budgetDTOList == null || budgetDTOList.isEmpty()) {
+	        response.put("message", "No data to save");
+	        return response;
+	    }
+
+	    String createdBy = null;
+	    String year = null;
+	    Long orgId = null;
+	    String clientCode = null;
+	    String client = null;
+	    String yearType = null;
+
+	    // Delete existing records
+	    for (PreviousYearDTO dto : budgetDTOList) {
+	        try {
+	            GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
+	                    dto.getOrgId(), dto.getAccountName(), dto.getMainGroup());
+
+	            List<PreviousYearActualVO> existing = previousYearActualRepo.getClientBudgetDls(
+	                    dto.getOrgId(), dto.getClientCode(), dto.getYear(), dto.getMainGroup(), groupVO.getGroupName());
+
+	            if (existing != null && !existing.isEmpty()) {
+	                previousYearActualRepo.deleteAll(existing);
+	            }
+
+	        } catch (Exception e) {
+	            System.out.println("Error fetching group: " + dto.getAccountName() + " | " + dto.getMainGroup());
+	        }
+
+	        createdBy = dto.getCreatedBy();
+	        year = dto.getYear();
+	        orgId = dto.getOrgId();
+	        clientCode = dto.getClientCode();
+	        client = dto.getClient();
+	        yearType = dto.getYearType();
+	    }
+
+	    for (PreviousYearDTO dto : budgetDTOList) {
+	        if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0) continue;
+
+	        PreviousYearActualVO vo = new PreviousYearActualVO();
+	        vo.setOrgId(dto.getOrgId());
+	        vo.setClient(dto.getClient());
+	        vo.setClientCode(dto.getClientCode());
+	        vo.setCreatedBy(dto.getCreatedBy());
+	        vo.setUpdatedBy(dto.getCreatedBy());
+	        vo.setAccountName(dto.getAccountName());
+	        vo.setAccountCode(dto.getAccountCode());
+	        vo.setNatureOfAccount(dto.getNatureOfAccount());
+	        vo.setYear(dto.getYear());
+	        vo.setMonth(dto.getMonth());
+	        vo.setAmount(dto.getAmount());
+	        vo.setMainGroup(dto.getMainGroup());
+
+	        try {
+	            GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(
+	                    dto.getOrgId(), dto.getAccountName(), dto.getMainGroup());
+	            vo.setSubGroup(groupVO.getGroupName());
+	        } catch (Exception e) {
+	            System.out.println("Group fetch failed: " + dto.getAccountName() + " | " + dto.getMainGroup());
+	        }
+
+	        vo.setSubGroupCode(dto.getSubGroupCode());
+	        vo.setActive(true);
+
+	        int quarter = quaterMonthService.getQuaterMonthDetails(dto.getYearType(), dto.getMonth());
+	        int monthSeq = quaterMonthService.getMonthNumber(dto.getYearType(), dto.getMonth());
+
+	        vo.setQuater(String.valueOf(quarter));
+	        vo.setMonthsequence(monthSeq);
+
+	        previousYearActualRepo.save(vo);
+	    }
+
+	    // 🔁 Handle "Closing Stock" logic once
+	    boolean containsClosingStock = budgetDTOList.stream()
+	            .anyMatch(dto -> "Closing Stock".equalsIgnoreCase(dto.getMainGroup()));
+
+	    if (containsClosingStock) {
+	        String mGroup = "Balance Sheet Schedule";
+	        String subGroup = "Stock";
+
+	        // 🔁 Delete old Balance Sheet entries
+	        List<PreviousYearActualVO> bsList = previousYearActualRepo.findStockDetails(orgId, clientCode, year, mGroup, subGroup);
+	        if (bsList != null && !bsList.isEmpty()) previousYearActualRepo.deleteAll(bsList);
+
+	        // 🔁 Closing Stock Monthly Summary
+	        List<Object[]> closingStockSums = previousYearActualRepo.getMonthWiseSumAmountForClosingStock(orgId, clientCode, year);
+	        for (Object[] row : closingStockSums) {
+	            saveStockEntry(orgId, clientCode, client, year, yearType, createdBy, (String) row[0], (BigDecimal) row[1],
+	                    mGroup, subGroup, "Stock", "4000", "Cr");
+	        }
+
+	        String mg="Drawing Power";
+	        String raw="Raw Material";
+	        List<PreviousYearActualVO> rawMaterial = previousYearActualRepo.findOldDetails(orgId, clientCode, year, mg, mg,raw);
+	        if (rawMaterial != null && !rawMaterial.isEmpty()) previousYearActualRepo.deleteAll(rawMaterial);
+	        // 🔁 Drawing Power (Raw Material)
+	        List<String> dpCodes = Arrays.asList("4001", "4002", "4003", "4004", "4005", "4006", "4007", "4008", "4012", "4013");
+	        List<Object[]> dpSums = previousYearActualRepo.getDrawingPowerMonthWiseSum(orgId, clientCode, year, dpCodes);
+	        for (Object[] row : dpSums) {
+	            saveStockEntry(orgId, clientCode, client, year, yearType, createdBy, (String) row[0], (BigDecimal) row[1],
+	                    "Drawing Power", "Drawing Power", "Raw Material", null, null);
+	        }
+
+	        String wip="WIP";
+	        List<PreviousYearActualVO> wipdetails = previousYearActualRepo.findOldDetails(orgId, clientCode, year, mg, mg,wip);
+	        if (wipdetails != null && !wipdetails.isEmpty()) previousYearActualRepo.deleteAll(wipdetails);
+	        // 🔁 WIP
+	        List<Object[]> wipSums = previousYearActualRepo.getMonthWiseSumForWIP(orgId, clientCode, year);
+	        for (Object[] row : wipSums) {
+	            saveStockEntry(orgId, clientCode, client, year, yearType, createdBy, (String) row[0], (BigDecimal) row[1],
+	                    "Drawing Power", "Drawing Power", "WIP", null, "Db");
+	        }
+
+	        String finishedGoods="Finished Goods";
+	        List<PreviousYearActualVO> finishedGoodsdetails = previousYearActualRepo.findOldDetails(orgId, clientCode, year, mg, mg,finishedGoods);
+	        if (finishedGoodsdetails != null && !finishedGoodsdetails.isEmpty()) previousYearActualRepo.deleteAll(finishedGoodsdetails);
+	        // 🔁 Finished Goods
+	        List<Object[]> fgSums = previousYearActualRepo.getMonthWiseSumForFinishedGoods(orgId, clientCode, year,
+	                Arrays.asList("4010", "4011"));
+	        for (Object[] row : fgSums) {
+	            saveStockEntry(orgId, clientCode, client, year, yearType, createdBy, (String) row[0], (BigDecimal) row[1],
+	                    "Drawing Power", "Drawing Power", "Finished Goods", null, "Db");
+	        }
+	    }
+
+	    response.put("message", "Successfully Saved");
+	    return response;
+	}
+
+	private void saveStockEntry(Long orgId, String clientCode, String client, String year, String yearType,
+	                            String createdBy, String month, BigDecimal amount, String mainGroup, String subGroup,
+	                            String accountName, String accountCode, String natureOfAccount) {
+	    PreviousYearActualVO vo = new PreviousYearActualVO();
+	    vo.setOrgId(orgId);
+	    vo.setClientCode(clientCode);
+	    vo.setClient(client);
+	    vo.setYear(year);
+	    vo.setMonth(month);
+	    vo.setAmount(amount);
+	    vo.setMainGroup(mainGroup);
+	    vo.setSubGroup(subGroup);
+	    vo.setActive(true);
+	    vo.setCreatedBy(createdBy);
+	    vo.setUpdatedBy(createdBy);
+	    vo.setAccountName(accountName);
+	    vo.setAccountCode(accountCode);
+	    vo.setNatureOfAccount(natureOfAccount);
+
+	    int quarter = quaterMonthService.getQuaterMonthDetails(yearType, month);
+	    int monthSeq = quaterMonthService.getMonthNumber(yearType, month);
+	    vo.setQuater(String.valueOf(quarter));
+	    vo.setMonthsequence(monthSeq);
+
+	    previousYearActualRepo.save(vo);
+	}
+
+
 
 	@Override
 	public List<Map<String, Object>> getPreviousYearGroupLedgersDetails(Long orgId, String year, String clientCode,
