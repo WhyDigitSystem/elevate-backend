@@ -487,7 +487,99 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			List<String> finishedGoodsCodes);
 
 	
+	@Query(nativeQuery = true, value = "SELECT\r\n"
+			+ "    a.accountcode,\r\n"
+			+ "    a.accountname,\r\n"
+			+ "    ROUND(SUM(a.budgetYTD), 2) AS budgetYTD,\r\n"
+			+ "    ROUND(SUM(a.ActYTD), 2) AS ActYTD\r\n"
+			+ "FROM (\r\n"
+			+ "    SELECT accountcode, accountname, SUM(amount) AS budgetYTD, 0 AS ActYTD\r\n"
+			+ "    FROM budgetincrementalprofit\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3\r\n"
+			+ "    GROUP BY accountcode, accountname\r\n"
+			+ "\r\n"
+			+ "    UNION ALL\r\n"
+			+ "\r\n"
+			+ "    SELECT accountcode, accountname, 0 AS budgetYTD, SUM(amount) AS ActYTD\r\n"
+			+ "    FROM pyincrementalprofit\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3\r\n"
+			+ "    GROUP BY accountcode, accountname\r\n"
+			+ ") a\r\n"
+			+ "GROUP BY\r\n"
+			+ "    a.accountcode,\r\n"
+			+ "    a.accountname")
+	Set<Object[]>getELActualIncrementalProfitReport(Long orgId, String clientCode,String year);
 	
+	@Query(nativeQuery = true, value = "SELECT\r\n"
+			+ "a.department,a.category,\r\n"
+			+ "    ROUND(SUM(a.budgetYTD), 2) AS budgetYTD,\r\n"
+			+ "    ROUND(SUM(a.ActYTD), 2) AS ActYTD,\r\n"
+			+ "    ROUND(SUM(a.PyYTD), 2) AS PyYTD\r\n"
+			+ "FROM (\r\n"
+			+ "    SELECT  department,category, SUM(ctc) budgetYTD, 0 ActYTD, 0 PyYTD\r\n"
+			+ "    FROM budgetheadcount\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3\r\n"
+			+ "          AND monthsequence <= (SELECT monthsequence FROM budgetheadcount WHERE year = ?3 AND month = ?5 GROUP BY monthsequence)\r\n"
+			+ "    GROUP BY department,category\r\n"
+			+ "\r\n"
+			+ "    UNION\r\n"
+			+ "\r\n"
+			+ "    SELECT department,category, 0 budgetYTD, SUM(ctc) ActYTD, 0 PyYTD\r\n"
+			+ "    FROM pyheadcount\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3\r\n"
+			+ "          AND monthsequence <= (SELECT monthsequence FROM pyheadcount WHERE  year = ?3 AND month = ?5 GROUP BY monthsequence)\r\n"
+			+ "    GROUP BY department,category\r\n"
+			+ "\r\n"
+			+ "    UNION\r\n"
+			+ "\r\n"
+			+ "    SELECT department,category,  0 budgetYTD, 0 ActYTD, SUM(ctc) PyYTD\r\n"
+			+ "    FROM pyheadcount\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?4\r\n"
+			+ "          AND monthsequence <= (SELECT monthsequence FROM pyheadcount WHERE  year = ?4 AND month = ?5 GROUP BY monthsequence)\r\n"
+			+ "    GROUP BY department,category\r\n"
+			+ ") a\r\n"
+			+ "GROUP BY\r\n"
+			+ "   a.department,a.category")
+	Set<Object[]>getELActualHeadCountReport(Long orgId, String clientCode,String finYear,String previousYear,String month);
+	
+	
+	@Query(nativeQuery = true,value = "SELECT supplier,SUM(slab1) slab1,SUM(slab2) slab2,SUM(slab3) slab3,SUM(slab4) slab4,SUM(slab5) slab5,SUM(slab6) slab6\r\n"
+			+ "    FROM pyarap\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3 and type=?4 \r\n"
+			+ "          AND monthsequence <= (SELECT monthsequence FROM pyarap WHERE  year = ?3 AND month = ?5 GROUP BY monthsequence)\r\n"
+			+ "    GROUP BY supplier")
+	Set<Object[]>getELActualARAPReport(Long orgId,String clientCode,String finYear,String type,String month);
+
+	@Query(nativeQuery = true,value = "SELECT\r\n"
+			+ "    a.accountname,\r\n"
+			+ "    ROUND(SUM(a.budgetYTD), 2) AS budgetYTD,\r\n"
+			+ "    ROUND(SUM(a.ActYTD), 2) AS ActYTD,\r\n"
+			+ "    ROUND(SUM(a.PyYTD), 2) AS PyYTD\r\n"
+			+ "FROM (\r\n"
+			+ " SELECT maingroup, accountname,\r\n"
+			+ "            SUM(amount) budgetYTD, 0 ActYTD, 0 PyYTD\r\n"
+			+ "    FROM budget\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3 and maingroup=?6\r\n"
+			+ "          AND monthsequence <= (SELECT monthsequence FROM budget WHERE year = ?3 AND month = ?5 GROUP BY monthsequence)\r\n"
+			+ "    GROUP BY maingroup, accountname\r\n"
+			+ "    union\r\n"
+			+ "    SELECT maingroup, accountname,\r\n"
+			+ "            0 budgetYTD, SUM(amount) ActYTD, 0 PyYTD\r\n"
+			+ "    FROM previousyearactual\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3 and maingroup=?6\r\n"
+			+ "          AND monthsequence <= (SELECT monthsequence FROM previousyearactual WHERE year = ?3 AND month = ?5 GROUP BY monthsequence)\r\n"
+			+ "    GROUP BY maingroup, accountname\r\n"
+			+ "    union\r\n"
+			+ "    SELECT maingroup, accountname,\r\n"
+			+ "            0 budgetYTD,  0 ActYTD, SUM(amount) PyYTD\r\n"
+			+ "    FROM previousyearactual\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?4 and maingroup=?6\r\n"
+			+ "          AND monthsequence <= (SELECT monthsequence FROM previousyearactual WHERE year = ?4 AND month = ?5 GROUP BY monthsequence)\r\n"
+			+ "    GROUP BY  maingroup,accountname)a  WHERE a.maingroup = ?6\r\n"
+			+ "GROUP BY\r\n"
+			+ "    a.accountname")
+	Set<Object[]> getELActualRatioAnalysisReport(Long orgId, String clientCode, String finyear, String previousYear,
+			String month, String mainGroupName);
 	
 	
 

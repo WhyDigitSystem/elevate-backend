@@ -699,4 +699,167 @@ public class ELReportServiceImpl implements ELReportService {
 			return YTDTB;
 		}
 		
+		@Override
+		public List<Map<String, Object>> getELActualIncrementalProfitReport(Long orgId, String clientCode, String finyear,
+				String yearType) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELactualIncrementalDetails=budgetRepo.getELActualIncrementalProfitReport(orgId,clientCode,finyear);
+			return ElActualIncrement(ELactualIncrementalDetails);
+		}
+		
+		private List<Map<String, Object>> ElActualIncrement(Set<Object[]> ELactualIncrementalDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELactualIncrementalDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("elGlCode", bud[0] != null ? bud[0].toString() : "");
+				b.put("elGl", bud[1] != null ? bud[1].toString() : "");
+				b.put("budgetYTD", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+				b.put("ActualYTD", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
+		@Override
+		public List<Map<String, Object>> getELActualHeadCountReport(Long orgId, String clientCode, String finyear,
+				String yearType,String month) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELactualHeadCountlDetails=budgetRepo.getELActualHeadCountReport(orgId,clientCode,finyear,previousYear,month);
+			return ElActualHeadCount(ELactualHeadCountlDetails);
+		}
+		
+		private List<Map<String, Object>> ElActualHeadCount(Set<Object[]> ELactualHeadCountlDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELactualHeadCountlDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("department", bud[0] != null ? bud[0].toString() : "");
+				b.put("category", bud[1] != null ? bud[1].toString() : "");
+				b.put("budgetYTD", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+				b.put("ActualYTD", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+				b.put("pyYTD", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
+		@Override
+		public List<Map<String, Object>> getELActualARAPReport(Long orgId, String clientCode, String finyear,
+				String yearType,String month,String type) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELactualARAPlDetails=budgetRepo.getELActualARAPReport(orgId,clientCode,finyear,type,month);
+			return ElActualArAp(ELactualARAPlDetails);
+		}
+		
+		private List<Map<String, Object>> ElActualArAp(Set<Object[]> ELactualARAPlDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELactualARAPlDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("supplier", bud[0] != null ? bud[0].toString() : "");
+				b.put("slab1", bud[1] != null ? new BigDecimal(bud[1].toString()) : BigDecimal.ZERO);
+				b.put("slab2", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+				b.put("slab3", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+				b.put("slab4", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
+				b.put("slab5", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+				b.put("slab6", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
+		@Override
+		public List<Map<String, Object>> getELActualRatioAnalysisReport(Long orgId,String finyear, String clientCode,String mainGroupName, String month,String yearType) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELactualRatioAnalysisDetails=budgetRepo.getELActualRatioAnalysisReport(orgId,clientCode,finyear,previousYear,month,mainGroupName);
+			return ElActualRatio(ELactualRatioAnalysisDetails);
+		}
+		
+		private List<Map<String, Object>> ElActualRatio(Set<Object[]> ELactualRatioAnalysisDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELactualRatioAnalysisDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("elGl", bud[0] != null ? bud[0].toString() : "");
+				b.put("budgetYTD", bud[1] != null ? new BigDecimal(bud[1].toString()) : BigDecimal.ZERO);
+				b.put("ActualYTD", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+				b.put("pyYTD", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
 }

@@ -50,5 +50,18 @@ public interface ELReportService {
 	List<Map<String, Object>> getELActualAutomaticReport(Long orgId, String finyear, String clientCode,
 			String mainGroupName, String month, String yearType);
 
+	List<Map<String, Object>> getELActualIncrementalProfitReport(Long orgId, String clientCode, String finyear,
+			String yearType);
+
+	List<Map<String, Object>> getELActualHeadCountReport(Long orgId, String clientCode, String finyear, String yearType,
+			String month);
+
+
+	List<Map<String, Object>> getELActualARAPReport(Long orgId, String clientCode, String finyear, String yearType,
+			String month, String type);
+
+	List<Map<String, Object>> getELActualRatioAnalysisReport(Long orgId, String finyear, String clientCode,
+			String mainGroupName, String month, String yearType);
+
 	
 }
