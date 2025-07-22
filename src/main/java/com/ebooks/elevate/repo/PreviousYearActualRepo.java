@@ -100,7 +100,7 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 			+ "        accountname\r\n"
 			+ ") AS a\r\n"
 			+ "WHERE a.maingroup = ?4 \r\n"
-			+ "  AND a.subgroup = ?5\r\n"
+			+ "  AND  (a.subgroup=?5 or 'ALL'=?5)\r\n"
 			+ "GROUP BY \r\n"
 			+ "    a.maingroup, \r\n"
 			+ "    a.subgroup, \r\n"
@@ -121,7 +121,7 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,quater,0 budget,sum(amount)actual,0 PY from previousyearactual where orgid=?1 and clientcode=?2 and year=?3 and month=?5  group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater\r\n"
 			+ "union\r\n"
 			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,quater,0 budget,0 actual,sum(amount)PY from previousyearactual where orgid=?1 and clientcode=?2 and year=?4 and month=?5  group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater) a\r\n"
-			+ " where a.maingroup=?6 and a.subgroup=?7 group by a.maingroup,a.subgroup,a.subgroupcode,a.accountcode,a.accountname,a.natureofaccount,quater")
+			+ " where a.maingroup=?6 and (a.subgroup=?7 or ?7='ALL')group by a.maingroup,a.subgroup,a.subgroupcode,a.accountcode,a.accountname,a.natureofaccount,quater")
 	Set<Object[]> getELActualQuaterDetails(Long orgId, String clientCode, String finyear, String previousYear, String month,
 			String mainGroupName, String subGroupCode);
 

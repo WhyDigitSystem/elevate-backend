@@ -283,8 +283,9 @@ public class ELReportController extends BaseController {
 	}
 
 	@GetMapping("/getElPYReport")
-	public ResponseEntity<ResponseDTO> getElPYReport(@RequestParam Long orgId,@RequestParam String finyear,@RequestParam String clientCode,
-			@RequestParam String mainGroupName,@RequestParam String subGroupCode,@RequestParam String month) {
+	public ResponseEntity<ResponseDTO> getElPYReport(@RequestParam Long orgId, @RequestParam String finyear,
+			@RequestParam String clientCode, @RequestParam String mainGroupName, @RequestParam String subGroupCode,
+			@RequestParam String month) {
 		String methodName = "getElPYReport()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -292,7 +293,7 @@ public class ELReportController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> elPYReport = new ArrayList<Map<String, Object>>();
 		try {
-			elPYReport = elReportService.getELPYReport(orgId,finyear,clientCode, mainGroupName, subGroupCode,month);
+			elPYReport = elReportService.getELPYReport(orgId, finyear, clientCode, mainGroupName, subGroupCode, month);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -302,15 +303,17 @@ public class ELReportController extends BaseController {
 			responseObjectsMap.put("elPYReport", elPYReport);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "EL PY Report information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL PY Report information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
 	@GetMapping("/getElActualReport")
-	public ResponseEntity<ResponseDTO> getElActualReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String yearType
-			,@RequestParam String month,@RequestParam String mainGroupName,@RequestParam String subGroupCode) {
+	public ResponseEntity<ResponseDTO> getElActualReport(@RequestParam Long orgId, @RequestParam String clientCode,
+			@RequestParam String finyear, @RequestParam String yearType, @RequestParam String month,
+			@RequestParam String mainGroupName, @RequestParam String subGroupCode) {
 		String methodName = "getElActualReport()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -318,7 +321,8 @@ public class ELReportController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> elActualReport = new ArrayList<Map<String, Object>>();
 		try {
-			elActualReport = elReportService.getELActualReport(orgId, clientCode, finyear, yearType, month, mainGroupName, subGroupCode);
+			elActualReport = elReportService.getELActualReport(orgId, clientCode, finyear, yearType, month,
+					mainGroupName, subGroupCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -328,15 +332,17 @@ public class ELReportController extends BaseController {
 			responseObjectsMap.put("elActualReport", elActualReport);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
 	@GetMapping("/getElActualQuaterReport")
-	public ResponseEntity<ResponseDTO> getElActualQuaterReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String yearType
-			,@RequestParam String month,@RequestParam String mainGroupName,@RequestParam String subGroupCode) {
+	public ResponseEntity<ResponseDTO> getElActualQuaterReport(@RequestParam Long orgId,
+			@RequestParam String clientCode, @RequestParam String finyear, @RequestParam String yearType,
+			@RequestParam String month, @RequestParam String mainGroupName, @RequestParam String subGroupCode) {
 		String methodName = "getElActualQuaterReport()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -344,25 +350,29 @@ public class ELReportController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> elActualQuaterReport = new ArrayList<Map<String, Object>>();
 		try {
-			elActualQuaterReport = elReportService.getELActualQuaterReport(orgId, clientCode, finyear, yearType, month, mainGroupName, subGroupCode);
+			elActualQuaterReport = elReportService.getELActualQuaterReport(orgId, clientCode, finyear, yearType, month,
+					mainGroupName, subGroupCode);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
 		}
 		if (StringUtils.isBlank(errorMsg)) {
-			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Actual Quater Report information get successfully");
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE,
+					"EL Actual Quater Report information get successfully");
 			responseObjectsMap.put("elActualQuaterReport", elActualQuaterReport);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Quater Report information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					"EL Actual Quater Report information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getElActualAutomaticReport")
-	public ResponseEntity<ResponseDTO> getElActualAutomaticReport(@RequestParam Long orgId,@RequestParam String finyear,@RequestParam String clientCode,
-			@RequestParam String mainGroupName,@RequestParam String month,@RequestParam String yearType) {
+	public ResponseEntity<ResponseDTO> getElActualAutomaticReport(@RequestParam Long orgId,
+			@RequestParam String finyear, @RequestParam String clientCode, @RequestParam String mainGroupName,
+			@RequestParam String month, @RequestParam String yearType) {
 		String methodName = "getElActualAutomaticReport()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -370,7 +380,8 @@ public class ELReportController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> elActualReport = new ArrayList<Map<String, Object>>();
 		try {
-			elActualReport = elReportService.getELActualAutomaticReport(orgId, finyear, clientCode, mainGroupName, month, yearType);
+			elActualReport = elReportService.getELActualAutomaticReport(orgId, finyear, clientCode, mainGroupName,
+					month, yearType);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -380,14 +391,16 @@ public class ELReportController extends BaseController {
 			responseObjectsMap.put("elActualReport", elActualReport);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getElActualIncrementalReport")
-	public ResponseEntity<ResponseDTO> getELActualIncrementalProfitReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String yearType) {
+	public ResponseEntity<ResponseDTO> getELActualIncrementalProfitReport(@RequestParam Long orgId,
+			@RequestParam String clientCode, @RequestParam String finyear, @RequestParam String yearType) {
 		String methodName = "getELActualIncrementalProfitReport()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -405,14 +418,17 @@ public class ELReportController extends BaseController {
 			responseObjectsMap.put("elActualReport", elActualReport);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getELActualHeadCountReport")
-	public ResponseEntity<ResponseDTO> getELActualHeadCountReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String yearType,@RequestParam String month) {
+	public ResponseEntity<ResponseDTO> getELActualHeadCountReport(@RequestParam Long orgId,
+			@RequestParam String clientCode, @RequestParam String finyear, @RequestParam String yearType,
+			@RequestParam String month) {
 		String methodName = "getELActualHeadCountReport()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -430,14 +446,17 @@ public class ELReportController extends BaseController {
 			responseObjectsMap.put("elActualReport", elActualReport);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getELActualARAPReport")
-	public ResponseEntity<ResponseDTO> getELActualARAPReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String yearType,@RequestParam String month, @RequestParam String type) {
+	public ResponseEntity<ResponseDTO> getELActualARAPReport(@RequestParam Long orgId, @RequestParam String clientCode,
+			@RequestParam String finyear, @RequestParam String yearType, @RequestParam String month,
+			@RequestParam String type) {
 		String methodName = "getELActualARAPReport()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -455,14 +474,18 @@ public class ELReportController extends BaseController {
 			responseObjectsMap.put("elActualReport", elActualReport);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 	@GetMapping("/getELActualRatioAnalysisReport")
-	public ResponseEntity<ResponseDTO> getELActualRatioAnalysisReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finyear,@RequestParam String yearType,@RequestParam String mainGroupName, @RequestParam String month, @RequestParam String type) {
+	public ResponseEntity<ResponseDTO> getELActualRatioAnalysisReport(@RequestParam Long orgId,
+			@RequestParam String clientCode, @RequestParam String finyear,
+			@RequestParam String mainGroupName, @RequestParam String month, @RequestParam String yearType,
+			@RequestParam String subGroup) {
 		String methodName = "getELActualRatioAnalysisReport()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -470,7 +493,8 @@ public class ELReportController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> elActualReport = new ArrayList<Map<String, Object>>();
 		try {
-			elActualReport = elReportService.getELActualRatioAnalysisReport(orgId, finyear, clientCode, mainGroupName, month, yearType);
+			elActualReport = elReportService.getELActualRatioAnalysisReport(orgId, finyear, clientCode, mainGroupName,
+					month, yearType, subGroup);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
@@ -480,10 +504,11 @@ public class ELReportController extends BaseController {
 			responseObjectsMap.put("elActualReport", elActualReport);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} else {
-			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed", errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed",
+					errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
-	
+
 }

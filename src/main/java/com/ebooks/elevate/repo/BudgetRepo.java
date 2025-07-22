@@ -42,7 +42,7 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "group by maingroup,subgroup,subgroupcode,accountcode,natureofaccount,accountname,quater \r\n"
 			+ "union\r\n"
 			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,quater,0 currentYear,sum(amount)previousYear from budget where orgid=?1 and clientcode=?4 and year=?3\r\n"
-			+ "group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater) g where g.maingroup=?5 and g.subgroup=?6 group by g.maingroup,g.subgroup,g.natureofaccount,g.subgroupcode,g.accountcode,g.accountname,g.quater \r\n"
+			+ "group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater) g where g.maingroup=?5 and (g.subgroup=?6 or 'ALL'=?6) group by g.maingroup,g.subgroup,g.natureofaccount,g.subgroupcode,g.accountcode,g.accountname,g.quater \r\n"
 			+ "order by g.quater asc")
 	Set<Object[]> getELBudgetDetails(Long orgId, String finyear, String previousYear, String clientCode,
 			String mainGroupName, String subGroupCode);
@@ -559,27 +559,27 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ " SELECT maingroup, accountname,\r\n"
 			+ "            SUM(amount) budgetYTD, 0 ActYTD, 0 PyYTD\r\n"
 			+ "    FROM budget\r\n"
-			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3 and maingroup=?6\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3 and maingroup=?6 and subgroup=?7\r\n"
 			+ "          AND monthsequence <= (SELECT monthsequence FROM budget WHERE year = ?3 AND month = ?5 GROUP BY monthsequence)\r\n"
 			+ "    GROUP BY maingroup, accountname\r\n"
 			+ "    union\r\n"
 			+ "    SELECT maingroup, accountname,\r\n"
 			+ "            0 budgetYTD, SUM(amount) ActYTD, 0 PyYTD\r\n"
 			+ "    FROM previousyearactual\r\n"
-			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3 and maingroup=?6\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3 and maingroup=?6 and subgroup=?7\r\n"
 			+ "          AND monthsequence <= (SELECT monthsequence FROM previousyearactual WHERE year = ?3 AND month = ?5 GROUP BY monthsequence)\r\n"
 			+ "    GROUP BY maingroup, accountname\r\n"
 			+ "    union\r\n"
 			+ "    SELECT maingroup, accountname,\r\n"
 			+ "            0 budgetYTD,  0 ActYTD, SUM(amount) PyYTD\r\n"
 			+ "    FROM previousyearactual\r\n"
-			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?4 and maingroup=?6\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?4 and maingroup=?6 and subgroup=?7\r\n"
 			+ "          AND monthsequence <= (SELECT monthsequence FROM previousyearactual WHERE year = ?4 AND month = ?5 GROUP BY monthsequence)\r\n"
-			+ "    GROUP BY  maingroup,accountname)a  WHERE a.maingroup = ?6\r\n"
+			+ "    GROUP BY  maingroup,accountname)a  WHERE a.maingroup = ?6  \r\n"
 			+ "GROUP BY\r\n"
 			+ "    a.accountname")
 	Set<Object[]> getELActualRatioAnalysisReport(Long orgId, String clientCode, String finyear, String previousYear,
-			String month, String mainGroupName);
+			String month, String mainGroupName,String subGroup);
 	
 	
 

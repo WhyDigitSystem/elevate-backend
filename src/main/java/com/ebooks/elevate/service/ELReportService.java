@@ -61,7 +61,7 @@ public interface ELReportService {
 			String month, String type);
 
 	List<Map<String, Object>> getELActualRatioAnalysisReport(Long orgId, String finyear, String clientCode,
-			String mainGroupName, String month, String yearType);
+			String mainGroupName, String month, String yearType,String subGroup);
 
 	
 }

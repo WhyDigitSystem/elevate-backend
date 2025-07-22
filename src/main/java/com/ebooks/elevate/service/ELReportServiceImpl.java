@@ -824,7 +824,7 @@ public class ELReportServiceImpl implements ELReportService {
 		}
 		
 		@Override
-		public List<Map<String, Object>> getELActualRatioAnalysisReport(Long orgId,String finyear, String clientCode,String mainGroupName, String month,String yearType) {
+		public List<Map<String, Object>> getELActualRatioAnalysisReport(Long orgId,String finyear, String clientCode,String mainGroupName, String month,String yearType,String subGroup) {
 			String previousYear=null;
 			if(yearType.equals("FY"))
 			{
@@ -843,7 +843,7 @@ public class ELReportServiceImpl implements ELReportService {
 			}
 			System.out.println(previousYear);
 			
-			Set<Object[]> ELactualRatioAnalysisDetails=budgetRepo.getELActualRatioAnalysisReport(orgId,clientCode,finyear,previousYear,month,mainGroupName);
+			Set<Object[]> ELactualRatioAnalysisDetails=budgetRepo.getELActualRatioAnalysisReport(orgId,clientCode,finyear,previousYear,month,mainGroupName,subGroup);
 			return ElActualRatio(ELactualRatioAnalysisDetails);
 		}
 		
