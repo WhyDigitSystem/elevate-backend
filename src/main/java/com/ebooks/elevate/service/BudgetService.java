@@ -16,6 +16,7 @@ import com.ebooks.elevate.dto.OrderBookingDTO;
 import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyAdvancePaymentReceiptDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
+import com.ebooks.elevate.dto.SalesPurchaseDTO;
 import com.ebooks.elevate.entity.BudgetLoansOutStandingVO;
 import com.ebooks.elevate.entity.PyLoansOutStandingVO;
 
@@ -154,6 +155,12 @@ public interface BudgetService {
 	Map<String, Object> createUpdatePyLoanOutStanding(List<LoanOutstandingDTO> loanOutstandingDTO);
 
 	List<PyLoansOutStandingVO> PyLoanOutStandingLedger(Long orgId, String year, String clientCode);
+	
+	
+	Map<String, Object> createUpdateBudgetSalesPurchaseAnalysis(List<SalesPurchaseDTO> salesPurchaseDTO);
+
+
+	Map<String, Object> createUpdatePySalesPurchaseAnalysis(List<SalesPurchaseDTO> salesPurchaseDTO);
 	
 	
 
