@@ -42,8 +42,8 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "group by maingroup,subgroup,subgroupcode,accountcode,natureofaccount,accountname,quater \r\n"
 			+ "union\r\n"
 			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,quater,0 currentYear,sum(amount)previousYear from budget where orgid=?1 and clientcode=?4 and year=?3\r\n"
-			+ "group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater) g where g.maingroup=?5 and (g.subgroup=?6 or 'ALL'=?6) group by g.maingroup,g.subgroup,g.natureofaccount,g.subgroupcode,g.accountcode,g.accountname,g.quater \r\n"
-			+ "order by g.quater asc")
+			+ "group by maingroup,subgroup,natureofaccount,subgroupcode,accountcode,accountname,quater) g JOIN groupledgers gl ON g.accountname = gl.accountname and gl.groupname=?5 and g.maingroup=?5 and (g.subgroup=?6 or 'ALL'=?6) group by g.maingroup,g.subgroup,g.natureofaccount,g.subgroupcode,g.accountcode,g.accountname,g.quater,gl.displayseq  \r\n"
+			+ "ORDER BY cast(gl.displayseq as unsigned), g.quater asc")
 	Set<Object[]> getELBudgetDetails(Long orgId, String finyear, String previousYear, String clientCode,
 			String mainGroupName, String subGroupCode);
 
@@ -66,7 +66,7 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "        (SELECT monthsequence FROM budget WHERE year=?3 AND month=?5 GROUP BY monthsequence) * 12),\r\n"
 			+ "        2\r\n"
 			+ "    ) AS Estimate,\r\n"
-			+ "    ROUND(SUM(a.fullPY), 2) AS fullPY\r\n"
+			+ "    ROUND(SUM(a.fullPY), 2) AS fullPY,gl.displayseq\r\n"
 			+ "FROM (\r\n"
 			+ "    select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,sum(amount) budget,0 actual,0 PY,0 budgetYTD,0 ActYTD,0 PyYTD,0 fullBudget,0 fullPY from budget where orgid=?1 and clientcode=?2 and year=?3 and month=?5\r\n"
 			+ "group by maingroup,subgroup,subgroupcode,accountcode,natureofaccount,accountname \r\n"
@@ -89,14 +89,14 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "union\r\n"
 			+ "select maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount,0 budget,0 actual,0 PY,0 budgetYTD,0 ActYTD,0 PyYTD,0 fullBudget,sum(amount) fullPY from previousyearactual a where a.orgid=?1 and a.clientcode=?2 and a.year=?4\r\n"
 			+ "group by maingroup,subgroup,subgroupcode,accountcode,accountname,natureofaccount\r\n"
-			+ ") a where a.maingroup=?6 and (a.subgroup=?7 or 'ALL'=?7)\r\n"
+			+ ") a   JOIN groupledgers gl ON a.accountname = gl.accountname and gl.groupname=?6  and a.maingroup=?6 and (a.subgroup=?7 or 'ALL'=?7)\r\n"
 			+ "GROUP BY \r\n"
 			+ "    a.maingroup,\r\n"
 			+ "    a.subgroup,\r\n"
 			+ "    a.subgroupcode,\r\n"
 			+ "    a.accountcode,\r\n"
 			+ "    a.accountname,\r\n"
-			+ "    a.natureofaccount")
+			+ "    a.natureofaccount,gl.displayseq ORDER BY cast(gl.displayseq as unsigned) ASC")
 	Set<Object[]> getELActualDetails(Long orgId, String clientCode, String finyear, String previousYear, String month,
 			String mainGroupName, String subGroupCode);
 	

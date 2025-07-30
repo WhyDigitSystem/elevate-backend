@@ -17,6 +17,7 @@ import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyAdvancePaymentReceiptDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
 import com.ebooks.elevate.dto.SalesPurchaseDTO;
+import com.ebooks.elevate.dto.SalesPurchaseItemDTO;
 import com.ebooks.elevate.entity.BudgetLoansOutStandingVO;
 import com.ebooks.elevate.entity.PyLoansOutStandingVO;
 
@@ -161,6 +162,26 @@ public interface BudgetService {
 
 
 	Map<String, Object> createUpdatePySalesPurchaseAnalysis(List<SalesPurchaseDTO> salesPurchaseDTO);
+	
+	Map<String, Object> createUpdateBudgetSalesPurchaseItemAnalysis(List<SalesPurchaseItemDTO> salesPurchaseItemDTO);
+
+
+	Map<String, Object> createUpdatePySalesPurchaseItemAnalysis(List<SalesPurchaseItemDTO>salesPurchaseItemDTO);
+
+
+	List<Map<String, Object>> getBudgetSalesPurchaseDetails(Long orgId, String finYear, String clientCode, String type);
+
+
+	List<Map<String, Object>> getPySalesPurchaseDetails(Long orgId, String finYear, String clientCode, String type);
+
+
+	List<Map<String, Object>> getBudgetSalesPurchaseItemDetails(Long orgId, String finYear, String clientCode,
+			String type);
+
+
+	List<Map<String, Object>> getPySalesPurchaseItemDetails(Long orgId, String finYear, String clientCode, String type);
+
+
 	
 	
 

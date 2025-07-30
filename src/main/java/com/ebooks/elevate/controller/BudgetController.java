@@ -32,6 +32,8 @@ import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyAdvancePaymentReceiptDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
+import com.ebooks.elevate.dto.SalesPurchaseDTO;
+import com.ebooks.elevate.dto.SalesPurchaseItemDTO;
 import com.ebooks.elevate.entity.BudgetLoansOutStandingVO;
 import com.ebooks.elevate.entity.PyLoansOutStandingVO;
 import com.ebooks.elevate.service.BudgetService;
@@ -1035,6 +1037,186 @@ public class BudgetController extends BaseController {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
 			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdateBudgetSalesPurchaseAnalysis")
+	public ResponseEntity<ResponseDTO> createUpdateBudgetSalesPurchaseAnalysis(@RequestBody List<SalesPurchaseDTO> salesPurchaseDTO) {
+		String methodName = "createUpdateBudgetSalesPurchaseAnalysis()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetDetails = budgetService.createUpdateBudgetSalesPurchaseAnalysis(salesPurchaseDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdatePySalesPurchaseAnalysis")
+	public ResponseEntity<ResponseDTO> createUpdatePySalesPurchaseAnalysis(@RequestBody List<SalesPurchaseDTO> salesPurchaseDTO) {
+		String methodName = "createUpdatePySalesPurchaseAnalysis()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetDetails = budgetService.createUpdatePySalesPurchaseAnalysis(salesPurchaseDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdateBudgetSalesPurchaseItemAnalysis")
+	public ResponseEntity<ResponseDTO> createUpdateBudgetSalesPurchaseItemAnalysis(@RequestBody List<SalesPurchaseItemDTO> salesPurchaseItemDTO) {
+		String methodName = "createUpdateBudgetSalesPurchaseItemAnalysis()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetDetails = budgetService.createUpdateBudgetSalesPurchaseItemAnalysis(salesPurchaseItemDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();  
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdatePySalesPurchaseItemAnalysis")
+	public ResponseEntity<ResponseDTO> createUpdatePySalesPurchaseItemAnalysis(@RequestBody List<SalesPurchaseItemDTO> salesPurchaseItemDTO) {
+		String methodName = "createUpdatePySalesPurchaseItemAnalysis()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> BudgetDetails = budgetService.createUpdatePySalesPurchaseItemAnalysis(salesPurchaseItemDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, BudgetDetails.get("message"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getBudgetSalesPurchaseAnalysisDetails")
+	public ResponseEntity<ResponseDTO> getBudgetSalesPurchaseAnalysisDetails(@RequestParam Long orgId,@RequestParam String finYear,@RequestParam String clientCode,@RequestParam String type) {
+		String methodName = "getBudgetSalesPurchaseAnalysisDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> budgetSalesPurchase = new ArrayList<>();
+		try {
+			budgetSalesPurchase = budgetService.getBudgetSalesPurchaseDetails(orgId, finYear, clientCode, type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Budget SalesPurchase information get successfully");
+			responseObjectsMap.put("budgetSalesPurchase", budgetSalesPurchase);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Budget Sales Purchase information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getPySalesPurchaseAnalysisDetails")
+	public ResponseEntity<ResponseDTO> getPySalesPurchaseAnalysisDetails(@RequestParam Long orgId,@RequestParam String finYear,@RequestParam String clientCode,@RequestParam String type) {
+		String methodName = "getPySalesPurchaseAnalysisDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> pySalesPurchase = new ArrayList<>();
+		try {
+			pySalesPurchase = budgetService.getPySalesPurchaseDetails(orgId, finYear, clientCode, type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Py SalesPurchase information get successfully");
+			responseObjectsMap.put("pySalesPurchase", pySalesPurchase);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Py Sales Purchase information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getBudgetSalesPurchaseAnalysisItemDetails")
+	public ResponseEntity<ResponseDTO> getBudgetSalesPurchaseAnalysisItemDetails(@RequestParam Long orgId,@RequestParam String finYear,@RequestParam String clientCode,@RequestParam String type) {
+		String methodName = "getBudgetSalesPurchaseAnalysisItemDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> budgetSalesPurchaseItem = new ArrayList<>();
+		try {
+			budgetSalesPurchaseItem = budgetService.getBudgetSalesPurchaseItemDetails(orgId, finYear, clientCode, type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Budget Sales Purchase Item information get successfully");
+			responseObjectsMap.put("budgetSalesPurchaseItem", budgetSalesPurchaseItem);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Budget Sales Purchase Item information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getPySalesPurchaseAnalysisItemDetails")
+	public ResponseEntity<ResponseDTO> getPySalesPurchaseAnalysisItemDetails(@RequestParam Long orgId,@RequestParam String finYear,@RequestParam String clientCode,@RequestParam String type) {
+		String methodName = "getPySalesPurchaseAnalysisItemDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> pySalesPurchaseItem = new ArrayList<>();
+		try {
+			pySalesPurchaseItem = budgetService.getPySalesPurchaseItemDetails(orgId, finYear, clientCode, type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Py Sales Purchase Item information get successfully");
+			responseObjectsMap.put("pySalesPurchaseItem", pySalesPurchaseItem);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Py Sales Purchase Item information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);

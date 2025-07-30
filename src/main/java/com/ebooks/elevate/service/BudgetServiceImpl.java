@@ -27,10 +27,12 @@ import com.ebooks.elevate.dto.PreviousYearDTO;
 import com.ebooks.elevate.dto.PyAdvancePaymentReceiptDTO;
 import com.ebooks.elevate.dto.PyHeadCountDTO;
 import com.ebooks.elevate.dto.SalesPurchaseDTO;
+import com.ebooks.elevate.dto.SalesPurchaseItemDTO;
 import com.ebooks.elevate.entity.BudgetACPVO;
 import com.ebooks.elevate.entity.BudgetHeadCountVO;
 import com.ebooks.elevate.entity.BudgetIncrementalProfitVO;
 import com.ebooks.elevate.entity.BudgetLoansOutStandingVO;
+import com.ebooks.elevate.entity.BudgetSalesPurchaseItemVO;
 import com.ebooks.elevate.entity.BudgetSalesPurchaseVO;
 import com.ebooks.elevate.entity.BudgetUnitWiseVO;
 import com.ebooks.elevate.entity.BudgetVO;
@@ -45,12 +47,14 @@ import com.ebooks.elevate.entity.PreviousYearIncrementalProfitVO;
 import com.ebooks.elevate.entity.PreviousYearUnitwiseVO;
 import com.ebooks.elevate.entity.PyAdvancePaymentReceiptVO;
 import com.ebooks.elevate.entity.PyLoansOutStandingVO;
+import com.ebooks.elevate.entity.PySalesPurchaseItemVO;
 import com.ebooks.elevate.entity.PySalesPurchaseVO;
 import com.ebooks.elevate.repo.BudgetACPRepo;
 import com.ebooks.elevate.repo.BudgetHeadCountRepo;
 import com.ebooks.elevate.repo.BudgetIncrementalProfitRepo;
 import com.ebooks.elevate.repo.BudgetLoansOutStandingRepo;
 import com.ebooks.elevate.repo.BudgetRepo;
+import com.ebooks.elevate.repo.BudgetSalesPurchaseItemRepo;
 import com.ebooks.elevate.repo.BudgetSalesPurchaseRepo;
 import com.ebooks.elevate.repo.BudgetUnitWiseRepo;
 import com.ebooks.elevate.repo.FinancialYearRepo;
@@ -65,6 +69,7 @@ import com.ebooks.elevate.repo.PreviousYearUnitwiseRepo;
 import com.ebooks.elevate.repo.PyAdvancePaymentReceiptRepo;
 import com.ebooks.elevate.repo.PyHeadCountRepo;
 import com.ebooks.elevate.repo.PyLoansOutStandingRepo;
+import com.ebooks.elevate.repo.PySalesPurchaseItemRepo;
 import com.ebooks.elevate.repo.PySalesPurchaseRepo;
 import com.ebooks.elevate.repo.SubGroupDetailsRepo;
 
@@ -138,6 +143,12 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Autowired
 	PySalesPurchaseRepo pySalesPurchaseRepo;
+	
+	@Autowired
+	BudgetSalesPurchaseItemRepo budgetSalesPurchaseItemRepo;
+	
+	@Autowired
+	PySalesPurchaseItemRepo pySalesPurchaseItemRepo;
 
 	@Override
 	public List<Map<String, Object>> getSubGroupDetails(Long orgId, String mainGroup) {
@@ -1813,10 +1824,11 @@ public class BudgetServiceImpl implements BudgetService {
 		String clientCode = firstDto.getClientCode();
 		String year = firstDto.getYear();
 		String type = firstDto.getType();
+		String month=firstDto.getMonth();
 
 		// Delete existing records
 				List<BudgetSalesPurchaseVO> existing = budgetSalesPurchaseRepo.getClientBudgetSalesPurchaseDtls(orgId,
-						clientCode, year, type);
+						clientCode, year, type,month);
 
 				if (existing != null && !existing.isEmpty()) {
 					budgetSalesPurchaseRepo.deleteAll(existing);
@@ -1865,11 +1877,12 @@ public class BudgetServiceImpl implements BudgetService {
 		String clientCode = firstDto.getClientCode();
 		String year = firstDto.getYear();
 		String type = firstDto.getType();
+		String month=firstDto.getMonth();
 
 		// Delete existing records
 
 		List<PySalesPurchaseVO> existing = pySalesPurchaseRepo.getClientPySalesPurchaseDtls(orgId, clientCode, year,
-				type);
+				type,month);
 
 		if (existing != null && !existing.isEmpty()) {
 			pySalesPurchaseRepo.deleteAll(existing);
@@ -1903,5 +1916,170 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		response.put("message", "Successfully Saved");
 		return response;
+	}
+
+	@Override
+	public Map<String, Object> createUpdateBudgetSalesPurchaseItemAnalysis(List<SalesPurchaseItemDTO> salesPurchaseItemDTO) {
+		
+		Map<String, Object> response = new HashMap<>();
+		if (salesPurchaseItemDTO == null || salesPurchaseItemDTO.isEmpty()) {
+			response.put("message", "No data to save");
+			return response;
+		}
+		SalesPurchaseItemDTO firstDto = salesPurchaseItemDTO.get(0);
+		Long orgId = firstDto.getOrgId();
+		String clientCode = firstDto.getClientCode();
+		String year = firstDto.getYear();
+		String type = firstDto.getType();
+		String month=firstDto.getMonth();
+
+		// Delete existing records
+
+		List<BudgetSalesPurchaseItemVO> existing = budgetSalesPurchaseItemRepo.getClientBudgetSalesPurchaseItemDtls(orgId, clientCode, year,
+				type,month);
+
+		if (existing != null && !existing.isEmpty()) {
+			budgetSalesPurchaseItemRepo.deleteAll(existing);
+		}
+
+		for (SalesPurchaseItemDTO dto : salesPurchaseItemDTO) {
+			if (dto.getValue() == null || dto.getValue().compareTo(BigDecimal.ZERO) == 0 && dto.getQty() == null || dto.getQty().compareTo(BigDecimal.ZERO) == 0)
+				continue;
+
+			BudgetSalesPurchaseItemVO vo = new BudgetSalesPurchaseItemVO();
+			vo.setOrgId(dto.getOrgId());
+			vo.setClient(dto.getClient());
+			vo.setClientCode(dto.getClientCode());
+			vo.setCreatedBy(dto.getCreatedBy());
+			vo.setUpdatedBy(dto.getCreatedBy());
+			vo.setDescription(dto.getDescription());
+			vo.setYear(dto.getYear());
+			vo.setMonth(dto.getMonth());
+			vo.setValue(dto.getValue());
+			vo.setQty(dto.getQty());
+			vo.setType(dto.getType());
+			vo.setActive(true);
+
+			int quarter = quaterMonthService.getQuaterMonthDetails(dto.getYearType(), dto.getMonth());
+			int monthSeq = quaterMonthService.getMonthNumber(dto.getYearType(), dto.getMonth());
+
+			vo.setQuater(String.valueOf(quarter));
+			vo.setMonthsequence(monthSeq);
+
+			budgetSalesPurchaseItemRepo.save(vo);
+		}
+		response.put("message", "Successfully Saved");
+		return response;
+	}
+
+	@Override
+	public Map<String, Object> createUpdatePySalesPurchaseItemAnalysis(List<SalesPurchaseItemDTO> salesPurchaseItemDTO) {
+		Map<String, Object> response = new HashMap<>();
+		if (salesPurchaseItemDTO == null || salesPurchaseItemDTO.isEmpty()) {
+			response.put("message", "No data to save");
+			return response;
+		}
+		SalesPurchaseItemDTO firstDto = salesPurchaseItemDTO.get(0);
+		Long orgId = firstDto.getOrgId();
+		String clientCode = firstDto.getClientCode();
+		String year = firstDto.getYear();
+		String type = firstDto.getType();
+		String month=firstDto.getMonth();
+
+		// Delete existing records
+
+		List<PySalesPurchaseItemVO> existing = pySalesPurchaseItemRepo.getClientPySalesPurchaseItemDtls(orgId, clientCode, year,
+				type,month);
+
+		if (existing != null && !existing.isEmpty()) {
+			pySalesPurchaseItemRepo.deleteAll(existing);
+		}
+
+		for (SalesPurchaseItemDTO dto : salesPurchaseItemDTO) {
+			if (dto.getValue() == null || dto.getValue().compareTo(BigDecimal.ZERO) == 0 && dto.getQty() == null || dto.getQty().compareTo(BigDecimal.ZERO) == 0)
+				continue;
+
+			PySalesPurchaseItemVO vo = new PySalesPurchaseItemVO();
+			vo.setOrgId(dto.getOrgId());
+			vo.setClient(dto.getClient());
+			vo.setClientCode(dto.getClientCode());
+			vo.setCreatedBy(dto.getCreatedBy());
+			vo.setUpdatedBy(dto.getCreatedBy());
+			vo.setDescription(dto.getDescription());
+			vo.setYear(dto.getYear());
+			vo.setMonth(dto.getMonth());
+			vo.setValue(dto.getValue());
+			vo.setQty(dto.getQty());
+			vo.setType(dto.getType());
+			vo.setActive(true);
+
+			int quarter = quaterMonthService.getQuaterMonthDetails(dto.getYearType(), dto.getMonth());
+			int monthSeq = quaterMonthService.getMonthNumber(dto.getYearType(), dto.getMonth());
+
+			vo.setQuater(String.valueOf(quarter));
+			vo.setMonthsequence(monthSeq);
+
+			pySalesPurchaseItemRepo.save(vo);
+		}
+		response.put("message", "Successfully Saved");
+		return response;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getBudgetSalesPurchaseDetails(Long orgId, String finYear, String clientCode,
+			String type) {
+
+		Set<Object[]> subGroupDetails = budgetSalesPurchaseRepo.getBudgetDetails(orgId, finYear, clientCode, type);
+		return getBudgetDetails(subGroupDetails);
+	}
+
+	private List<Map<String, Object>> getBudgetDetails(Set<Object[]> subGroupDetails) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : subGroupDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("description", sub[0] != null ? sub[0].toString() : "");
+			mp.put("month", sub[1] != null ? sub[1].toString() : "");
+			mp.put("amount", sub[2] != null ? new BigDecimal(sub[2].toString()) : BigDecimal.ZERO);
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getPySalesPurchaseDetails(Long orgId, String finYear, String clientCode,
+			String type) {
+
+		Set<Object[]> subGroupDetails = pySalesPurchaseRepo.getPyDetails(orgId, finYear, clientCode, type);
+		return getBudgetDetails(subGroupDetails);
+	}
+	
+	
+	@Override
+	public List<Map<String, Object>> getBudgetSalesPurchaseItemDetails(Long orgId, String finYear, String clientCode,
+			String type) {
+
+		Set<Object[]> subGroupDetails = budgetSalesPurchaseItemRepo.getBudgetItemDetails(orgId, finYear, clientCode, type);
+		return getBudgetItemDetails(subGroupDetails);
+	}
+	
+	private List<Map<String, Object>> getBudgetItemDetails(Set<Object[]> subGroupDetails) {
+		List<Map<String, Object>> subgroup = new ArrayList<>();
+		for (Object[] sub : subGroupDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("description", sub[0] != null ? sub[0].toString() : "");
+			mp.put("month", sub[1] != null ? sub[1].toString() : "");
+			mp.put("qty", sub[2] != null ? new BigDecimal(sub[2].toString()) : BigDecimal.ZERO);
+			mp.put("value", sub[3] != null ? new BigDecimal(sub[3].toString()) : BigDecimal.ZERO);
+			subgroup.add(mp);
+		}
+		return subgroup;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getPySalesPurchaseItemDetails(Long orgId, String finYear, String clientCode,
+			String type) {
+
+		Set<Object[]> subGroupDetails = pySalesPurchaseItemRepo.getPyItemDetails(orgId, finYear, clientCode, type);
+		return getBudgetItemDetails(subGroupDetails);
 	}
 }
