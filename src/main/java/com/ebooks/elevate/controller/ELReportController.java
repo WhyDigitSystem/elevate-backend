@@ -510,5 +510,34 @@ public class ELReportController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+	
+	
+	@GetMapping("/getELActualSalesPurchaseAnalysisReport")
+	public ResponseEntity<ResponseDTO> getELActualSalesPurchaseAnalysisReport(@RequestParam Long orgId,
+			@RequestParam String clientCode, @RequestParam String finyear,
+			@RequestParam String type, @RequestParam String month, @RequestParam String yearType) {
+		String methodName = "getELActualSalesPurchaseAnalysisReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elActualReport = new ArrayList<Map<String, Object>>();
+		try {
+			elActualReport = elReportService.getELActualSalesPurchaseAnalysisReport(orgId, finyear, clientCode, type, month, yearType);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Actual Report information get successfully");
+			responseObjectsMap.put("elActualReport", elActualReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 
 }

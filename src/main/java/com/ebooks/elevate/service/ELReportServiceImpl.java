@@ -862,4 +862,44 @@ public class ELReportServiceImpl implements ELReportService {
 			return YTDTB;
 		}
 		
+		
+		@Override
+		public List<Map<String, Object>> getELActualSalesPurchaseAnalysisReport(Long orgId,String finyear, String clientCode,String type, String month,String yearType) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELactualSalesPurchaseAnalysisDetails=budgetRepo.getELActualSalesPurchaseAnalysisReport(orgId,clientCode,finyear,previousYear,month,type);
+			return ElActualSalesPurchase(ELactualSalesPurchaseAnalysisDetails);
+		}
+		
+		private List<Map<String, Object>> ElActualSalesPurchase(Set<Object[]> ELactualSalesPurchaseAnalysisDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELactualSalesPurchaseAnalysisDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("descrption", bud[0] != null ? bud[0].toString() : "");
+				b.put("budgetYTD", bud[1] != null ? new BigDecimal(bud[1].toString()) : BigDecimal.ZERO);
+				b.put("actualYTD", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+				b.put("pyYTD", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
 }
