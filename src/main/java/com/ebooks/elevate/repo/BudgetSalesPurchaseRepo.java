@@ -14,7 +14,7 @@ public interface BudgetSalesPurchaseRepo extends JpaRepository<BudgetSalesPurcha
 	List<BudgetSalesPurchaseVO> getClientBudgetSalesPurchaseDtls(Long orgId, String clientCode, String year,
 			String type,String month);
 
-	@Query(nativeQuery = true,value = "select description,month,amount from budgetsalespurchase where orgid=?1 and year=?2 and clientcode=?3 and type=?4")
+	@Query(nativeQuery = true,value = "select description,month,amount,natureofaccount from budgetsalespurchase where orgid=?1 and year=?2 and clientcode=?3 and type=?4")
 	Set<Object[]> getBudgetDetails(Long orgId, String finYear, String clientCode, String type);
 
 }

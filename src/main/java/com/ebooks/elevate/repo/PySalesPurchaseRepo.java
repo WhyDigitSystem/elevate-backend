@@ -13,7 +13,7 @@ public interface PySalesPurchaseRepo extends JpaRepository<PySalesPurchaseVO, Lo
 	@Query(nativeQuery = true, value = "select * from pysalespurchase where orgid=?1 and clientcode=?2 and year=?3 and type=?4 and month=?5")
 	List<PySalesPurchaseVO> getClientPySalesPurchaseDtls(Long orgId, String clientCode, String year, String type,String month);
 
-	@Query(nativeQuery = true,value = "select description,month,amount from pysalespurchase where orgid=?1 and year=?2 and clientcode=?3 and type=?4")
+	@Query(nativeQuery = true,value = "select description,month,amount,natureofaccount from pysalespurchase where orgid=?1 and year=?2 and clientcode=?3 and type=?4")
 	Set<Object[]> getPyDetails(Long orgId, String finYear, String clientCode, String type);
 
 }

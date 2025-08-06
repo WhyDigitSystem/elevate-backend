@@ -2040,6 +2040,7 @@ public class BudgetServiceImpl implements BudgetService {
 			mp.put("description", sub[0] != null ? sub[0].toString() : "");
 			mp.put("month", sub[1] != null ? sub[1].toString() : "");
 			mp.put("amount", sub[2] != null ? new BigDecimal(sub[2].toString()) : BigDecimal.ZERO);
+			mp.put("natureOfAccount", sub[3] != null ? sub[3].toString() : "");
 			subgroup.add(mp);
 		}
 		return subgroup;

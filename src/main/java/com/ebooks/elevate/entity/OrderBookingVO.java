@@ -43,21 +43,21 @@ public class OrderBookingVO {
 	private String month;
 	@Column(name = "type",length = 100)
 	private String type; 
-	@Column(name = "amount",precision = 10,scale = 2)
+	@Column(name = "amount",length = 100)
 	private BigDecimal amount;
 	@Column(name = "segment",length = 25)
 	private String segment;
 	@Column(name = "customername",length = 100)
 	private String customerName;
-	@Column(name = "ordervalue",precision = 10,scale = 2)
+	@Column(name = "ordervalue",length = 100)
 	private BigDecimal orderValue;
-	@Column(name = "existingorderplan",precision = 10,scale = 2)
+	@Column(name = "existingorderplan",length = 100)
 	private BigDecimal existingOrderPlan;
-	@Column(name = "balanceordervalue",precision = 10,scale = 2)
+	@Column(name = "balanceordervalue",length = 100)
 	private BigDecimal balanceOrderValue;
-	@Column(name = "paymentreceived",precision = 10,scale = 2)
+	@Column(name = "paymentreceived",length = 100)
 	private BigDecimal paymentReceived;
-	@Column(name = "yettoreceive",precision = 10,scale = 2)
+	@Column(name = "yettoreceive",length = 100)
 	private BigDecimal yetToReceive;
 	@Column(name = "classification",length = 100)
 	private String classification;
