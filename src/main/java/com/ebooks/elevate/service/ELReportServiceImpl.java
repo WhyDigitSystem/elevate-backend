@@ -902,4 +902,88 @@ public class ELReportServiceImpl implements ELReportService {
 			return YTDTB;
 		}
 		
+		
+		@Override
+		public List<Map<String, Object>> getELBudgetAutomaticReport(Long orgId, String clientCode, String finyear,
+				String yearType, String mainGroupName) {
+			String previousYear=null;
+			if(yearType.equals("FY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+				
+			}
+			else if(yearType.equals("CY"))
+			{
+				FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,finyear,yearType);
+				int preYear=financialYearVO.getFinYear()-1;
+				FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(orgId,preYear,yearType);
+				previousYear=financialYearVO2.getFinYearIdentifier();
+			}
+			System.out.println(previousYear);
+			
+			Set<Object[]> ELBudgetAutomaticDetails=budgetRepo.getELBudgetAutomaticDetails(orgId,finyear,previousYear,clientCode,mainGroupName);
+			return budgetAutomaticReport(ELBudgetAutomaticDetails);
+		}
+
+		private List<Map<String, Object>> budgetAutomaticReport(Set<Object[]> ELBudgetAutomaticDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELBudgetAutomaticDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("elGlCode", bud[0] != null ? bud[0].toString() : "");
+				b.put("elGl", bud[1] != null ? bud[1].toString() : "");
+				b.put("quater", bud[2] != null ? bud[2].toString() : "");
+				b.put("currentYear", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
+				b.put("previousYear", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
+		@Override
+		public List<Map<String, Object>> getELPyAutomaticReport(Long orgId, String clientCode, String finyear,
+				String yearType, String mainGroupName,String month) {			
+			Set<Object[]> ELPYAutomaticDetails=budgetRepo.getELPyAutomaticDetails(orgId,finyear,clientCode,mainGroupName,month);
+			return pyAutomaticReport(ELPYAutomaticDetails);
+		}
+
+		private List<Map<String, Object>> pyAutomaticReport(Set<Object[]> ELPYAutomaticDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELPYAutomaticDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("elGlCode", bud[0] != null ? bud[0].toString() : "");
+				b.put("elGl", bud[1] != null ? bud[1].toString() : "");
+				b.put("quater", bud[2] != null ? bud[2].toString() : "");
+				b.put("previousYear", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
+		
+		@Override
+		public List<Map<String, Object>> getELPyRatioAnalaysisReport(Long orgId, String clientCode, String finyear,
+				String yearType, String mainGroupName,String subGroupName,String month) {			
+			Set<Object[]> ELPYRatioAnalysisDetails=budgetRepo.getELPyRatioAnalysisDetails(orgId,finyear,clientCode,mainGroupName,subGroupName,month);
+			return pyRatioAnalysisReport(ELPYRatioAnalysisDetails);
+		}
+
+		private List<Map<String, Object>> pyRatioAnalysisReport(Set<Object[]> ELPYRatioAnalysisDetails) {
+			
+			List<Map<String, Object>>YTDTB=new ArrayList<>();
+			for(Object[] bud:ELPYRatioAnalysisDetails)
+			{
+				Map<String,Object>b= new HashMap<>();
+				b.put("elGl", bud[0] != null ? bud[0].toString() : "");
+				b.put("quater", bud[1] != null ? bud[1].toString() : "");
+				b.put("previousYear", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+				YTDTB.add(b);
+			}
+			return YTDTB;
+		}
 }

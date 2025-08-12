@@ -65,5 +65,14 @@ public interface ELReportService {
 
 	List<Map<String, Object>> getELActualSalesPurchaseAnalysisReport(Long orgId, String finyear, String clientCode,
 			String type, String month, String yearType);
+
+	List<Map<String, Object>> getELBudgetAutomaticReport(Long orgId, String clientCode, String finyear, String yearType,
+			String mainGroupName);
+
+	List<Map<String, Object>> getELPyAutomaticReport(Long orgId, String clientCode, String finyear, String yearType,
+			String mainGroupName,String month);
+
+	List<Map<String, Object>> getELPyRatioAnalaysisReport(Long orgId, String clientCode, String finyear,
+			String yearType, String mainGroupName, String subGroupName, String month);
 	
 }
