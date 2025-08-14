@@ -74,5 +74,9 @@ public interface ELReportService {
 
 	List<Map<String, Object>> getELPyRatioAnalaysisReport(Long orgId, String clientCode, String finyear,
 			String yearType, String mainGroupName, String subGroupName, String month);
+
+	List<Map<String, Object>> getELBudgetHCReport(Long orgId, String finyear, String clientCode, String PreviousYear);
+
+	List<Map<String, Object>> getELBudgetOBReport(Long orgId, String finYear, String clientCode, String previousYear);
 	
 }
