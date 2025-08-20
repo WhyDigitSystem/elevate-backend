@@ -329,7 +329,7 @@ public interface GroupMappingRepo extends JpaRepository<GroupMappingVO, Long> {
 			+ "      AND a.active = 1)\r\n"
 			+ "      select a.accountcode,a.accountname,amount,a.displayseq from Accounts a left join pyincrementalprofit b ON a.accountname = b.accountname and b.orgid = ?1\r\n"
 			+ "    AND b.year = ?2\r\n"
-			+ "    AND b.clientcode = ?3 and b.month=?5 order by a.displayseq asc")
+			+ "    AND b.clientcode = ?3 and b.month=?6 order by a.displayseq asc")
 	Set<Object[]> getActualIncrementalLedgersDetails(Long orgId, String year, String clientCode, String mainGroup,
-			String subGroup);
+			String subGroup,String month);
 }

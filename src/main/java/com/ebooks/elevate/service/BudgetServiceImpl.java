@@ -2088,7 +2088,7 @@ public class BudgetServiceImpl implements BudgetService {
 	public List<Map<String, Object>> getActualIncrementalGroupLedgersDetails(Long orgId, String year, String clientCode,
 			String mainGroup, String subGroup, String month) {
 		Set<Object[]> particularDetails = groupMappingRepo.getActualIncrementalLedgersDetails(orgId, year, clientCode,
-				mainGroup, subGroup);
+				mainGroup, subGroup,month);
 		return getIncrementalProfitLedgerDetails(particularDetails);
 	}
 }
