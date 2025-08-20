@@ -2083,4 +2083,12 @@ public class BudgetServiceImpl implements BudgetService {
 		Set<Object[]> subGroupDetails = pySalesPurchaseItemRepo.getPyItemDetails(orgId, finYear, clientCode, type);
 		return getBudgetItemDetails(subGroupDetails);
 	}
+
+	@Override
+	public List<Map<String, Object>> getActualIncrementalGroupLedgersDetails(Long orgId, String year, String clientCode,
+			String mainGroup, String subGroup, String month) {
+		Set<Object[]> particularDetails = groupMappingRepo.getActualIncrementalLedgersDetails(orgId, year, clientCode,
+				mainGroup, subGroup);
+		return getIncrementalProfitLedgerDetails(particularDetails);
+	}
 }

@@ -905,6 +905,31 @@ public class BudgetController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 	
+	@GetMapping("/getActualIncrementalProfitLedgers")
+	public ResponseEntity<ResponseDTO> getActualIncrementalProfitLedgers(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String mainGroup,@RequestParam String subGroup,@RequestParam String month) {
+		String methodName = "getActualIncrementalProfitLedgers()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String,Object>> pyIncrementalProfitLedgers = new ArrayList<>();
+		try {
+			pyIncrementalProfitLedgers = budgetService.getActualIncrementalGroupLedgersDetails(orgId, year, clientCode, mainGroup,subGroup,month);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "PY Incremental Profit Ledgers information get successfully");
+			responseObjectsMap.put("pyIncrementalProfitLedgers", pyIncrementalProfitLedgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "PY Incremental Profit Ledgers information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
 	
 	@GetMapping("/getAdvancePaymentReceiptDetails")
 	public ResponseEntity<ResponseDTO> getAdvancePaymentReceiptDetails(@RequestParam Long orgId,@RequestParam String year,@RequestParam String clientCode,@RequestParam String type) {

@@ -677,5 +677,135 @@ public class ELReportController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+	
+	@GetMapping("/getElBudgetRatioAnalysisReport")
+	public ResponseEntity<ResponseDTO> getElBudgetRatioAnalysisReport(@RequestParam Long orgId,@RequestParam String finYear, @RequestParam String clientCode, @RequestParam String previousYear) {
+		String methodName = "getElBudgetRatioAnalysisReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elBudgetReport = new ArrayList<Map<String, Object>>();
+		try {
+			elBudgetReport = elReportService.getELBudgetRatioAnalysisDetails(orgId, finYear, clientCode, previousYear);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Budget Sales Analysis Report information get successfully");
+			responseObjectsMap.put("elBudgetReport", elBudgetReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Budget Sales Analysis information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getElBudgetSalesPurchaseAnalysisReport")
+	public ResponseEntity<ResponseDTO> getElBudgetSalesPurchaseAnalysisReport(@RequestParam Long orgId,@RequestParam String finYear, @RequestParam String clientCode, @RequestParam String previousYear,@RequestParam String type) {
+		String methodName = "getElBudgetSalesPurchaseAnalysisReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elBudgetReport = new ArrayList<Map<String, Object>>();
+		try {
+			elBudgetReport = elReportService.getELBudgetSalesPurchaseAnalysisDetails(orgId, finYear, clientCode, previousYear, type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Budget Ratio Analysis Report information get successfully");
+			responseObjectsMap.put("elBudgetReport", elBudgetReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Budget Ratio Analysis information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getElPyOBReport")
+	public ResponseEntity<ResponseDTO> getElPyOBReport(@RequestParam Long orgId,@RequestParam String previousYear, @RequestParam String clientCode,@RequestParam String month) {
+		String methodName = "getElPyOBReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elBudgetReport = new ArrayList<Map<String, Object>>();
+		try {
+			elBudgetReport = elReportService.getELPyOBReport(orgId, previousYear, clientCode,month);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Py OB Report information get successfully");
+			responseObjectsMap.put("elBudgetReport", elBudgetReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Py OB Report information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getElPyHCReport")
+	public ResponseEntity<ResponseDTO> getElPyHCReport(@RequestParam Long orgId,@RequestParam String previousYear, @RequestParam String clientCode,@RequestParam String month) {
+		String methodName = "getElPyHCReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elBudgetReport = new ArrayList<Map<String, Object>>();
+		try {
+			elBudgetReport = elReportService.getELPyHCReport(orgId, previousYear, clientCode,month);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Budget HC Report information get successfully");
+			responseObjectsMap.put("elBudgetReport", elBudgetReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Budget HC Report information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getElPySalesPurchaseAnalysisReport")
+	public ResponseEntity<ResponseDTO> getElPySalesPurchaseAnalysisReport(@RequestParam Long orgId,@RequestParam String previousYear, @RequestParam String clientCode, @RequestParam String type,@RequestParam String month) {
+		String methodName = "getElPySalesPurchaseAnalysisReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elBudgetReport = new ArrayList<Map<String, Object>>();
+		try {
+			elBudgetReport = elReportService.getELPySalesPurchaseAnalysisDetails(orgId, previousYear, clientCode,type,month);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Budget Ratio Analysis Report information get successfully");
+			responseObjectsMap.put("elBudgetReport", elBudgetReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Budget Ratio Analysis information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 }
 

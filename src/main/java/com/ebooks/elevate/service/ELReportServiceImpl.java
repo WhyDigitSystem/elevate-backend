@@ -1046,5 +1046,110 @@ public class ELReportServiceImpl implements ELReportService {
 		}
 		return YTDTB;
 	}
+	
+	@Override
+	public List<Map<String, Object>> getELBudgetRatioAnalysisDetails(Long orgId, String finyear, String clientCode,
+			String PreviousYear) {
+		Set<Object[]> ELBudgetRatioDetails = budgetRepo.getELBudgetRatioAnalysisDetails(orgId, finyear, clientCode,
+				PreviousYear);
+		return budgetRatioAnalysisReport(ELBudgetRatioDetails);
+	}
+
+	private List<Map<String, Object>> budgetRatioAnalysisReport(Set<Object[]> ELBudgetRatioDetails) {
+
+		List<Map<String, Object>> YTDTB = new ArrayList<>();
+		for (Object[] bud : ELBudgetRatioDetails) {
+			Map<String, Object> b = new HashMap<>();
+			b.put("accountName", bud[0] != null ? bud[0].toString() : "");
+			b.put("quater", bud[1] != null ? bud[1].toString() : "");
+			b.put("budget", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+			b.put("py", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+			YTDTB.add(b);
+		}
+		return YTDTB;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getELBudgetSalesPurchaseAnalysisDetails(Long orgId, String finyear, String clientCode,
+			String PreviousYear,String type) {
+		Set<Object[]> ELBudgetSalesPurchaseDetails = budgetRepo.getELBudgetSalesPurchaseAnalysisDetails(orgId, finyear, clientCode,
+				PreviousYear,type);
+		return budgetSalesPurchaseAnalysisReport(ELBudgetSalesPurchaseDetails);
+	}
+
+	private List<Map<String, Object>> budgetSalesPurchaseAnalysisReport(Set<Object[]> ELBudgetSalesPurchaseDetails) {
+
+		List<Map<String, Object>> YTDTB = new ArrayList<>();
+		for (Object[] bud : ELBudgetSalesPurchaseDetails) {
+			Map<String, Object> b = new HashMap<>();
+			b.put("description", bud[0] != null ? bud[0].toString() : "");
+			b.put("natureOfAccount", bud[1] != null ? bud[1].toString() : "");
+			b.put("quater", bud[2] != null ? bud[2].toString() : "");
+			b.put("budget", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+			b.put("py", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
+			YTDTB.add(b);
+		}
+		return YTDTB;
+	}
+
+	@Override
+	public List<Map<String, Object>> getELPyOBReport(Long orgId, String previousYear, String clientCode,String month) {
+		Set<Object[]> ELPyOBDetails = orderBookingRepo.getElPyOrderBookingDetails(orgId, previousYear, clientCode,month);
+		return pyOBReport(ELPyOBDetails);
+	}
+
+	private List<Map<String, Object>> pyOBReport(Set<Object[]> ELPyOBDetails) {
+
+		List<Map<String, Object>> YTDTB = new ArrayList<>();
+		for (Object[] bud : ELPyOBDetails) {
+			Map<String, Object> b = new HashMap<>();
+			b.put("segment", bud[0] != null ? bud[0].toString() : "");
+			b.put("quater", bud[1] != null ? bud[1].toString() : "");
+			b.put("py", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+			YTDTB.add(b);
+		}
+		return YTDTB;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getELPyHCReport(Long orgId, String PreviousYear, String clientCode,String month) {
+		Set<Object[]> getELPyHCReport = budgetHeadCountRepo.getELPyHCDetails(orgId, PreviousYear, clientCode,month);
+		return pyHCAnalysisReport(getELPyHCReport);
+	}
+
+	private List<Map<String, Object>> pyHCAnalysisReport(Set<Object[]> getELPyHCReport) {
+
+		List<Map<String, Object>> YTDTB = new ArrayList<>();
+		for (Object[] bud : getELPyHCReport) {
+			Map<String, Object> b = new HashMap<>();
+			b.put("department", bud[0] != null ? bud[0].toString() : "");
+			b.put("category", bud[1] != null ? bud[1].toString() : "");
+			b.put("quater", bud[2] != null ? bud[2].toString() : "");
+			b.put("type", bud[3] != null ? bud[3].toString() : "");
+			b.put("py", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
+			YTDTB.add(b);
+		}
+		return YTDTB;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getELPySalesPurchaseAnalysisDetails(Long orgId, String PreviousYear, String clientCode,String type,String month) {
+		Set<Object[]> ELPySalesPurchaseDetails = budgetRepo.getELPySalesPurchaseAnalysisDetails(orgId, PreviousYear, clientCode,type,month);
+		return pySalesPurchaseAnalysisReport(ELPySalesPurchaseDetails);
+	}
+
+	private List<Map<String, Object>> pySalesPurchaseAnalysisReport(Set<Object[]> ELPySalesPurchaseDetails) {
+
+		List<Map<String, Object>> YTDTB = new ArrayList<>();
+		for (Object[] bud : ELPySalesPurchaseDetails) {
+			Map<String, Object> b = new HashMap<>();
+			b.put("description", bud[0] != null ? bud[0].toString() : "");
+			b.put("natureOfAccount", bud[1] != null ? bud[1].toString() : "");
+			b.put("quater", bud[2] != null ? bud[2].toString() : "");
+			b.put("py", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+			YTDTB.add(b);
+		}
+		return YTDTB;
+	}
 
 }

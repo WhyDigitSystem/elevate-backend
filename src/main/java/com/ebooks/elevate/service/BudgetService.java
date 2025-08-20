@@ -182,6 +182,10 @@ public interface BudgetService {
 	List<Map<String, Object>> getPySalesPurchaseItemDetails(Long orgId, String finYear, String clientCode, String type);
 
 
+	List<Map<String, Object>> getActualIncrementalGroupLedgersDetails(Long orgId, String year, String clientCode,
+			String mainGroup, String subGroup, String month);
+
+
 	
 	
 
