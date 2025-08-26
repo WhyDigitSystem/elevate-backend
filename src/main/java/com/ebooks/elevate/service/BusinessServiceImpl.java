@@ -33,7 +33,6 @@ import com.ebooks.elevate.dto.LedgerMappingDTO;
 import com.ebooks.elevate.dto.ServiceLevelDTO;
 import com.ebooks.elevate.dto.ServiceLevelDetailsDTO;
 import com.ebooks.elevate.entity.CCoaVO;
-import com.ebooks.elevate.entity.ClientCompanyVO;
 import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.LedgerMappingVO;
 import com.ebooks.elevate.entity.ServiceLevelDetailsVO;
@@ -700,7 +699,6 @@ public class BusinessServiceImpl implements BusinessService {
 
 				List<CCoaVO> existingAccounts = cCoaRepo.findByOrgIdAndClientCode(orgId, clientCode);
 				for (CCoaVO account : existingAccounts) {
-					existingAccountCodes.add(account.getAccountCode().trim().toLowerCase());
 					existingAccountNames.add(account.getAccountName().trim().toLowerCase());
 				}
 

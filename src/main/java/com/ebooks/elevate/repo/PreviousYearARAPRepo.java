@@ -6,7 +6,6 @@ import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.ebooks.elevate.entity.BudgetACPVO;
 import com.ebooks.elevate.entity.PreviousYearARAPVO;
 
 public interface PreviousYearARAPRepo extends JpaRepository<PreviousYearARAPVO, Long> {
@@ -24,7 +23,7 @@ public interface PreviousYearARAPRepo extends JpaRepository<PreviousYearARAPVO, 
 			+ "UNION ALL\r\n"
 			+ "\r\n"
 			+ "-- Fallback query: only runs if no data found above\r\n"
-			+ "SELECT supplier, paymentterms, \r\n"
+			+ "SELECT supplier, null paymentterms, \r\n"
 			+ "       NULL AS grosspurchase, NULL AS noofmonthpurchase, NULL AS outstanding, NULL AS paymentperiod, \r\n"
 			+ "       NULL AS slab1, NULL AS slab2, NULL AS slab3, NULL AS slab4, NULL AS slab5,NULL AS slab6\r\n"
 			+ "FROM pyarap\r\n"
@@ -37,7 +36,7 @@ public interface PreviousYearARAPRepo extends JpaRepository<PreviousYearARAPVO, 
 			+ "      AND month = ?3\r\n"
 			+ "      AND year = ?2 and type=?5\r\n"
 			+ "  )\r\n"
-			+ "GROUP BY supplier, paymentterms")
+			+ "GROUP BY supplier")
 	Set<Object[]> getPYARAPDetails(Long orgId,String year,String month, String clientCode,String type);
 
 }

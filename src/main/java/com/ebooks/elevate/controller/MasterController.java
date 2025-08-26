@@ -26,7 +26,6 @@ import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
 import com.ebooks.elevate.dto.AutomationDTO;
 import com.ebooks.elevate.dto.BranchDTO;
-import com.ebooks.elevate.dto.CCoaDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
 import com.ebooks.elevate.dto.GroupMapping2DTO;
 import com.ebooks.elevate.dto.GroupMappingDTO;

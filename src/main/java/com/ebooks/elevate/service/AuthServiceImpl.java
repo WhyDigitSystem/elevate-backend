@@ -107,6 +107,9 @@ public class AuthServiceImpl implements AuthService {
 
 	@Autowired
 	ClientAccessRepo clientAccessRepo;
+	
+	@Autowired
+	LicenseService licenseService;
 
 	@Override
 	public void signup(SignUpFormDTO signUpRequest) {
@@ -232,6 +235,10 @@ public class AuthServiceImpl implements AuthService {
 		}
 
 		if (ObjectUtils.isNotEmpty(userVO)) {
+			CompanyVO companyVO1= companyRepo.findById(userVO.getOrgId()).get();
+			if(!licenseService.validateLicenseKey(companyVO1.getId(), companyVO1.getLicense())) {
+				throw new ApplicationException("License Expired, Please Contact Administrator");
+			}
 			if (userVO.getActive() == "In-Active") {
 				throw new ApplicationException("Your account is In-Active, Please Contact Administrator");
 			}

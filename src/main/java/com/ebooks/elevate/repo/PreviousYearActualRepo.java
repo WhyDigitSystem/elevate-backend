@@ -6,7 +6,6 @@ import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.ebooks.elevate.entity.BudgetVO;
 import com.ebooks.elevate.entity.PreviousYearActualVO;
 
 public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActualVO, Long>{

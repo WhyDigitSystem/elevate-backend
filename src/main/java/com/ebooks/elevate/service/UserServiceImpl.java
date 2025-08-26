@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
-import com.ebooks.elevate.entity.BranchVO;
 import com.ebooks.elevate.entity.UserActionVO;
 import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.repo.TokenRepo;
