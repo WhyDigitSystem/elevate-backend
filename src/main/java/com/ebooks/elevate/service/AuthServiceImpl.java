@@ -107,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
 
 	@Autowired
 	ClientAccessRepo clientAccessRepo;
-	
+
 	@Autowired
 	LicenseService licenseService;
 
@@ -223,22 +223,28 @@ public class AuthServiceImpl implements AuthService {
 		UserVO userVO = userRepo.findByUserNameOrEmailOrMobileNo(loginRequest.getUserName(), loginRequest.getUserName(),
 				loginRequest.getUserName());
 
+		CompanyVO companyVO1 = companyRepo.findById(userVO.getOrgId()).get();
+
+		if (companyVO1.getLicense() != null) {
+			if (!licenseService.validateLicenseKey(companyVO1.getId(), companyVO1.getLicense())) {
+				throw new ApplicationException("License Expired, Please Contact Administrator");
+			}
+		}
+		else {
+			throw new ApplicationException("Licence Not Exists...");
+		}
 		
 
-		String orgActive=null;
-		boolean isClientActive=true;
-		if(!loginRequest.getUserName().equals("sadmin"))
-		{
-		CompanyVO companyVO = companyRepo.findById(userVO.getOrgId()).get();
-		orgActive = companyVO.getActive();
-		isClientActive = "Active".equals(orgActive) ? true : false;
+		String orgActive = null;
+		boolean isClientActive = true;
+		if (!loginRequest.getUserName().equals("sadmin")) {
+			CompanyVO companyVO = companyRepo.findById(userVO.getOrgId()).get();
+			orgActive = companyVO.getActive();
+			isClientActive = "Active".equals(orgActive) ? true : false;
 		}
 
 		if (ObjectUtils.isNotEmpty(userVO)) {
-			CompanyVO companyVO1= companyRepo.findById(userVO.getOrgId()).get();
-			if(!licenseService.validateLicenseKey(companyVO1.getId(), companyVO1.getLicense())) {
-				throw new ApplicationException("License Expired, Please Contact Administrator");
-			}
+
 			if (userVO.getActive() == "In-Active") {
 				throw new ApplicationException("Your account is In-Active, Please Contact Administrator");
 			}
