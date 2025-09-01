@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ebooks.elevate.entity.PreviousYearActualVO;
 
@@ -130,9 +132,14 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 	PreviousYearActualVO getPreviousYearDetails(Long orgId, String clientCode, String year, String month,
 			String mainGroup, String subGroupCode, String accountCode);
 
-	@Query(nativeQuery = true,value = "select a.* from previousyearactual a where a.orgid=?1 and a.clientcode=?2 and a.year=?3 and a.maingroup=?4 and a.subgroup=?5")
+	@Query(nativeQuery = true,value = "select a.* from previousyearactual a where a.orgid=?1 and a.clientcode=?2 and a.year=?3 and a.maingroup=?4 and a.subgroup=?5 ")
 	List<PreviousYearActualVO> getClientBudgetDls(Long org, String clientcode, String yr, String maingroup,
 			String subgroup);
+	
+	@Modifying
+	@Transactional
+	@Query(value = "delete from previousyearactual a where a.orgid = ?1 and a.clientcode = ?2 and a.year = ?3 and a.maingroup = ?4 and a.subgroup = ?5", nativeQuery = true)
+	void deleteClientBudgetDls(Long orgId, String clientCode, String year, String mainGroup, String subGroup);
 
 	@Query(nativeQuery = true,value = "SELECT p.month, SUM(p.amount) FROM previousyearactual p \r\n"
 			+ "		       WHERE p.orgid = ?1 AND p.clientcode = ?2 AND p.year = ?3 \r\n"
@@ -163,6 +170,18 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 	
 	@Query(nativeQuery = true, value = "select * from previousyearactual where orgid=?1 and clientcode=?2 and year=?3 and maingroup=?4 and subgroup=?5 and accountname=?6 ")
 	List<PreviousYearActualVO> findOldDetails(Long orgId, String clientCode, String year, String mg, String mg2, String raw);
+
+	@Modifying
+    @Transactional
+    @Query(value = "DELETE FROM previousyearactual " +
+                   "WHERE orgid = ?1 " +
+                   "AND clientcode = ?2 " +
+                   "AND year = ?3 " +
+                   "AND maingroup = ?4 " +
+                   "AND subgroup = ?5 " +
+                   "AND month = ?6", nativeQuery = true)
+	void deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(Long orgId, String clientCode, String year,
+			String mainGroup, String subGroup, String month);
 
 	
 	

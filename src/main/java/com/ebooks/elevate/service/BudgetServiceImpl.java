@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,24 +203,33 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 
 		String createdBy = null;
-		String year = null;
-		Long orgId = null;
-		String clientCode = null;
 		String client = null;
 		String yearType = null;
+		
+		BudgetDTO firstDto = budgetDTOList.get(0);
+		Long orgId = firstDto.getOrgId();
+		String clientCode = firstDto.getClientCode();
+		String year = firstDto.getYear();
+		String mainGroup = firstDto.getMainGroup();
+		String subGroupname = firstDto.getSubGroup();
+
+		Set<String> distinctMonths = budgetDTOList.stream()
+		        .map(BudgetDTO::getMonth)
+		        .filter(Objects::nonNull)
+		        .collect(Collectors.toSet());
+
+		// ✅ Delete only once per distinct month
+		for (String month : distinctMonths) {
+		    budgetRepo.deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(
+		            orgId, clientCode, year, mainGroup, subGroupname, month
+		    );
+		}
 
 		// Delete existing records
 		for (BudgetDTO dto : budgetDTOList) {
 			try {
 				GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(dto.getOrgId(),
 						dto.getAccountName(), dto.getMainGroup());
-
-				List<BudgetVO> existing = budgetRepo.getClientBudgetDls(dto.getOrgId(), dto.getClientCode(),
-						dto.getYear(), dto.getMainGroup(), groupVO.getGroupName());
-
-				if (existing != null && !existing.isEmpty()) {
-					budgetRepo.deleteAll(existing);
-				}
 
 			} catch (Exception e) {
 				System.out.println("Error fetching group: " + dto.getAccountName() + " | " + dto.getMainGroup());
@@ -361,7 +372,6 @@ public class BudgetServiceImpl implements BudgetService {
 	}
 
 	@Override
-	@Transactional
 	public Map<String, Object> createUpdatePreviousYear(List<PreviousYearDTO> budgetDTOList) {
 		Map<String, Object> response = new HashMap<>();
 		if (budgetDTOList == null || budgetDTOList.isEmpty()) {
@@ -370,24 +380,34 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 
 		String createdBy = null;
-		String year = null;
-		Long orgId = null;
-		String clientCode = null;
 		String client = null;
 		String yearType = null;
+		
+		PreviousYearDTO firstDto = budgetDTOList.get(0);
+		Long orgId = firstDto.getOrgId();
+		String clientCode = firstDto.getClientCode();
+		String year = firstDto.getYear();
+		String mainGroup = firstDto.getMainGroup();
+		String subGroupname = firstDto.getSubGroup();
+
+		Set<String> distinctMonths = budgetDTOList.stream()
+		        .map(PreviousYearDTO::getMonth)
+		        .filter(Objects::nonNull)
+		        .collect(Collectors.toSet());
+
+		// ✅ Delete only once per distinct month
+		for (String month : distinctMonths) {
+		    previousYearActualRepo.deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(
+		            orgId, clientCode, year, mainGroup, subGroupname, month
+		    );
+		}
+		
 
 		// Delete existing records
 		for (PreviousYearDTO dto : budgetDTOList) {
 			try {
 				GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(dto.getOrgId(),
 						dto.getAccountName(), dto.getMainGroup());
-
-				List<PreviousYearActualVO> existing = previousYearActualRepo.getClientBudgetDls(dto.getOrgId(),
-						dto.getClientCode(), dto.getYear(), dto.getMainGroup(), groupVO.getGroupName());
-
-				if (existing != null && !existing.isEmpty()) {
-					previousYearActualRepo.deleteAll(existing);
-				}
 
 			} catch (Exception e) {
 				System.out.println("Error fetching group: " + dto.getAccountName() + " | " + dto.getMainGroup());

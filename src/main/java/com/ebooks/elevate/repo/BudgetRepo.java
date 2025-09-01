@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ebooks.elevate.entity.BudgetVO;
 
@@ -988,5 +990,17 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ ") t\r\n"
 			+ "GROUP BY t.description, t.natureofaccount, t.quater")
 	Set<Object[]> getELPySalesPurchaseAnalysisDetails(Long orgId, String previousYear, String clientCode, String type,String month);
+
+	@Modifying
+    @Transactional
+    @Query(value = "DELETE FROM budget " +
+                   "WHERE orgid = ?1 " +
+                   "AND clientcode = ?2 " +
+                   "AND year = ?3 " +
+                   "AND maingroup = ?4 " +
+                   "AND subgroup = ?5 " +
+                   "AND month = ?6", nativeQuery = true)
+	void deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(Long orgId, String clientCode, String year,
+			String mainGroup, String subGroup, String month);
 
 }
