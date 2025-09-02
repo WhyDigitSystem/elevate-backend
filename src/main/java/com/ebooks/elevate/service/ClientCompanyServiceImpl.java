@@ -12,6 +12,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +50,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 	@Autowired
 	ClientSegmentRepo clientSegmentRepo;
 	
+	@Value("${clientcount}")
+	private int clientLimit;
+	
 	@Override
 	public List<ClientCompanyVO> getClientCompanyByOrgId(Long orgId) {
 		return clientCompanyRepo.findClientCompanyByOrgId(orgId);
@@ -65,6 +70,11 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		ClientCompanyVO clientCompanyVO;
 
 		String message = null;
+		
+		int count= clientCompanyRepo.getClientCount(clientCompanyDTO.getOrgId());
+		if(count>=clientLimit && clientCompanyDTO.isActive()) {
+			throw new ApplicationContextException("No of Active Clients Limit Exceeded...");
+		}
 
 		if (ObjectUtils.isEmpty(clientCompanyDTO.getId())) {
 

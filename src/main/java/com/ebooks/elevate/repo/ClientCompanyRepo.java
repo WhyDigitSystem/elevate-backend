@@ -30,6 +30,9 @@ public interface ClientCompanyRepo extends JpaRepository<ClientCompanyVO, Long>{
 
 	ClientCompanyVO findByClientCode(String clientCode);
 
+	@Query(nativeQuery = true, value = "select count(*) from clientcompany where orgid=?1 and active=1")
+	int getClientCount(Long orgId);
+
 	
 
 

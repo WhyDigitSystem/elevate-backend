@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -111,6 +112,12 @@ public class AuthServiceImpl implements AuthService {
 	@Autowired
 	LicenseService licenseService;
 
+	
+	@Value("${usercount}")
+	private int userLimit;
+	
+	
+	
 	@Override
 	public void signup(SignUpFormDTO signUpRequest) {
 		String methodName = "signup()";
@@ -123,6 +130,10 @@ public class AuthServiceImpl implements AuthService {
 //		{
 //			throw new ApplicationContextException(UserConstants.ERRROR_MSG_USER_INFORMATION_ALREADY_REGISTERED);
 //		}
+		int count= userRepo.getUserCount(signUpRequest.getOrgId());
+		if(count>=userLimit && signUpRequest.isActive()) {
+			throw new ApplicationContextException("No of Active Users Limit Exceeded...");
+		}
 		UserVO userVO = getUserVOFromSignUpFormDTO(signUpRequest);
 		userRepo.save(userVO);
 		userService.createUserAction(userVO.getUserName(), userVO.getId(), UserConstants.USER_ACTION_ADD_ACCOUNT);
