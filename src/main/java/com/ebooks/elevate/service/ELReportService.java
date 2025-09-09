@@ -91,4 +91,7 @@ public interface ELReportService {
 
 	List<Map<String, Object>> getELPySalesPurchaseAnalysisDetails(Long orgId, String previousYear, String clientCode,
 			String type,String month);
+
+	List<Map<String, Object>> getELActualOBReport(Long orgId, String clientCode, String finYear, String month,
+			String previousYear, String type);
 }

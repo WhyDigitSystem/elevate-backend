@@ -807,5 +807,31 @@ public class ELReportController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+	
+	@GetMapping("/getElActualOBReport")
+	public ResponseEntity<ResponseDTO> getElActualOBReport(@RequestParam Long orgId,@RequestParam String clientCode,@RequestParam String finYear,@RequestParam String month, @RequestParam String previousYear,@RequestParam String type) {
+		String methodName = "getElActualOBReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elBudgetReport = new ArrayList<Map<String, Object>>();
+		try {
+			elBudgetReport = elReportService.getELActualOBReport(orgId,clientCode,finYear,month,previousYear,type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Actual OB Report information get successfully");
+			responseObjectsMap.put("elBudgetReport", elBudgetReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual OB Report information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 }
 

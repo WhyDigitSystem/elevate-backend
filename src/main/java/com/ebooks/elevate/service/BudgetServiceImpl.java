@@ -145,10 +145,10 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Autowired
 	PySalesPurchaseRepo pySalesPurchaseRepo;
-	
+
 	@Autowired
 	BudgetSalesPurchaseItemRepo budgetSalesPurchaseItemRepo;
-	
+
 	@Autowired
 	PySalesPurchaseItemRepo pySalesPurchaseItemRepo;
 
@@ -205,7 +205,7 @@ public class BudgetServiceImpl implements BudgetService {
 		String createdBy = null;
 		String client = null;
 		String yearType = null;
-		
+
 		BudgetDTO firstDto = budgetDTOList.get(0);
 		Long orgId = firstDto.getOrgId();
 		String clientCode = firstDto.getClientCode();
@@ -213,20 +213,31 @@ public class BudgetServiceImpl implements BudgetService {
 		String mainGroup = firstDto.getMainGroup();
 		String subGroupname = firstDto.getSubGroup();
 
-		Set<String> distinctMonths = budgetDTOList.stream()
-		        .map(BudgetDTO::getMonth)
-		        .filter(Objects::nonNull)
-		        .collect(Collectors.toSet());
+		Set<String> distinctMonths = budgetDTOList.stream().map(BudgetDTO::getMonth).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 
-		// ✅ Delete only once per distinct month
-		for (String month : distinctMonths) {
-		    budgetRepo.deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(
-		            orgId, clientCode, year, mainGroup, subGroupname, month
-		    );
+
+		List<BudgetDTO> positiveAmountList = budgetDTOList.stream()
+				.filter(dto -> dto.getAmount() != null && dto.getAmount().compareTo(BigDecimal.ZERO) > 0)
+				.collect(Collectors.toList());
+		Set<String> distinctSubgroup = new HashSet<>();
+		
+		for (BudgetDTO pto : positiveAmountList) {
+			GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(pto.getOrgId(),
+					pto.getAccountName(), pto.getMainGroup());
+			distinctSubgroup.add(groupVO.getGroupName());
+		}
+
+		for (String subg : distinctSubgroup) {
+			// ✅ Delete only once per distinct month
+			for (String month : distinctMonths) {
+				budgetRepo.deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(orgId, clientCode,
+						year, mainGroup, subg, month);
+			}
 		}
 
 		// Delete existing records
-		for (BudgetDTO dto : budgetDTOList) {
+		for (BudgetDTO dto : positiveAmountList) {
 			try {
 				GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(dto.getOrgId(),
 						dto.getAccountName(), dto.getMainGroup());
@@ -243,7 +254,7 @@ public class BudgetServiceImpl implements BudgetService {
 			yearType = dto.getYearType();
 		}
 
-		for (BudgetDTO dto : budgetDTOList) {
+		for (BudgetDTO dto : positiveAmountList) {
 			if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0)
 				continue;
 
@@ -382,29 +393,41 @@ public class BudgetServiceImpl implements BudgetService {
 		String createdBy = null;
 		String client = null;
 		String yearType = null;
+
 		
+
 		PreviousYearDTO firstDto = budgetDTOList.get(0);
 		Long orgId = firstDto.getOrgId();
 		String clientCode = firstDto.getClientCode();
 		String year = firstDto.getYear();
 		String mainGroup = firstDto.getMainGroup();
-		String subGroupname = firstDto.getSubGroup();
 
-		Set<String> distinctMonths = budgetDTOList.stream()
-		        .map(PreviousYearDTO::getMonth)
-		        .filter(Objects::nonNull)
-		        .collect(Collectors.toSet());
-
-		// ✅ Delete only once per distinct month
-		for (String month : distinctMonths) {
-		    previousYearActualRepo.deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(
-		            orgId, clientCode, year, mainGroup, subGroupname, month
-		    );
-		}
 		
 
+		Set<String> distinctMonths = budgetDTOList.stream().map(PreviousYearDTO::getMonth).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
+		List<PreviousYearDTO> positiveAmountList = budgetDTOList.stream()
+				.filter(dto -> dto.getAmount() != null && dto.getAmount().compareTo(BigDecimal.ZERO) > 0)
+				.collect(Collectors.toList());
+		Set<String> distinctSubgroup = new HashSet<>();
+		
+		for (PreviousYearDTO pto : positiveAmountList) {
+			GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(pto.getOrgId(),
+					pto.getAccountName(), pto.getMainGroup());
+			distinctSubgroup.add(groupVO.getGroupName());
+		}
+
+		for (String subg : distinctSubgroup) {
+			// ✅ Delete only once per distinct month
+			for (String month : distinctMonths) {
+				previousYearActualRepo.deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(orgId, clientCode,
+						year, mainGroup, subg, month);
+			}
+		}
+
 		// Delete existing records
-		for (PreviousYearDTO dto : budgetDTOList) {
+		for (PreviousYearDTO dto : positiveAmountList) {
 			try {
 				GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(dto.getOrgId(),
 						dto.getAccountName(), dto.getMainGroup());
@@ -421,7 +444,7 @@ public class BudgetServiceImpl implements BudgetService {
 			yearType = dto.getYearType();
 		}
 
-		for (PreviousYearDTO dto : budgetDTOList) {
+		for (PreviousYearDTO dto : positiveAmountList) {
 			if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0)
 				continue;
 
@@ -1844,15 +1867,15 @@ public class BudgetServiceImpl implements BudgetService {
 		String clientCode = firstDto.getClientCode();
 		String year = firstDto.getYear();
 		String type = firstDto.getType();
-		String month=firstDto.getMonth();
+		String month = firstDto.getMonth();
 
 		// Delete existing records
-				List<BudgetSalesPurchaseVO> existing = budgetSalesPurchaseRepo.getClientBudgetSalesPurchaseDtls(orgId,
-						clientCode, year, type,month);
+		List<BudgetSalesPurchaseVO> existing = budgetSalesPurchaseRepo.getClientBudgetSalesPurchaseDtls(orgId,
+				clientCode, year, type, month);
 
-				if (existing != null && !existing.isEmpty()) {
-					budgetSalesPurchaseRepo.deleteAll(existing);
-				}
+		if (existing != null && !existing.isEmpty()) {
+			budgetSalesPurchaseRepo.deleteAll(existing);
+		}
 		for (SalesPurchaseDTO dto : salesPurchaseDTO) {
 			if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0)
 				continue;
@@ -1882,7 +1905,6 @@ public class BudgetServiceImpl implements BudgetService {
 		response.put("message", "Successfully Saved");
 		return response;
 	}
-				
 
 	@Override
 	@Transactional
@@ -1897,12 +1919,12 @@ public class BudgetServiceImpl implements BudgetService {
 		String clientCode = firstDto.getClientCode();
 		String year = firstDto.getYear();
 		String type = firstDto.getType();
-		String month=firstDto.getMonth();
+		String month = firstDto.getMonth();
 
 		// Delete existing records
 
 		List<PySalesPurchaseVO> existing = pySalesPurchaseRepo.getClientPySalesPurchaseDtls(orgId, clientCode, year,
-				type,month);
+				type, month);
 
 		if (existing != null && !existing.isEmpty()) {
 			pySalesPurchaseRepo.deleteAll(existing);
@@ -1939,8 +1961,9 @@ public class BudgetServiceImpl implements BudgetService {
 	}
 
 	@Override
-	public Map<String, Object> createUpdateBudgetSalesPurchaseItemAnalysis(List<SalesPurchaseItemDTO> salesPurchaseItemDTO) {
-		
+	public Map<String, Object> createUpdateBudgetSalesPurchaseItemAnalysis(
+			List<SalesPurchaseItemDTO> salesPurchaseItemDTO) {
+
 		Map<String, Object> response = new HashMap<>();
 		if (salesPurchaseItemDTO == null || salesPurchaseItemDTO.isEmpty()) {
 			response.put("message", "No data to save");
@@ -1951,19 +1974,20 @@ public class BudgetServiceImpl implements BudgetService {
 		String clientCode = firstDto.getClientCode();
 		String year = firstDto.getYear();
 		String type = firstDto.getType();
-		String month=firstDto.getMonth();
+		String month = firstDto.getMonth();
 
 		// Delete existing records
 
-		List<BudgetSalesPurchaseItemVO> existing = budgetSalesPurchaseItemRepo.getClientBudgetSalesPurchaseItemDtls(orgId, clientCode, year,
-				type,month);
+		List<BudgetSalesPurchaseItemVO> existing = budgetSalesPurchaseItemRepo
+				.getClientBudgetSalesPurchaseItemDtls(orgId, clientCode, year, type, month);
 
 		if (existing != null && !existing.isEmpty()) {
 			budgetSalesPurchaseItemRepo.deleteAll(existing);
 		}
 
 		for (SalesPurchaseItemDTO dto : salesPurchaseItemDTO) {
-			if (dto.getValue() == null || dto.getValue().compareTo(BigDecimal.ZERO) == 0 && dto.getQty() == null || dto.getQty().compareTo(BigDecimal.ZERO) == 0)
+			if (dto.getValue() == null || dto.getValue().compareTo(BigDecimal.ZERO) == 0 && dto.getQty() == null
+					|| dto.getQty().compareTo(BigDecimal.ZERO) == 0)
 				continue;
 
 			BudgetSalesPurchaseItemVO vo = new BudgetSalesPurchaseItemVO();
@@ -1993,7 +2017,8 @@ public class BudgetServiceImpl implements BudgetService {
 	}
 
 	@Override
-	public Map<String, Object> createUpdatePySalesPurchaseItemAnalysis(List<SalesPurchaseItemDTO> salesPurchaseItemDTO) {
+	public Map<String, Object> createUpdatePySalesPurchaseItemAnalysis(
+			List<SalesPurchaseItemDTO> salesPurchaseItemDTO) {
 		Map<String, Object> response = new HashMap<>();
 		if (salesPurchaseItemDTO == null || salesPurchaseItemDTO.isEmpty()) {
 			response.put("message", "No data to save");
@@ -2004,19 +2029,20 @@ public class BudgetServiceImpl implements BudgetService {
 		String clientCode = firstDto.getClientCode();
 		String year = firstDto.getYear();
 		String type = firstDto.getType();
-		String month=firstDto.getMonth();
+		String month = firstDto.getMonth();
 
 		// Delete existing records
 
-		List<PySalesPurchaseItemVO> existing = pySalesPurchaseItemRepo.getClientPySalesPurchaseItemDtls(orgId, clientCode, year,
-				type,month);
+		List<PySalesPurchaseItemVO> existing = pySalesPurchaseItemRepo.getClientPySalesPurchaseItemDtls(orgId,
+				clientCode, year, type, month);
 
 		if (existing != null && !existing.isEmpty()) {
 			pySalesPurchaseItemRepo.deleteAll(existing);
 		}
 
 		for (SalesPurchaseItemDTO dto : salesPurchaseItemDTO) {
-			if (dto.getValue() == null || dto.getValue().compareTo(BigDecimal.ZERO) == 0 && dto.getQty() == null || dto.getQty().compareTo(BigDecimal.ZERO) == 0)
+			if (dto.getValue() == null || dto.getValue().compareTo(BigDecimal.ZERO) == 0 && dto.getQty() == null
+					|| dto.getQty().compareTo(BigDecimal.ZERO) == 0)
 				continue;
 
 			PySalesPurchaseItemVO vo = new PySalesPurchaseItemVO();
@@ -2044,7 +2070,7 @@ public class BudgetServiceImpl implements BudgetService {
 		response.put("message", "Successfully Saved");
 		return response;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getBudgetSalesPurchaseDetails(Long orgId, String finYear, String clientCode,
 			String type) {
@@ -2065,7 +2091,7 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getPySalesPurchaseDetails(Long orgId, String finYear, String clientCode,
 			String type) {
@@ -2073,16 +2099,16 @@ public class BudgetServiceImpl implements BudgetService {
 		Set<Object[]> subGroupDetails = pySalesPurchaseRepo.getPyDetails(orgId, finYear, clientCode, type);
 		return getBudgetDetails(subGroupDetails);
 	}
-	
-	
+
 	@Override
 	public List<Map<String, Object>> getBudgetSalesPurchaseItemDetails(Long orgId, String finYear, String clientCode,
 			String type) {
 
-		Set<Object[]> subGroupDetails = budgetSalesPurchaseItemRepo.getBudgetItemDetails(orgId, finYear, clientCode, type);
+		Set<Object[]> subGroupDetails = budgetSalesPurchaseItemRepo.getBudgetItemDetails(orgId, finYear, clientCode,
+				type);
 		return getBudgetItemDetails(subGroupDetails);
 	}
-	
+
 	private List<Map<String, Object>> getBudgetItemDetails(Set<Object[]> subGroupDetails) {
 		List<Map<String, Object>> subgroup = new ArrayList<>();
 		for (Object[] sub : subGroupDetails) {
@@ -2095,7 +2121,7 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		return subgroup;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getPySalesPurchaseItemDetails(Long orgId, String finYear, String clientCode,
 			String type) {
@@ -2108,7 +2134,7 @@ public class BudgetServiceImpl implements BudgetService {
 	public List<Map<String, Object>> getActualIncrementalGroupLedgersDetails(Long orgId, String year, String clientCode,
 			String mainGroup, String subGroup, String month) {
 		Set<Object[]> particularDetails = groupMappingRepo.getActualIncrementalLedgersDetails(orgId, year, clientCode,
-				mainGroup, subGroup,month);
+				mainGroup, subGroup, month);
 		return getIncrementalProfitLedgerDetails(particularDetails);
 	}
 }

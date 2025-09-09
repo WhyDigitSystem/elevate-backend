@@ -1152,4 +1152,31 @@ public class ELReportServiceImpl implements ELReportService {
 		return YTDTB;
 	}
 
+	@Override
+	public List<Map<String, Object>> getELActualOBReport(Long orgId, String clientCode, String finYear, String month,
+			String previousYear, String type) {
+		Set<Object[]>obdetails=budgetRepo.getELActualOrderBooking(orgId,clientCode,finYear,month,previousYear,type);
+		return ELActualOB(obdetails);
+	}
+	
+	private List<Map<String, Object>> ELActualOB(Set<Object[]> ELactualDetails) {
+
+		List<Map<String, Object>> YTDTB = new ArrayList<>();
+		for (Object[] bud : ELactualDetails) {
+			Map<String, Object> b = new HashMap<>();
+			b.put("customerName", bud[0] != null ? bud[0].toString() : "");
+			b.put("budget", bud[1] != null ? new BigDecimal(bud[1].toString()) : BigDecimal.ZERO);
+			b.put("actual", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+			b.put("py", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+			b.put("budgetYTD", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
+			b.put("ActualYTD", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+			b.put("pyYTD", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+			b.put("fullBudget", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+			b.put("fullActual", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+			b.put("fullPy", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+			YTDTB.add(b);
+		}
+		return YTDTB;
+	}
+
 }
