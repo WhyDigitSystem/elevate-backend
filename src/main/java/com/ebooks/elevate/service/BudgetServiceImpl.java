@@ -218,7 +218,7 @@ public class BudgetServiceImpl implements BudgetService {
 
 
 		List<BudgetDTO> positiveAmountList = budgetDTOList.stream()
-				.filter(dto -> dto.getAmount() != null && dto.getAmount().compareTo(BigDecimal.ZERO) > 0)
+				.filter(dto -> dto.getAmount() != null || dto.getAmount() !=BigDecimal.ZERO )
 				.collect(Collectors.toList());
 		Set<String> distinctSubgroup = new HashSet<>();
 		
@@ -255,9 +255,6 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 
 		for (BudgetDTO dto : positiveAmountList) {
-			if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0)
-				continue;
-
 			BudgetVO vo = new BudgetVO();
 			vo.setOrgId(dto.getOrgId());
 			vo.setClient(dto.getClient());
@@ -408,7 +405,7 @@ public class BudgetServiceImpl implements BudgetService {
 				.collect(Collectors.toSet());
 
 		List<PreviousYearDTO> positiveAmountList = budgetDTOList.stream()
-				.filter(dto -> dto.getAmount() != null && dto.getAmount().compareTo(BigDecimal.ZERO) > 0)
+				.filter(dto -> dto.getAmount() != null  || dto.getAmount() != BigDecimal.ZERO )
 				.collect(Collectors.toList());
 		Set<String> distinctSubgroup = new HashSet<>();
 		
@@ -445,8 +442,6 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 
 		for (PreviousYearDTO dto : positiveAmountList) {
-			if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0)
-				continue;
 
 			PreviousYearActualVO vo = new PreviousYearActualVO();
 			vo.setOrgId(dto.getOrgId());
