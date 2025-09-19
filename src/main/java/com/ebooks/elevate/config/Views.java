@@ -110,7 +110,21 @@ public class Views {
     			+ "        AND a.clientcode = b.clientcode \r\n"
     			+ "        AND a.accountname = b.clientcoa\r\n"
     			+ "    JOIN coa c \r\n"
-    			+ "        ON c.accountcode = b.coacode\r\n"
+    			+ "        ON c.accountcode = b.coacode group by a.orgid,\r\n"
+    			+ "    a.clientcode,\r\n"
+    			+ "    a.finyear,\r\n"
+    			+ "    a.month,\r\n"
+    			+ "    a.accountcode,\r\n"
+    			+ "    a.accountname,\r\n"
+    			+ "    b.coacode,\r\n"
+    			+ "    b.coa,\r\n"
+    			+ "    c.natureofaccount,\r\n"
+    			+ "    a.opbalancedb,\r\n"
+    			+ "    a.opbalancecr,\r\n"
+    			+ "    a.transdebit,\r\n"
+    			+ "    a.transcredit,\r\n"
+    			+ "    a.clbalancedb,\r\n"
+    			+ "    a.clbalancecr\r\n"
     			+ ") a\r\n"
     			+ "GROUP BY \r\n"
     			+ "    a.accountcode,\r\n"
@@ -121,7 +135,7 @@ public class Views {
     			+ "    a.orgid,\r\n"
     			+ "    a.clientcode,\r\n"
     			+ "    a.finyear,\r\n"
-    			+ "    a.month order by a.accountcode");
+    			+ "    a.month order by a.accountcode ");
     }
     
 }
