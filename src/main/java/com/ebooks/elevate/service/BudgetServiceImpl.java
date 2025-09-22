@@ -391,24 +391,20 @@ public class BudgetServiceImpl implements BudgetService {
 		String client = null;
 		String yearType = null;
 
-		
-
 		PreviousYearDTO firstDto = budgetDTOList.get(0);
 		Long orgId = firstDto.getOrgId();
 		String clientCode = firstDto.getClientCode();
 		String year = firstDto.getYear();
 		String mainGroup = firstDto.getMainGroup();
 
-		
-
 		Set<String> distinctMonths = budgetDTOList.stream().map(PreviousYearDTO::getMonth).filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
 		List<PreviousYearDTO> positiveAmountList = budgetDTOList.stream()
-				.filter(dto -> dto.getAmount() != null  || dto.getAmount() != BigDecimal.ZERO )
+				.filter(dto -> dto.getAmount() != null || dto.getAmount() != BigDecimal.ZERO)
 				.collect(Collectors.toList());
 		Set<String> distinctSubgroup = new HashSet<>();
-		
+
 		for (PreviousYearDTO pto : positiveAmountList) {
 			GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(pto.getOrgId(),
 					pto.getAccountName(), pto.getMainGroup());
@@ -1551,32 +1547,42 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Override
 	public Map<String, Object> createUpdateIncrementalProfitPY(List<IncrementalProfitDTO> budgetDTO) {
+
 		PreviousYearIncrementalProfitVO budgetVO = new PreviousYearIncrementalProfitVO();
+
 		Long org = null;
 		String clientcode = null;
 		String yr = null;
-		String subGroup = null;
-		for (IncrementalProfitDTO budgetDTO2 : budgetDTO) {
+		String month = null;
 
-			GroupLedgersVO groupLedgersVO = new GroupLedgersVO();
+//			GroupLedgersVO groupLedgersVO = new GroupLedgersVO();
+//
+//			try {
+//				groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(budgetDTO2.getOrgId(),
+//						budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
+//			} catch (Exception e) {
+//				System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
+//			}
+//			subGroup = groupLedgersVO.getGroupName();
 
-			try {
-				groupLedgersVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(budgetDTO2.getOrgId(),
-						budgetDTO2.getAccountName(), budgetDTO2.getMainGroup());
-			} catch (Exception e) {
-				System.out.println(budgetDTO2.getAccountName() + budgetDTO2.getMainGroup());
-			}
-			subGroup = groupLedgersVO.getGroupName();
+		IncrementalProfitDTO budgetDTO3 = budgetDTO.get(0);
+		org = budgetDTO3.getOrgId();
+		clientcode = budgetDTO3.getClientCode();
+		yr = budgetDTO3.getYear();
+		month = budgetDTO3.getMonth();
 
-			org = budgetDTO2.getOrgId();
-			clientcode = budgetDTO2.getClientCode();
-			yr = budgetDTO2.getYear();
+		Set<String> distinctSubgroup = new HashSet<>();
 
-			List<PreviousYearIncrementalProfitVO> vo = previousYearIncrementalProfitRepo.getClientBudgetDls(org,
-					clientcode, yr, subGroup);
-			if (vo != null) {
-				previousYearIncrementalProfitRepo.deleteAll(vo);
-			}
+		for (IncrementalProfitDTO pto : budgetDTO) {
+			GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(pto.getOrgId(),
+					pto.getAccountName(), pto.getMainGroup());
+			distinctSubgroup.add(groupVO.getGroupName());
+		}
+
+		for (String subg : distinctSubgroup) {
+			// ✅ Delete only once per distinct month
+			previousYearIncrementalProfitRepo.deleteByOrgIdAndClientAndYearAndSubGroupAndMonth(org, clientcode, yr,
+					subg, month);
 		}
 
 		for (IncrementalProfitDTO budgetDTO2 : budgetDTO) {
