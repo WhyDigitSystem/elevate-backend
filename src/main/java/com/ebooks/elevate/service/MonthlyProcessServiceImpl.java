@@ -31,7 +31,7 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 
 	@Autowired
 	MonthlyProcessDetailsRepo monthlyProcessDetailsRepo;
-	
+
 	@Autowired
 	QuaterMonthService quaterMonthService;
 
@@ -66,7 +66,7 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 		List<MonthlyProcessDetailsVO> monthlyProcessDetailsVO = monthlyProcessVO.getMonthlyProcessDetailsVO();
 		for (MonthlyProcessDetailsVO monthlyProcessDetailsVO2 : monthlyProcessDetailsVO) {
 			if (monthlyProcessDetailsVO2.isApproveStatus()) {
-				
+
 				PreviousYearActualVO previousYearActualVO = previousYearActualRepo.getPreviousYearDetails(
 						monthlyProcessDetailsVO2.getOrgId(), monthlyProcessDetailsVO2.getClientCode(),
 						monthlyProcessDetailsVO2.getYear(), monthlyProcessDetailsVO2.getMonth(),
@@ -90,25 +90,28 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 					previousYearActualVO.setAccountCode(monthlyProcessDetailsVO2.getElGlCode());
 					previousYearActualVO.setAccountName(monthlyProcessDetailsVO2.getElGl());
 					previousYearActualVO.setNatureOfAccount(monthlyProcessDetailsVO2.getNatureOfAccount());
-					if (monthlyProcessDetailsVO2.getNatureOfAccount().equals("Cr")) {
-						previousYearActualVO.setAmount(
-								monthlyProcessDetailsVO2.getClosingBalance().multiply(BigDecimal.valueOf(-1)));
+					if (!monthlyProcessVO.getMainGroup().equals("Balance Sheet Schedule")) {
+						if (monthlyProcessDetailsVO2.getNatureOfAccount().equals("Cr")) {
+							previousYearActualVO.setAmount(
+									monthlyProcessDetailsVO2.getClosingBalance().multiply(BigDecimal.valueOf(-1)));
+						} else {
+							previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
+						}
 					}
-					else
-					{
+					else {
 						previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
 					}
-					
-					int quater=quaterMonthService.getQuaterMonthDetails(monthlyProcessDTO.getYearType(), monthlyProcessDTO.getMonth());
+
+					int quater = quaterMonthService.getQuaterMonthDetails(monthlyProcessDTO.getYearType(),
+							monthlyProcessDTO.getMonth());
 					previousYearActualVO.setQuater(String.valueOf(quater));
-					int monthseq= quaterMonthService.getMonthNumber(monthlyProcessDTO.getYearType(), monthlyProcessDTO.getMonth());
+					int monthseq = quaterMonthService.getMonthNumber(monthlyProcessDTO.getYearType(),
+							monthlyProcessDTO.getMonth());
 					previousYearActualVO.setMonthsequence(monthseq);
-					
+
 					previousYearActualRepo.save(previousYearActualVO);
 
-				}
-				else
-				{
+				} else {
 					previousYearActualVO.setActive(true);
 					previousYearActualVO.setCancel(false);
 					previousYearActualVO.setCreatedBy(monthlyProcessVO.getCreatedBy());
@@ -127,16 +130,16 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 					if (monthlyProcessDetailsVO2.getNatureOfAccount().equals("Cr")) {
 						previousYearActualVO.setAmount(
 								monthlyProcessDetailsVO2.getClosingBalance().multiply(BigDecimal.valueOf(-1)));
-					}
-					else
-					{
+					} else {
 						previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
 					}
-					int quater=quaterMonthService.getQuaterMonthDetails(monthlyProcessDTO.getYearType(), monthlyProcessDTO.getMonth());
+					int quater = quaterMonthService.getQuaterMonthDetails(monthlyProcessDTO.getYearType(),
+							monthlyProcessDTO.getMonth());
 					previousYearActualVO.setQuater(String.valueOf(quater));
-					int monthseq= quaterMonthService.getMonthNumber(monthlyProcessDTO.getYearType(), monthlyProcessDTO.getMonth());
+					int monthseq = quaterMonthService.getMonthNumber(monthlyProcessDTO.getYearType(),
+							monthlyProcessDTO.getMonth());
 					previousYearActualVO.setMonthsequence(monthseq);
-					
+
 					previousYearActualRepo.save(previousYearActualVO);
 				}
 			}
