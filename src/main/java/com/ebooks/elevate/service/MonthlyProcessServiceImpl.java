@@ -127,10 +127,15 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 					previousYearActualVO.setAccountCode(monthlyProcessDetailsVO2.getElGlCode());
 					previousYearActualVO.setAccountName(monthlyProcessDetailsVO2.getElGl());
 					previousYearActualVO.setNatureOfAccount(monthlyProcessDetailsVO2.getNatureOfAccount());
-					if (monthlyProcessDetailsVO2.getNatureOfAccount().equals("Cr")) {
-						previousYearActualVO.setAmount(
-								monthlyProcessDetailsVO2.getClosingBalance().multiply(BigDecimal.valueOf(-1)));
-					} else {
+					if (!monthlyProcessVO.getMainGroup().equals("Balance Sheet Schedule")) {
+						if (monthlyProcessDetailsVO2.getNatureOfAccount().equals("Cr")) {
+							previousYearActualVO.setAmount(
+									monthlyProcessDetailsVO2.getClosingBalance().multiply(BigDecimal.valueOf(-1)));
+						} else {
+							previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
+						}
+					}
+					else {
 						previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
 					}
 					int quater = quaterMonthService.getQuaterMonthDetails(monthlyProcessDTO.getYearType(),
