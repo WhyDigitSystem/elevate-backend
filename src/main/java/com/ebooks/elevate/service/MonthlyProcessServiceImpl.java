@@ -90,18 +90,17 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 					previousYearActualVO.setAccountCode(monthlyProcessDetailsVO2.getElGlCode());
 					previousYearActualVO.setAccountName(monthlyProcessDetailsVO2.getElGl());
 					previousYearActualVO.setNatureOfAccount(monthlyProcessDetailsVO2.getNatureOfAccount());
-					if (!monthlyProcessVO.getMainGroup().equals("Balance Sheet Schedule")) {
-						if (monthlyProcessDetailsVO2.getNatureOfAccount().equals("Cr")) {
-							previousYearActualVO.setAmount(
-									monthlyProcessDetailsVO2.getClosingBalance().multiply(BigDecimal.valueOf(-1)));
-						} else {
-							previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
-						}
-					}
-					else {
-						previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
-					}
-
+//					if (!monthlyProcessVO.getMainGroup().equals("Balance Sheet Schedule")) {
+//						if (monthlyProcessDetailsVO2.getNatureOfAccount().equals("Cr")) {
+//							previousYearActualVO.setAmount(
+//									monthlyProcessDetailsVO2.getClosingBalance().multiply(BigDecimal.valueOf(-1)));
+//						} else {
+//							previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
+//						}
+//					} else {
+//						previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
+//					}
+					previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getFinalClosingBalance());
 					int quater = quaterMonthService.getQuaterMonthDetails(monthlyProcessDTO.getYearType(),
 							monthlyProcessDTO.getMonth());
 					previousYearActualVO.setQuater(String.valueOf(quater));
@@ -127,17 +126,18 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 					previousYearActualVO.setAccountCode(monthlyProcessDetailsVO2.getElGlCode());
 					previousYearActualVO.setAccountName(monthlyProcessDetailsVO2.getElGl());
 					previousYearActualVO.setNatureOfAccount(monthlyProcessDetailsVO2.getNatureOfAccount());
-					if (!monthlyProcessVO.getMainGroup().equals("Balance Sheet Schedule")) {
-						if (monthlyProcessDetailsVO2.getNatureOfAccount().equals("Cr")) {
-							previousYearActualVO.setAmount(
-									monthlyProcessDetailsVO2.getClosingBalance().multiply(BigDecimal.valueOf(-1)));
-						} else {
-							previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
-						}
-					}
-					else {
-						previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
-					}
+//					if (!monthlyProcessVO.getMainGroup().equals("Balance Sheet Schedule")) {
+//						if (monthlyProcessDetailsVO2.getNatureOfAccount().equals("Cr")) {
+//							previousYearActualVO.setAmount(
+//									monthlyProcessDetailsVO2.getClosingBalance().multiply(BigDecimal.valueOf(-1)));
+//						} else {
+//							previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
+//						}
+//					} else {
+//						previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getClosingBalance());
+//					}
+					
+					previousYearActualVO.setAmount(monthlyProcessDetailsVO2.getFinalClosingBalance());
 					int quater = quaterMonthService.getQuaterMonthDetails(monthlyProcessDTO.getYearType(),
 							monthlyProcessDTO.getMonth());
 					previousYearActualVO.setQuater(String.valueOf(quater));
@@ -219,6 +219,22 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 					vo.setMonthlyProcessVO(monthlyProcessVO);
 					if (dto.isApproveStatus()) {
 						vo.setClosingBalance(forTheMonthDebit.subtract(forTheMonthCredit));
+						if (monthlyProcessDTO.getMainGroup().equals("Sales")
+								|| monthlyProcessDTO.getMainGroup().equals("Other Income")
+								|| (monthlyProcessDTO.getMainGroup().equals("Balance Sheet Schedule")
+										&& (monthlyProcessDTO.getSubGroup().equals("Capitals")
+												|| monthlyProcessDTO.getSubGroup().equals("Loan")
+												|| monthlyProcessDTO.getSubGroup().equals("Sundry Creditors")
+												|| monthlyProcessDTO.getSubGroup().equals("Statutory Liability")
+												|| monthlyProcessDTO.getSubGroup().equals("Other Liability")))) {
+							BigDecimal diff = forTheMonthDebit.subtract(forTheMonthCredit);
+							vo.setFinalClosingBalance(diff.multiply(BigDecimal.valueOf(-1)));
+
+						}else {
+							BigDecimal diff = forTheMonthDebit.subtract(forTheMonthCredit);
+							vo.setFinalClosingBalance(diff);
+						}
+
 					} else {
 						vo.setClosingBalance(BigDecimal.ZERO);
 					}

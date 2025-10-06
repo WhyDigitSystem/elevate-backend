@@ -106,6 +106,10 @@ public class MonthlyProcessDetailsVO {
 	@Column(name = "closingbalance", precision = 20,scale = 2)
 	private BigDecimal closingBalance;
 	
+	@Column(name = "finalclosingbalance")
+	private BigDecimal finalClosingBalance;
+	
+	
 	
 	@JsonBackReference
 	@ManyToOne
