@@ -608,8 +608,10 @@ public class ELReportServiceImpl implements ELReportService {
 			b.put("ActualYTD", bud[10] != null ? new BigDecimal(bud[10].toString()) : BigDecimal.ZERO);
 			b.put("pyYTD", bud[11] != null ? new BigDecimal(bud[11].toString()) : BigDecimal.ZERO);
 			b.put("fullBudget", bud[12] != null ? new BigDecimal(bud[12].toString()) : BigDecimal.ZERO);
-			b.put("estimate", bud[13] != null ? new BigDecimal(bud[13].toString()) : BigDecimal.ZERO);
-			b.put("fullPy", bud[14] != null ? new BigDecimal(bud[14].toString()) : BigDecimal.ZERO);
+			b.put("fullPy", bud[13] != null ? new BigDecimal(bud[13].toString()) : BigDecimal.ZERO);
+			b.put("estimate", bud[14] != null ? new BigDecimal(bud[14].toString()) : BigDecimal.ZERO);
+			
+			
 			YTDTB.add(b);
 		}
 		return YTDTB;
