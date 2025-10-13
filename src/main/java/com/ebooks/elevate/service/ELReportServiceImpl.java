@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -639,12 +640,36 @@ public class ELReportServiceImpl implements ELReportService {
 		}
 		System.out.println(previousYear);
 
-		Set<Object[]> ELactualDetails = previousYearActualRepo.getELActualQuaterDetails(orgId, clientCode, finyear,
+		Set<Object[]> ELactualDetails = new HashSet<Object[]>();
+		if(mainGroupName.equals("Balance Sheet") || mainGroupName.equals("Profit And Loss Account")) {
+			ELactualDetails=previousYearActualRepo.getELActualAutomaticQuaterDetails(orgId, clientCode, finyear, previousYear, month, mainGroupName);
+			return ElActualAutomaticQuater(ELactualDetails);
+		}else {
+			ELactualDetails=previousYearActualRepo.getELActualQuaterDetails(orgId, clientCode, finyear,
 				previousYear, month, mainGroupName, subGroupCode);
-		return ElActualQuater(ELactualDetails);
+			return ElActualQuater(ELactualDetails);
+		}
+		
+	}
+
+	private List<Map<String, Object>> ElActualAutomaticQuater(Set<Object[]> eLactualDetails) {
+		
+		List<Map<String, Object>> YTDTB = new ArrayList<>();
+		for (Object[] bud : eLactualDetails) {
+			Map<String, Object> b = new HashMap<>();
+			b.put("elGlCode", bud[0] != null ? bud[0].toString() : "");
+			b.put("elGl", bud[1] != null ? bud[1].toString() : "");
+			b.put("budgetYTD", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
+			b.put("ActualYTD", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
+			b.put("pyYTD", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
+			b.put("quater", bud[5] != null ? bud[5].toString() : "");
+			YTDTB.add(b);
+		}
+		return YTDTB;
 	}
 
 	private List<Map<String, Object>> ElActualQuater(Set<Object[]> ELactualDetails) {
+		
 
 		List<Map<String, Object>> YTDTB = new ArrayList<>();
 		for (Object[] bud : ELactualDetails) {
