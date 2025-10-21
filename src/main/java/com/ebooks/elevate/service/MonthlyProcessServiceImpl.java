@@ -1,7 +1,6 @@
 package com.ebooks.elevate.service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,14 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.MonthlyProcessDTO;
+import com.ebooks.elevate.dto.TbHistoryDTO;
 import com.ebooks.elevate.entity.MonthlyProcessDetailsVO;
 import com.ebooks.elevate.entity.MonthlyProcessVO;
 import com.ebooks.elevate.entity.PreviousYearActualVO;
+import com.ebooks.elevate.entity.TbHistoryVO;
 import com.ebooks.elevate.entity.TrialBalanceVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.MonthlyProcessDetailsRepo;
 import com.ebooks.elevate.repo.MonthlyProcessRepo;
 import com.ebooks.elevate.repo.PreviousYearActualRepo;
+import com.ebooks.elevate.repo.TbHistoryRepo;
 import com.ebooks.elevate.repo.TrialBalanceRepo;
 
 @Service
@@ -43,6 +45,9 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 	
 	@Autowired
 	TrialBalanceRepo trialBalanceRepo; 
+	
+	@Autowired
+	TbHistoryRepo tbHistoryRepo;
 
 	@Override
 	public Map<String, Object> createUpdateMonthlyProcess(MonthlyProcessDTO monthlyProcessDTO)
@@ -268,11 +273,11 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 	}
 
 	@Override
-	public String DeleteTrialBalance(String year, String clientCode, String month) throws ApplicationException {
+	public String createTrialBalanceRemoveDetails(TbHistoryDTO tbHistoryDTO) throws ApplicationException {
 		
 		String message=null;
 		
-		List<Map<String,Object>>processedMonth=monthlyProcessRepo.findProcessedMonths(year,clientCode, month);
+		List<Map<String,Object>>processedMonth=monthlyProcessRepo.findProcessedMonths(tbHistoryDTO.getYear(),tbHistoryDTO.getClientCode(), tbHistoryDTO.getMonth());
 		
 		if (processedMonth != null && !processedMonth.isEmpty()) {
 			// Extract all month names from the result list
@@ -288,24 +293,32 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 		}
 		else {
 			
-			List<String>mainGroup=monthlyProcessRepo.getProcessedMainGroup(year,clientCode,month);
+			List<String>mainGroup=monthlyProcessRepo.getProcessedMainGroup(tbHistoryDTO.getYear(),tbHistoryDTO.getClientCode(), tbHistoryDTO.getMonth());
 			
 			for(String group:mainGroup) {
 				
-				List<PreviousYearActualVO>details=previousYearActualRepo.getDetails(year,clientCode,month,group);
+				List<PreviousYearActualVO>details=previousYearActualRepo.getDetails(tbHistoryDTO.getYear(),tbHistoryDTO.getClientCode(), tbHistoryDTO.getMonth(),group);
 				if(details!=null) {
 					previousYearActualRepo.deleteAll(details);
 				}
-				List<MonthlyProcessVO>MonthlyProcessDetails=monthlyProcessRepo.getDetails(year,clientCode,month,group);
+				List<MonthlyProcessVO>MonthlyProcessDetails=monthlyProcessRepo.getDetails(tbHistoryDTO.getYear(),tbHistoryDTO.getClientCode(), tbHistoryDTO.getMonth(),group);
 				if(MonthlyProcessDetails!=null) {
 					monthlyProcessRepo.deleteAll(MonthlyProcessDetails);
 				}
 			}
-			List<TrialBalanceVO>tbdetails=trialBalanceRepo.getDetails(year,clientCode,month);
+			List<TrialBalanceVO>tbdetails=trialBalanceRepo.getDetails(tbHistoryDTO.getYear(),tbHistoryDTO.getClientCode(), tbHistoryDTO.getMonth());
 			if(tbdetails!=null) {
 				trialBalanceRepo.deleteAll(tbdetails);
 			}
-			
+			TbHistoryVO tb= new TbHistoryVO();
+			tb.setMonth(tbHistoryDTO.getMonth());
+			tb.setYear(tbHistoryDTO.getYear());
+			tb.setClientCode(tbHistoryDTO.getClientCode());
+			tb.setClient(tbHistoryDTO.getClient());
+			tb.setCreatedBy(tbHistoryDTO.getCreatedBy());
+			tb.setUpdatedBy(tbHistoryDTO.getCreatedBy());
+			tb.setRemarks(tbHistoryDTO.getRemarks());
+			tbHistoryRepo.save(tb);
 			message="Trial Balance Details Deleted Sucessfully";
 			
 		}

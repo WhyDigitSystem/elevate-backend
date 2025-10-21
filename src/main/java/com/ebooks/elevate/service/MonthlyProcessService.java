@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.MonthlyProcessDTO;
+import com.ebooks.elevate.dto.TbHistoryDTO;
 import com.ebooks.elevate.entity.MonthlyProcessVO;
 import com.ebooks.elevate.exception.ApplicationException;
 
@@ -18,5 +19,6 @@ public interface MonthlyProcessService {
 
 	MonthlyProcessVO getAllMonthlyProcessById(Long id);
 	
-	String DeleteTrialBalance(String year, String clientCode,String month) throws ApplicationException;
+
+	String createTrialBalanceRemoveDetails(TbHistoryDTO tbHistoryDTO) throws ApplicationException;
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
 import com.ebooks.elevate.dto.MonthlyProcessDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
+import com.ebooks.elevate.dto.TbHistoryDTO;
 import com.ebooks.elevate.entity.MonthlyProcessVO;
 import com.ebooks.elevate.service.MonthlyProcessService;
 
@@ -106,15 +108,15 @@ public class MonthlyProcessController extends BaseController {
 	}
 	
 
-	@DeleteMapping("/deleteTrialBalanceDetails")
-	public ResponseEntity<ResponseDTO> deleteTrialBalanceDetails(@RequestParam String year,@RequestParam String clientCode,@RequestParam String month) {
-		String methodName = "deleteTrialBalanceDetails()";
+	@PostMapping("/createTrialBalanceRemoveDetails")
+	public ResponseEntity<ResponseDTO> createTrialBalanceRemoveDetails(@RequestBody TbHistoryDTO historyDTO) {
+		String methodName = "createTrialBalanceRemoveDetails()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
 		try {
-			String monthlyProcessVO = monthlyProcessService.DeleteTrialBalance(year, clientCode, month);
+			String monthlyProcessVO = monthlyProcessService.createTrialBalanceRemoveDetails(historyDTO);
 			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, monthlyProcessVO);
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} catch (Exception e) {
