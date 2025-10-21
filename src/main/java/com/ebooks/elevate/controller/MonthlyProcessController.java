@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -105,4 +106,23 @@ public class MonthlyProcessController extends BaseController {
 	}
 	
 
+	@DeleteMapping("/deleteTrialBalanceDetails")
+	public ResponseEntity<ResponseDTO> deleteTrialBalanceDetails(@RequestParam String year,@RequestParam String clientCode,@RequestParam String month) {
+		String methodName = "deleteTrialBalanceDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			String monthlyProcessVO = monthlyProcessService.DeleteTrialBalance(year, clientCode, month);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, monthlyProcessVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 }

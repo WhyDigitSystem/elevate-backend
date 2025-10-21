@@ -17,4 +17,6 @@ public interface MonthlyProcessService {
 	List<MonthlyProcessVO>getAllMonthlyProcessByClientCode(Long orgId,String clientCode,String mainGroup,String subGroupCode, String finYear);
 
 	MonthlyProcessVO getAllMonthlyProcessById(Long id);
+	
+	String DeleteTrialBalance(String year, String clientCode,String month) throws ApplicationException;
 }

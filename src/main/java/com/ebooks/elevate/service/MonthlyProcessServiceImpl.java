@@ -1,6 +1,7 @@
 package com.ebooks.elevate.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +17,12 @@ import com.ebooks.elevate.dto.MonthlyProcessDTO;
 import com.ebooks.elevate.entity.MonthlyProcessDetailsVO;
 import com.ebooks.elevate.entity.MonthlyProcessVO;
 import com.ebooks.elevate.entity.PreviousYearActualVO;
+import com.ebooks.elevate.entity.TrialBalanceVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.MonthlyProcessDetailsRepo;
 import com.ebooks.elevate.repo.MonthlyProcessRepo;
 import com.ebooks.elevate.repo.PreviousYearActualRepo;
+import com.ebooks.elevate.repo.TrialBalanceRepo;
 
 @Service
 public class MonthlyProcessServiceImpl implements MonthlyProcessService {
@@ -37,6 +40,9 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 
 	@Autowired
 	PreviousYearActualRepo previousYearActualRepo;
+	
+	@Autowired
+	TrialBalanceRepo trialBalanceRepo; 
 
 	@Override
 	public Map<String, Object> createUpdateMonthlyProcess(MonthlyProcessDTO monthlyProcessDTO)
@@ -259,6 +265,52 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 	public MonthlyProcessVO getAllMonthlyProcessById(Long id) {
 		MonthlyProcessVO monthlyProcessVO = monthlyProcessRepo.findById(id).get();
 		return monthlyProcessVO;
+	}
+
+	@Override
+	public String DeleteTrialBalance(String year, String clientCode, String month) throws ApplicationException {
+		
+		String message=null;
+		
+		List<Map<String,Object>>processedMonth=monthlyProcessRepo.findProcessedMonths(year,clientCode, month);
+		
+		if (processedMonth != null && !processedMonth.isEmpty()) {
+			// Extract all month names from the result list
+		    List<String> months = processedMonth.stream()
+		            .map(row -> row.get("month").toString())
+		            .collect(Collectors.toList());
+
+		    // Join the month names into a single string
+		    String monthList = String.join(", ", months);
+
+		    // Throw exception with month names
+		    throw new ApplicationException("Please remove these months first: " + monthList);
+		}
+		else {
+			
+			List<String>mainGroup=monthlyProcessRepo.getProcessedMainGroup(year,clientCode,month);
+			
+			for(String group:mainGroup) {
+				
+				List<PreviousYearActualVO>details=previousYearActualRepo.getDetails(year,clientCode,month,group);
+				if(details!=null) {
+					previousYearActualRepo.deleteAll(details);
+				}
+				List<MonthlyProcessVO>MonthlyProcessDetails=monthlyProcessRepo.getDetails(year,clientCode,month,group);
+				if(MonthlyProcessDetails!=null) {
+					monthlyProcessRepo.deleteAll(MonthlyProcessDetails);
+				}
+			}
+			List<TrialBalanceVO>tbdetails=trialBalanceRepo.getDetails(year,clientCode,month);
+			if(tbdetails!=null) {
+				trialBalanceRepo.deleteAll(tbdetails);
+			}
+			
+			message="Trial Balance Details Deleted Sucessfully";
+			
+		}
+		
+		return message;
 	}
 
 }

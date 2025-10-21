@@ -684,4 +684,7 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 			+ "GROUP BY h.accountcode, h.accountname,h.quater,h.display_sequence  order by h.quater,cast(h.display_sequence as unsigned) asc")
 	Set<Object[]> getELActualAutomaticQuaterDetails(Long orgId, String clientCode, String finyear, String previousYear, String month,
 			String mainGroupName);
+
+	@Query(nativeQuery = true, value = "select * from previousyearactual where year=?1 and clientcode=?2 and month=?3 and maingroup=?4")
+	List<PreviousYearActualVO> getDetails(String year, String clientCode, String month, String group);
 }

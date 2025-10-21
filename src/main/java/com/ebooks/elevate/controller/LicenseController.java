@@ -23,17 +23,17 @@ public class LicenseController {
         this.licenseService = licenseService;
     }
 
-    // Generate license key
-    @GetMapping("/generate")
-    public String generateKey(@RequestParam Long companyId,
-                              @RequestParam String expiryDate) throws Exception {
-        LocalDate expiry = LocalDate.parse(expiryDate);
-        return licenseService.generateLicenseKey(companyId, expiry);
-    }
-
-    // Validate license key
-    @PostMapping("/validate")
-    public boolean validateKey(@RequestParam Long companyId,@RequestBody String licenseKey) {
-        return licenseService.validateLicenseKey(companyId,licenseKey);
-    }
+//    // Generate license key
+//    @GetMapping("/generate")
+//    public String generateKey(@RequestParam Long companyId,
+//                              @RequestParam String expiryDate) throws Exception {
+//        LocalDate expiry = LocalDate.parse(expiryDate);
+//        return licenseService.generateLicenseKey(companyId, expiry);
+//    }
+//
+//    // Validate license key
+//    @PostMapping("/validate")
+//    public boolean validateKey(@RequestParam Long companyId,@RequestBody String licenseKey) {
+//        return licenseService.validateLicenseKey(companyId,licenseKey);
+//    }
 }
