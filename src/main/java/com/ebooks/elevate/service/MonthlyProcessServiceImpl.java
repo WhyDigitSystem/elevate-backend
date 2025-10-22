@@ -313,6 +313,7 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 			TbHistoryVO tb= new TbHistoryVO();
 			tb.setMonth(tbHistoryDTO.getMonth());
 			tb.setYear(tbHistoryDTO.getYear());
+			tb.setOrgId(tbHistoryDTO.getOrgId());
 			tb.setClientCode(tbHistoryDTO.getClientCode());
 			tb.setClient(tbHistoryDTO.getClient());
 			tb.setCreatedBy(tbHistoryDTO.getCreatedBy());
