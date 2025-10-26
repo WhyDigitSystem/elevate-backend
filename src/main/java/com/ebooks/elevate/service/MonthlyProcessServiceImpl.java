@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -12,14 +13,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ebooks.elevate.dto.MonthCloseDTO;
 import com.ebooks.elevate.dto.MonthlyProcessDTO;
 import com.ebooks.elevate.dto.TbHistoryDTO;
+import com.ebooks.elevate.entity.MonthCloseVO;
 import com.ebooks.elevate.entity.MonthlyProcessDetailsVO;
 import com.ebooks.elevate.entity.MonthlyProcessVO;
 import com.ebooks.elevate.entity.PreviousYearActualVO;
 import com.ebooks.elevate.entity.TbHistoryVO;
 import com.ebooks.elevate.entity.TrialBalanceVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.MonthCloseRepo;
 import com.ebooks.elevate.repo.MonthlyProcessDetailsRepo;
 import com.ebooks.elevate.repo.MonthlyProcessRepo;
 import com.ebooks.elevate.repo.PreviousYearActualRepo;
@@ -48,10 +52,20 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 	
 	@Autowired
 	TbHistoryRepo tbHistoryRepo;
+	
+	@Autowired
+	MonthCloseRepo monthCloseRepo;
+	
 
 	@Override
 	public Map<String, Object> createUpdateMonthlyProcess(MonthlyProcessDTO monthlyProcessDTO)
 			throws ApplicationException {
+		
+		if(!validateMonthOpen(monthlyProcessDTO.getClientCode(), monthlyProcessDTO.getYear(), monthlyProcessDTO.getMonth())) {
+			throw new ApplicationException(
+			        "Month of " + monthlyProcessDTO.getMonth() +" already closed:" );
+		}
+		
 		MonthlyProcessVO monthlyProcessVO = new MonthlyProcessVO();
 		String message;
 		MonthlyProcessVO monthly = monthlyProcessRepo.getOrgIdAndClientCodeAndYearAndMonthAndMainGroupAndSubGroup(
@@ -275,6 +289,11 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 	@Override
 	public String createTrialBalanceRemoveDetails(TbHistoryDTO tbHistoryDTO) throws ApplicationException {
 		
+		if(!validateMonthOpen(tbHistoryDTO.getClientCode(), tbHistoryDTO.getYear(), tbHistoryDTO.getMonth())) {
+			throw new ApplicationException(
+			        "TB Remove failed. Month of " + tbHistoryDTO.getMonth() +" already closed:" );
+		}
+		
 		String message=null;
 		
 		List<Map<String,Object>>processedMonth=monthlyProcessRepo.findProcessedMonths(tbHistoryDTO.getYear(),tbHistoryDTO.getClientCode(), tbHistoryDTO.getMonth());
@@ -326,5 +345,47 @@ public class MonthlyProcessServiceImpl implements MonthlyProcessService {
 		
 		return message;
 	}
+
+	@Override
+	public MonthCloseVO createMonthClose(MonthCloseDTO dto) {
+		MonthCloseVO vo = new MonthCloseVO();
+	    vo.setOrgId(dto.getOrgId());
+	    vo.setClient(dto.getClient());
+	    vo.setClientCode(dto.getClientCode());
+	    vo.setFinYear(dto.getFinYear());
+	    vo.setMonth(dto.getMonth());
+	    int monthseq = quaterMonthService.getMonthNumber(dto.getYearType(),
+	    		dto.getMonth());
+	    vo.setMonthSequnce(monthseq);
+	    vo.setStatus("CLOSED");
+	    vo.setClosedBy(dto.getClosedBy());
+	    vo.setClosedDate(java.time.LocalDateTime.now());
+	    vo.setCreatedBy(dto.getClosedBy());
+	    vo.setModifiedBy(dto.getClosedBy());
+	    monthCloseRepo.save(vo);
+	    return vo;
+	}
+	
+	@Override
+	public String getUnclosedMonth(String clientCode, String year ) {
+		
+		return monthCloseRepo.getUnclosedMonth(clientCode,year);
+		
+	}
+	
+	@Override
+	public boolean validateMonthOpen(String clientCode, String year, String month) {
+		 // Check month close status in the database
+        Optional<MonthCloseVO> record = monthCloseRepo
+            .findByClientCodeAndFinYearAndMonth(clientCode, year, month);
+
+        // If record exists and status is CLOSED -> return false (month closed)
+        if (record.isPresent() && "CLOSED".equalsIgnoreCase(record.get().getStatus())) {
+            return false;
+        }
+
+        // Otherwise, return true (month open)
+        return true;
+    }
 
 }

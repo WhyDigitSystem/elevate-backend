@@ -151,6 +151,9 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Autowired
 	PySalesPurchaseItemRepo pySalesPurchaseItemRepo;
+	
+	@Autowired
+	MonthlyProcessService monthlyProcessService;
 
 	@Override
 	public List<Map<String, Object>> getSubGroupDetails(Long orgId, String mainGroup) {
@@ -219,6 +222,7 @@ public class BudgetServiceImpl implements BudgetService {
 
 		List<BudgetDTO> positiveAmountList = budgetDTOList.stream()
 				.filter(dto -> dto.getAmount() != null || dto.getAmount() !=BigDecimal.ZERO )
+//				.filter(dto -> monthlyProcessService.validateMonthOpen(dto.getClientCode(), dto.getYear(), dto.getMonth()))
 				.collect(Collectors.toList());
 		Set<String> distinctSubgroup = new HashSet<>();
 		
@@ -231,6 +235,12 @@ public class BudgetServiceImpl implements BudgetService {
 		for (String subg : distinctSubgroup) {
 			// ✅ Delete only once per distinct month
 			for (String month : distinctMonths) {
+//				if (!monthlyProcessService.validateMonthOpen(clientCode, year, month)) {
+//		            // Skip this month since it is closed
+//		            System.out.println("Skipping deletion for closed month: " + month);
+//		            continue;
+//		        }
+				
 				budgetRepo.deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(orgId, clientCode,
 						year, mainGroup, subg, month);
 			}
@@ -255,6 +265,11 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 
 		for (BudgetDTO dto : positiveAmountList) {
+			
+			if(dto.getAmount()==BigDecimal.ZERO) {
+				continue;
+			}
+			
 			BudgetVO vo = new BudgetVO();
 			vo.setOrgId(dto.getOrgId());
 			vo.setClient(dto.getClient());

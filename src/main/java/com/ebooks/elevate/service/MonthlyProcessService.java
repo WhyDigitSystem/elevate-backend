@@ -5,8 +5,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.ebooks.elevate.dto.MonthCloseDTO;
 import com.ebooks.elevate.dto.MonthlyProcessDTO;
 import com.ebooks.elevate.dto.TbHistoryDTO;
+import com.ebooks.elevate.entity.MonthCloseVO;
 import com.ebooks.elevate.entity.MonthlyProcessVO;
 import com.ebooks.elevate.exception.ApplicationException;
 
@@ -21,4 +23,10 @@ public interface MonthlyProcessService {
 	
 
 	String createTrialBalanceRemoveDetails(TbHistoryDTO tbHistoryDTO) throws ApplicationException;
+	
+	MonthCloseVO createMonthClose(MonthCloseDTO monthCloseDTO);
+
+	boolean validateMonthOpen(String clientCode, String year, String month);
+
+	String getUnclosedMonth(String clientCode, String year);
 }

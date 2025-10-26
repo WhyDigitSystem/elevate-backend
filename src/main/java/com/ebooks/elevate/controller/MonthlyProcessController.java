@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
+import com.ebooks.elevate.dto.MonthCloseDTO;
 import com.ebooks.elevate.dto.MonthlyProcessDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.dto.TbHistoryDTO;
+import com.ebooks.elevate.entity.MonthCloseVO;
 import com.ebooks.elevate.entity.MonthlyProcessVO;
 import com.ebooks.elevate.service.MonthlyProcessService;
 
@@ -123,6 +125,51 @@ public class MonthlyProcessController extends BaseController {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
 			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PostMapping("/createMonthClose")
+	public ResponseEntity<ResponseDTO> createMonthClose(@RequestBody MonthCloseDTO monthCloseDTO) {
+		String methodName = "createMonthClose()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			MonthCloseVO monthClose = monthlyProcessService.createMonthClose(monthCloseDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, monthClose);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getUnclosedMonthByClient")
+	public ResponseEntity<ResponseDTO> getUnclosedMonthByClient(@RequestParam String clientCode,@RequestParam String year) {
+		String methodName = "getUnclosedMonthByClient()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		String month = null;
+		try {
+			month = monthlyProcessService.getUnclosedMonth(clientCode, year);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Unclosed Month information get successfully");
+			responseObjectsMap.put("month", month);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Unclosed Month information receive failed", errorMsg);
 		}
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);

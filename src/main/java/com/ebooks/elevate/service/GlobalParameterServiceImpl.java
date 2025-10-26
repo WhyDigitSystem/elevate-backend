@@ -18,11 +18,13 @@ import com.ebooks.elevate.dto.GlobalParameterDTO;
 import com.ebooks.elevate.entity.ClientCompanyVO;
 import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.entity.GlobalParameterVO;
+import com.ebooks.elevate.entity.MonthCloseVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.ClientCompanyRepo;
 import com.ebooks.elevate.repo.ClientRepo;
 import com.ebooks.elevate.repo.FinancialYearRepo;
 import com.ebooks.elevate.repo.GlobalParameterRepo;
+import com.ebooks.elevate.repo.MonthCloseRepo;
 import com.ebooks.elevate.repo.UserBranchAccessRepo;
 import com.ebooks.elevate.repo.UserRepo;
 
@@ -51,6 +53,9 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 	
 	@Autowired
 	ClientCompanyRepo clientCompanyRepo;
+	
+	@Autowired
+	MonthCloseRepo monthCloseRepo;
 
 	// Global Parametre
 
@@ -111,6 +116,14 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 	        existingRecord.setMonth(globalParameterDTO.getMonth());
 	        existingRecord.setClientYear(clientCompanyVO.getClientYear());
 	        existingRecord.setPy(previousYear);
+	        Optional<MonthCloseVO> record = monthCloseRepo
+	                .findByClientCodeAndFinYearAndMonth(globalParameterDTO.getClientCode(), globalParameterDTO.getFinYear(), globalParameterDTO.getMonth());
+	        if (record.isPresent() && "CLOSED".equalsIgnoreCase(record.get().getStatus())) {
+	        	existingRecord.setMonthClose("CLOSED");
+	        }
+	        else {
+	        	existingRecord.setMonthClose("OPEN");
+	        }
 	        globalParameterVO = globalParameterRepo.save(existingRecord);
 	        message = "GlobalParameter Updation Successfully";
 	    } else {
@@ -123,6 +136,14 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 	        globalParameterVO.setClientYear(globalParameterDTO.getClientYear());
 	        globalParameterVO.setClientName(globalParameterDTO.getClientName());
 	        globalParameterVO.setPy(previousYear);
+	        Optional<MonthCloseVO> record = monthCloseRepo
+	                .findByClientCodeAndFinYearAndMonth(globalParameterDTO.getClientCode(), globalParameterDTO.getFinYear(), globalParameterDTO.getMonth());
+	        if (record.isPresent() && "CLOSED".equalsIgnoreCase(record.get().getStatus())) {
+	        	existingRecord.setMonthClose("CLOSED");
+	        }
+	        else {
+	        	existingRecord.setMonthClose("OPEN");
+	        }
 	        globalParameterVO = globalParameterRepo.save(globalParameterVO);
 	        message = "GlobalParameter Creation Successfully";
 	    }
