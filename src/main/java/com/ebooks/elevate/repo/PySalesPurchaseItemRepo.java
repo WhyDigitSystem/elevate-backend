@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ebooks.elevate.entity.PySalesPurchaseItemVO;
 
@@ -16,5 +18,17 @@ public interface PySalesPurchaseItemRepo extends JpaRepository<PySalesPurchaseIt
 
 	@Query(nativeQuery = true,value = "select description,month,qty,value from pysalespurchaseitem where orgid=?1 and year=?2 and clientcode=?3 and type=?4")
 	Set<Object[]> getPyItemDetails(Long orgId, String finYear, String clientCode, String type);
+
+
+	@Modifying
+    @Transactional
+    @Query(value = "DELETE FROM pysalespurchaseitem " +
+                   "WHERE orgid = ?1 " +
+                   "AND clientcode = ?2 " +
+                   "AND year = ?3 " +
+                   "AND type = ?4 " +
+                   "AND month = ?5", nativeQuery = true)
+	void deleteByOrgIdAndClientAndYearAndTypeAndMonth(Long orgId, String clientCode, String year, String type,
+			String months);
 
 }

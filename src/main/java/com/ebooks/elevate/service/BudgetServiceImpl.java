@@ -1885,12 +1885,12 @@ public class BudgetServiceImpl implements BudgetService {
 		String type = firstDto.getType();
 		String month = firstDto.getMonth();
 
-		// Delete existing records
-		List<BudgetSalesPurchaseVO> existing = budgetSalesPurchaseRepo.getClientBudgetSalesPurchaseDtls(orgId,
-				clientCode, year, type, month);
-
-		if (existing != null && !existing.isEmpty()) {
-			budgetSalesPurchaseRepo.deleteAll(existing);
+		Set<String> distinctMonths = salesPurchaseDTO.stream().map(SalesPurchaseDTO::getMonth).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+		
+		for (String months : distinctMonths) {
+			budgetSalesPurchaseRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode,
+					year, type, months);
 		}
 		for (SalesPurchaseDTO dto : salesPurchaseDTO) {
 			if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0)
@@ -1937,14 +1937,21 @@ public class BudgetServiceImpl implements BudgetService {
 		String type = firstDto.getType();
 		String month = firstDto.getMonth();
 
+		Set<String> distinctMonths = salesPurchaseDTO.stream().map(SalesPurchaseDTO::getMonth).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+		
+		for (String months : distinctMonths) {
+			pySalesPurchaseRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode,
+					year, type, months);
+		}
+		
 		// Delete existing records
+		
 
 		List<PySalesPurchaseVO> existing = pySalesPurchaseRepo.getClientPySalesPurchaseDtls(orgId, clientCode, year,
 				type, month);
 
-		if (existing != null && !existing.isEmpty()) {
-			pySalesPurchaseRepo.deleteAll(existing);
-		}
+		
 
 		for (SalesPurchaseDTO dto : salesPurchaseDTO) {
 			if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0)
@@ -1992,13 +1999,12 @@ public class BudgetServiceImpl implements BudgetService {
 		String type = firstDto.getType();
 		String month = firstDto.getMonth();
 
-		// Delete existing records
-
-		List<BudgetSalesPurchaseItemVO> existing = budgetSalesPurchaseItemRepo
-				.getClientBudgetSalesPurchaseItemDtls(orgId, clientCode, year, type, month);
-
-		if (existing != null && !existing.isEmpty()) {
-			budgetSalesPurchaseItemRepo.deleteAll(existing);
+		Set<String> distinctMonths = salesPurchaseItemDTO.stream().map(SalesPurchaseItemDTO::getMonth).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+		
+		for (String months : distinctMonths) {
+			budgetSalesPurchaseItemRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode,
+					year, type, months);
 		}
 
 		for (SalesPurchaseItemDTO dto : salesPurchaseItemDTO) {
@@ -2047,13 +2053,12 @@ public class BudgetServiceImpl implements BudgetService {
 		String type = firstDto.getType();
 		String month = firstDto.getMonth();
 
-		// Delete existing records
-
-		List<PySalesPurchaseItemVO> existing = pySalesPurchaseItemRepo.getClientPySalesPurchaseItemDtls(orgId,
-				clientCode, year, type, month);
-
-		if (existing != null && !existing.isEmpty()) {
-			pySalesPurchaseItemRepo.deleteAll(existing);
+		Set<String> distinctMonths = salesPurchaseItemDTO.stream().map(SalesPurchaseItemDTO::getMonth).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+		
+		for (String months : distinctMonths) {
+			pySalesPurchaseItemRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode,
+					year, type, months);
 		}
 
 		for (SalesPurchaseItemDTO dto : salesPurchaseItemDTO) {

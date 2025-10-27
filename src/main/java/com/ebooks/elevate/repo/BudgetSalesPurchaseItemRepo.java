@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ebooks.elevate.entity.BudgetSalesPurchaseItemVO;
 
@@ -16,5 +18,16 @@ public interface BudgetSalesPurchaseItemRepo extends JpaRepository<BudgetSalesPu
 
 	@Query(nativeQuery = true,value = "select description,month,qty,value from budgetsalespurchaseitem where orgid=?1 and year=?2 and clientcode=?3 and type=?4")
 	Set<Object[]> getBudgetItemDetails(Long orgId, String finYear, String clientCode, String type);
+
+	@Modifying
+    @Transactional
+    @Query(value = "DELETE FROM budgetsalespurchaseitem " +
+                   "WHERE orgid = ?1 " +
+                   "AND clientcode = ?2 " +
+                   "AND year = ?3 " +
+                   "AND type = ?4 " +
+                   "AND month = ?5", nativeQuery = true)
+	void deleteByOrgIdAndClientAndYearAndTypeAndMonth(Long orgId, String clientCode, String year, String type,
+			String months);
 
 }
