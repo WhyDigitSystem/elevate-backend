@@ -875,7 +875,7 @@ public interface PreviousYearActualRepo extends JpaRepository<PreviousYearActual
 			+ "union\r\n"
 			+ "select 'Ratio Analysis'heading,accountname maingroup, 0 bud,amount act,0 py from previousyearactual where clientcode=?1 and year=?2 and month=?4 and maingroup='Ratio Analysis' and subgroup='Ratio' and accountname in('Current Ratio','ROA (%)','ROE (%)')\r\n"
 			+ "union\r\n"
-			+ "select 'Ratio Analysis'heading,accountname maingroup, 0 bud,amount act,0 py from previousyearactual where clientcode=?1 and year=?3 and month=?4 and maingroup='Ratio Analysis' and subgroup='Ratio' and accountname in('Current Ratio','ROA (%)','ROE (%)'))t group by t.heading, t.maingroup")
+			+ "select 'Ratio Analysis'heading,accountname maingroup, 0 bud,0 act,amount py from previousyearactual where clientcode=?1 and year=?3 and month=?4 and maingroup='Ratio Analysis' and subgroup='Ratio' and accountname in('Current Ratio','ROA (%)','ROE (%)'))t group by t.heading, t.maingroup")
 	Set<Object[]> getELSummaryRatioAnalysisReport(String clientCode, String finYear, String previousYear, String month);
 
 }
