@@ -287,6 +287,12 @@ public class BudgetServiceImpl implements BudgetService {
 			try {
 				GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(dto.getOrgId(),
 						dto.getAccountName(), dto.getMainGroup());
+				if (groupVO != null && groupVO.getParentCode() != null) {
+				    vo.setSubGroupCode(groupVO.getParentCode());
+				    		
+				    } else {
+				    vo.setSubGroupCode(null);
+				}
 				vo.setSubGroup(groupVO.getGroupName());
 			} catch (Exception e) {
 				System.out.println("Group fetch failed: " + dto.getAccountName() + " | " + dto.getMainGroup());
@@ -471,12 +477,16 @@ public class BudgetServiceImpl implements BudgetService {
 			try {
 				GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(dto.getOrgId(),
 						dto.getAccountName(), dto.getMainGroup());
-				vo.setSubGroup(groupVO.getGroupName());
+				if (groupVO != null && groupVO.getParentCode() != null) {
+				    vo.setSubGroupCode(groupVO.getParentCode());
+				    		
+				    } else {
+				    vo.setSubGroupCode(null);
+				}
+				vo.setSubGroup(groupVO.getGroupName());	
 			} catch (Exception e) {
 				System.out.println("Group fetch failed: " + dto.getAccountName() + " | " + dto.getMainGroup());
 			}
-
-			vo.setSubGroupCode(dto.getSubGroupCode());
 			vo.setActive(true);
 
 			int quarter = quaterMonthService.getQuaterMonthDetails(dto.getYearType(), dto.getMonth());

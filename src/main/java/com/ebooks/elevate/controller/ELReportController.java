@@ -833,5 +833,32 @@ public class ELReportController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+	
+	@GetMapping("/getSummaryReport")
+	public ResponseEntity<ResponseDTO> getSummaryReport(@RequestParam String clientCode,
+			@RequestParam String finyear, @RequestParam String previousYear, @RequestParam String month,@RequestParam String type) {
+		String methodName = "getSummaryReport()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> elSummaryReport = new ArrayList<Map<String, Object>>();
+		try {
+			elSummaryReport = elReportService.getELSummaryReport(clientCode, finyear, previousYear, month,type);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "EL Actual Report information get successfully");
+			responseObjectsMap.put("elSummaryReport", elSummaryReport);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "EL Actual Report information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 }
 

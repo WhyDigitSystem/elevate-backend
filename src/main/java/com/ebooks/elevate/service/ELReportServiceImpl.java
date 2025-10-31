@@ -66,6 +66,9 @@ public class ELReportServiceImpl implements ELReportService {
 
 	@Autowired
 	OrderBookingRepo orderBookingRepo;
+	
+	@Autowired
+    private SummaryPLService summaryPLService;
 
 	@Override
 	public Map<String, Object> createUpdateElMfr(ElMfrDTO elMfrDTO) throws ApplicationException {
@@ -1206,4 +1209,61 @@ public class ELReportServiceImpl implements ELReportService {
 		return YTDTB;
 	}
 
+	@Override
+	public List<Map<String, Object>> getELSummaryReport(String clientCode, String finYear, String previousYear,
+			String month,String type) {
+		Set<Object[]> summaryData= new HashSet<>();
+		if(type.equals("Profit And Loss Account")) {
+			
+		summaryData= summaryPLService.getELSummaryReport(clientCode, finYear, previousYear, month);
+		}
+		else if(type.equals("Balance Sheet")) {
+			summaryData= previousYearActualRepo.getELSummaryBalanceSheetReport(clientCode, finYear, previousYear, month);
+		}
+		else if(type.equals("Cash Flow")) {
+			summaryData= summaryPLService.getELSummaryCashFlowReport(clientCode, finYear, previousYear, month);
+		}
+		else if(type.equals("Head Count")) {
+			summaryData= previousYearActualRepo.getELSummaryHeadCountReport(clientCode, finYear, previousYear, month);
+		}
+		else if(type.equals("Ratio Analysis")) {
+			summaryData= previousYearActualRepo.getELSummaryRatioAnalysisReport(clientCode, finYear, previousYear, month);
+		}
+        return mapSummaryPL(summaryData);
+	}
+	
+	private List<Map<String, Object>> mapSummaryPL(Set<Object[]> summaryData) {
+        List<Map<String, Object>> responseList = new ArrayList<>();
+
+        for (Object[] data : summaryData) {
+            Map<String, Object> map = new HashMap<>();
+
+            map.put("sno", data[0] != null ? data[0].toString() : "");
+            map.put("elGlCode", data[1] != null ? data[1].toString() : "");
+            map.put("elGl", data[2] != null ? data[2].toString() : "");
+            map.put("budget", toBigDecimal(data[3]));
+            map.put("actual", toBigDecimal(data[4]));
+            map.put("py", toBigDecimal(data[5]));
+            map.put("budgetYTD", toBigDecimal(data[6]));
+            map.put("actualYTD", toBigDecimal(data[7]));
+            map.put("pyYTD", toBigDecimal(data[8]));
+            map.put("fullBudget", toBigDecimal(data[9]));
+            map.put("estimate", toBigDecimal(data[10]));
+            map.put("fullPy", toBigDecimal(data[11]));
+
+            responseList.add(map);
+        }
+
+        return responseList;
+    }
+	private BigDecimal toBigDecimal(Object val) {
+        if (val == null) return BigDecimal.ZERO;
+        try {
+            return new BigDecimal(val.toString());
+        } catch (NumberFormatException e) {
+            return BigDecimal.ZERO;
+        }
+    }
+
 }
+

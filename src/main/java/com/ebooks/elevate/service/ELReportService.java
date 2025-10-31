@@ -94,4 +94,9 @@ public interface ELReportService {
 
 	List<Map<String, Object>> getELActualOBReport(Long orgId, String clientCode, String finYear, String month,
 			String previousYear, String type);
+	
+	
+	List<Map<String, Object>> getELSummaryReport(String clientCode, String finYear, String previousYear, String month,String type);
 }
+
+

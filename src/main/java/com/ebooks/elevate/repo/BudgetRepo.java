@@ -928,10 +928,10 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "    FROM pyincrementalprofit\r\n"
 			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3\r\n"
 			+ "    GROUP BY accountcode, accountname\r\n"
-			+ ") a , groupledger b where a.acountname=b.accountname\r\n"
+			+ ") a , groupledgers b where a.accountname=b.accountname\r\n"
 			+ "GROUP BY\r\n"
 			+ "    a.accountcode,\r\n"
-			+ "    a.accountname order by b.displayseq asc")
+			+ "    a.accountname ")
 	Set<Object[]>getELActualIncrementalProfitReport(Long orgId, String clientCode,String year);
 	
 	@Query(nativeQuery = true, value = "SELECT\r\n"
@@ -1034,7 +1034,7 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 	Set<Object[]> getELActualRatioAnalysisReport(Long orgId, String clientCode, String finyear, String previousYear,
 			String month, String mainGroupName,String subGroup);
 
-	@Query(nativeQuery = true, value = "SELECT\r\n"
+	@Query(nativeQuery = true, value = "SELECT \r\n"
 			+ "    a.description,\r\n"
 			+ "    ROUND(SUM(a.budgetYTD), 2) AS budgetYTD,\r\n"
 			+ "    ROUND(SUM(a.ActYTD), 2) AS ActYTD,\r\n"
@@ -1051,10 +1051,11 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "        AND clientcode = ?2\r\n"
 			+ "        AND year = ?3\r\n"
 			+ "        AND type = ?6\r\n"
-			+ "        AND  month =?5  AND (\r\n"
-			+ "    type = 'Sales Analysis' \r\n"
-			+ "    and description NOT IN ('GST', 'Gross Sales', 'Avg Percentage of GST')\r\n"
-			+ ")\r\n"
+			+ "         AND monthsequence <=( select monthsequence from budgetsalespurchase where year=?3 and month=?5 and clientcode=?2 group by monthsequence)\r\n"
+			+ "       AND (\r\n"
+			+ "            case when type = 'Sales Analysis' \r\n"
+			+ "            then description NOT IN ('GST', 'Gross Sales', 'Avg Percentage of GST') else 'ALL'='ALL' end\r\n"
+			+ "        )\r\n"
 			+ "    GROUP BY description\r\n"
 			+ "\r\n"
 			+ "    UNION\r\n"
@@ -1070,9 +1071,11 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "        AND clientcode = ?2\r\n"
 			+ "        AND year = ?3\r\n"
 			+ "        AND type = ?6\r\n"
-			+ "       AND  month = ?5 AND (\r\n"
-			+ "    type = 'Sales Analysis' \r\n"
-			+ "    and description NOT IN ('GST', 'Gross Sales', 'Avg Percentage of GST'))\r\n"
+			+ "        AND monthsequence <=( select monthsequence from pysalespurchase where year=?3 and month=?5 and clientcode=?2 group by monthsequence)\r\n"
+			+ "       AND (\r\n"
+			+ "            case when type = 'Sales Analysis' \r\n"
+			+ "            then description NOT IN ('GST', 'Gross Sales', 'Avg Percentage of GST') else 'ALL'='ALL' end\r\n"
+			+ "        )\r\n"
 			+ "    GROUP BY description\r\n"
 			+ "\r\n"
 			+ "    UNION\r\n"
@@ -1087,9 +1090,12 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ "        orgid = ?1\r\n"
 			+ "        AND clientcode = ?2\r\n"
 			+ "        AND year = ?4\r\n"
-			+ "        AND type = ?6 and month=?5 and (\r\n"
-			+ "    type = 'Sales Analysis' \r\n"
-			+ "    and description NOT IN ('GST', 'Gross Sales', 'Avg Percentage of GST'))\r\n"
+			+ "        AND type = ?6\r\n"
+			+ "         AND monthsequence <=( select monthsequence from pysalespurchase where year=?4 and month=?5 and clientcode=?2 group by monthsequence)\r\n"
+			+ "        AND (\r\n"
+			+ "            case when type = 'Sales Analysis' \r\n"
+			+ "            then description NOT IN ('GST', 'Gross Sales', 'Avg Percentage of GST') else 'ALL'='ALL' end\r\n"
+			+ "        )\r\n"
 			+ "    GROUP BY description\r\n"
 			+ ") a\r\n"
 			+ "GROUP BY a.description")
@@ -1548,5 +1554,7 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 			+ ") t\r\n"
 			+ "GROUP BY t.customername")
 	Set<Object[]> getELActualOrderBooking(Long orgId, String clientCode, String finYear, String month,String previousYear,String type);
-
+	
+	
+	
 }
