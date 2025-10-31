@@ -298,7 +298,6 @@ public class BudgetServiceImpl implements BudgetService {
 				System.out.println("Group fetch failed: " + dto.getAccountName() + " | " + dto.getMainGroup());
 			}
 
-			vo.setSubGroupCode(dto.getSubGroupCode());
 			vo.setActive(true);
 
 			int quarter = quaterMonthService.getQuaterMonthDetails(dto.getYearType(), dto.getMonth());
