@@ -42,7 +42,8 @@ public class SecurityConfig {
 						"/api/arapAdjustments/**", "/api/companycontroller/**", "/api/costdebitnote/**",
 						"/api/costInvoice/**", "/api/irnCreditNote/**", "/api/excelfileupload/**",
 						"/api/companycontroller/**", "/api/clientcompanycontroller/**","/api/ticketcontroller/**",
-						"/api/trailBalanceController/**","/api/eLReportController/**","/api/MonthlyProcess/**","/api/Budget/**","/api/license/**")
+						"/api/trailBalanceController/**","/api/eLReportController/**","/api/MonthlyProcess/**",
+						"/api/Budget/**","/api/license/**","/api/files/**","/api/email/**")
 				.permitAll().antMatchers("/api/**").hasAnyRole("USER", "GUEST_USER").anyRequest().authenticated();
 		http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 		return http.build();

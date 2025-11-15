@@ -52,6 +52,8 @@ public class TicketVO {
 	
 	private boolean cancel;
 	
+	private String email;
+	
 	@Lob
 	@Column(name = "screenshot", columnDefinition = "LONGBLOB")
 	private byte[] screenShot;

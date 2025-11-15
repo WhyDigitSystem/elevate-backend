@@ -32,7 +32,7 @@ public interface TicketService {
 
 	List<TicketVO> getTicketByUserName(String userName, Long orgId);
 	
-	TicketVO updateTicketStatus(Long orgId, Long ticketId,String status,String comments);
+	TicketVO updateTicketStatus(Long orgId, Long ticketId,String status,String userName);
 	
 	//Comments
 

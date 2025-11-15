@@ -225,7 +225,7 @@ public class TicketController extends BaseController{
 	        @RequestParam(required = false) Long orgId,
 	        @RequestParam(required = false) Long ticketId,
 	        @RequestParam(required = false) String status,
-	        @RequestParam(required = false) String comments) {
+	        @RequestParam(required = false) String userName) {
 	    
 	    String methodName = "updateTicketStatus()";
 	    LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
@@ -235,7 +235,7 @@ public class TicketController extends BaseController{
 
 	    try {
 	        // Assuming this updates the ticket status internally
-	        TicketVO ticketVO = ticketService.updateTicketStatus(orgId, ticketId,status,comments);
+	        TicketVO ticketVO = ticketService.updateTicketStatus(orgId, ticketId,status,userName);
 
 	        responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Ticket status updated successfully");
 	        responseObjectsMap.put("ticketVO", ticketVO);

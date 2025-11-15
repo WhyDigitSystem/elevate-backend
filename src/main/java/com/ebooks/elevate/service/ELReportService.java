@@ -51,7 +51,7 @@ public interface ELReportService {
 			String mainGroupName, String month, String yearType);
 
 	List<Map<String, Object>> getELActualIncrementalProfitReport(Long orgId, String clientCode, String finyear,
-			String yearType);
+			String yearType,String month);
 
 	List<Map<String, Object>> getELActualHeadCountReport(Long orgId, String clientCode, String finyear, String yearType,
 			String month);

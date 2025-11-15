@@ -1,5 +1,7 @@
 package com.ebooks.elevate.dto;
 
+import javax.validation.constraints.Email;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,5 +26,8 @@ public class TicketDTO {
 	private Long orgId;
 
 	private String status;
+	
+	@Email(message = "Invalid Email")
+	private String email;
 
 }

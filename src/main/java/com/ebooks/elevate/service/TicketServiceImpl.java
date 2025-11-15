@@ -1,19 +1,26 @@
 package com.ebooks.elevate.service;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,46 +47,63 @@ public class TicketServiceImpl implements TicketService {
 	@Autowired
 	NotificationRepo notificationRepo;
 
+	@Autowired
+	EmailService emailService;
+
+	@Value("${app.mail.adminEmail}")
+	private String adminEmail;
+
+	@Value("${app.mail.noreplay}")
+	private String noReplayEmail;
+
 	@Override
 	public Map<String, Object> createUpdateTicket(@Valid TicketDTO ticketDTO) throws ApplicationException {
 
-		TicketVO ticketVO;
+		TicketVO ticketVO = new TicketVO();
+		String toEmail = adminEmail;
+		String fromMail = noReplayEmail;
 
 		String message = null;
 
-		if (ObjectUtils.isEmpty(ticketDTO.getId())) {
-
-			ticketVO = new TicketVO();
-
-			ticketVO.setCreatedBy(ticketDTO.getCreatedBy());
-			ticketVO.setUpdatedBy(ticketDTO.getCreatedBy());
-
-			message = "Ticket Creation Successfully";
-		}
-
-		else {
-			ticketVO = ticketRepo.findById(ticketDTO.getId())
-					.orElseThrow(() -> new ApplicationException("TicketVO Not Found with id: " + ticketDTO.getId()));
-			ticketVO.setUpdatedBy(ticketDTO.getCreatedBy());
-
-			message = "Ticket Updation Successfully";
-		}
+		ticketVO.setCreatedBy(ticketDTO.getCreatedBy());
+		ticketVO.setUpdatedBy(ticketDTO.getCreatedBy());
+		message = "Ticket Creation Successfully";
 
 		ticketVO = getTicketVOFroTticketDTO(ticketVO, ticketDTO);
 		ticketRepo.save(ticketVO);
+		boolean mailSent = false;
+		
+		Date currentDate = new Date();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss a");
+		String createdOn=dateFormat.format(currentDate);
 
-//		NotificationVO notificationVO = new NotificationVO();
-//
-//		notificationVO.setTicketId(ticketVO.getId());
-//		notificationVO.setDescription(ticketVO.getDescription());
-//		notificationVO.setMessage("New ticket created by :" + ticketVO.getCreatedBy());
-//		notificationVO.setNotifiedTo("EBSPL/ITADMIN");
-//		notificationVO.setSubject(ticketVO.getSubject());
-//		notificationVO.setCreatedBy(ticketVO.getCreatedBy());
-//		notificationVO.setOrgId(ticketVO.getOrgId());
-//		notificationVO.setUpdatedBy(ticketVO.getCreatedBy());
-//
-//		notificationRepo.save(notificationVO);
+		try {
+			// Prepare HTML mail content
+			String htmlContent = loadHtmlTemplate(ticketVO.getId(), ticketVO.getSubject(), ticketVO.getStatus(),
+					ticketVO.getDescription(),ticketVO.getCreatedBy(),ticketVO.getEmail(),createdOn);
+
+			// Send the mail
+			emailService.sendHtmlEmail(fromMail, toEmail, ticketVO.getSubject(), htmlContent);
+			
+			String Acknowledgement = loadHtmlTemplate(ticketVO.getId(), ticketVO.getSubject(), ticketVO.getStatus(),
+					ticketVO.getDescription(),ticketVO.getCreatedBy(),ticketVO.getEmail(),createdOn);
+
+			// Send the mail
+			emailService.sendHtmlEmail(fromMail, ticketVO.getEmail(), ticketVO.getSubject(), Acknowledgement);
+			
+			mailSent = true;
+
+		} catch (Exception e) {
+			System.err.println("❌ Failed to send mail for ticket ID " + ticketVO.getId() + ": " + e.getMessage());
+			e.printStackTrace();
+		}
+
+		// Prepare response message
+		if (mailSent) {
+			message = "Ticket created successfully and mail sent.";
+		} else {
+			message = "Ticket created successfully, but mail not sent.";
+		}
 
 		Map<String, Object> response = new HashMap<>();
 		response.put("message", message);
@@ -94,6 +118,7 @@ public class TicketServiceImpl implements TicketService {
 		ticketVO.setUserName(ticketDTO.getUserName());
 		ticketVO.setOrgId(ticketDTO.getOrgId());
 		ticketVO.setStatus(ticketDTO.getStatus());
+		ticketVO.setEmail(ticketDTO.getEmail());
 
 		return ticketVO;
 
@@ -173,7 +198,7 @@ public class TicketServiceImpl implements TicketService {
 	}
 
 	@Override
-	public TicketVO updateTicketStatus(Long orgId, Long ticketId, String status, String comments) {
+	public TicketVO updateTicketStatus(Long orgId, Long ticketId, String status, String userName) {
 
 		TicketVO ticketVO = ticketRepo.findByTicketIdAndorgId(ticketId, orgId);
 
@@ -182,28 +207,48 @@ public class TicketServiceImpl implements TicketService {
 		}
 
 		ticketVO.setStatus(status);
-		ticketVO.setUpdatedBy("EBSPL/ITADMIN");
+		ticketVO.setUpdatedBy(userName);
 		ticketVO.setNotificationFlag(true);
-
 		ticketRepo.save(ticketVO);
 
-		List<CommentsVO> commentsVO1 = commentsRepo.findByTicketId(ticketId);
+		boolean mailSent = false;
+		
+		String Ticketstatus = ticketVO.getSubject() + " - Ticket Status Changed";
 
-		if (commentsVO1 == null) {
+		try {
+		String htmlContent = loadHtmlTemplateUpdateMail(ticketVO.getId(), Ticketstatus, ticketVO.getStatus(),
+				ticketVO.getDescription());
+		emailService.sendHtmlEmail(noReplayEmail, ticketVO.getEmail(), Ticketstatus, htmlContent);
+		mailSent = true;
 
-			throw new RuntimeException("Comments Records Not Found This Id");
+		} catch (Exception e) {
+			System.err.println("❌ Failed to send mail for ticket ID " + ticketVO.getId() + ": " + e.getMessage());
+			e.printStackTrace();
 		}
 
-		CommentsVO commentsVO = new CommentsVO();
+//		// Prepare response message
+//		if (mailSent) {
+//			message = "Ticket created successfully and mail sent.";
+//		} else {
+//			message = "Ticket created successfully, but mail not sent.";
+//		}
 
-		commentsVO.setTicketId(ticketVO.getId());
-		commentsVO.setCreatedBy(ticketVO.getCreatedBy());
-		commentsVO.setComments(comments);
-		commentsVO.setUpdatedBy("EBSPL/ITADMIN");
-		commentsVO.setUserName(ticketVO.getUserName());
-		commentsVO.setOrgId(ticketVO.getOrgId());
+//		List<CommentsVO> commentsVO1 = commentsRepo.findByTicketId(ticketId);
+//
+//		if (commentsVO1 == null) {
+//
+//			throw new RuntimeException("Comments Records Not Found This Id");
+//		}
 
-		commentsRepo.save(commentsVO);
+//		CommentsVO commentsVO = new CommentsVO();
+//		commentsVO.setTicketId(ticketVO.getId());
+//		commentsVO.setCreatedBy(ticketVO.getCreatedBy());
+//		commentsVO.setComments(comments);
+//		commentsVO.setUpdatedBy("EBSPL/ITADMIN");
+//		commentsVO.setUserName(ticketVO.getUserName());
+//		commentsVO.setOrgId(ticketVO.getOrgId());
+//
+//		commentsRepo.save(commentsVO);
 
 		return ticketVO;
 
@@ -330,6 +375,29 @@ public class TicketServiceImpl implements TicketService {
 		}
 
 		return null;
+	}
+
+	public String loadHtmlTemplate(Long ticketId, String subject, String status, String description,String CreatedBy,String Email,String createdOn) {
+		try {
+			String content = Files.readString(Paths.get("src/main/resources/template/email_template.html"));
+			return content.replace("${ticketId}", ticketId.toString()).replace("${subject}", subject)
+					.replace("${status}", status).replace("${description}", description).replace("${raisedBy}", CreatedBy).replace("${raisedEamil}", Email).replace("${raisedOn}", createdOn);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "<p>Default email content</p>";
+		}
+	}
+	
+	
+	public String loadHtmlTemplateUpdateMail(Long ticketId, String subject, String status, String description) {
+		try {
+			String content = Files.readString(Paths.get("src/main/resources/template/Updates_mail.html"));
+			return content.replace("${ticketId}", ticketId.toString()).replace("${subject}", subject)
+					.replace("${status}", status).replace("${description}", description);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "<p>Default email content</p>";
+		}
 	}
 
 }

@@ -740,7 +740,7 @@ public class ELReportServiceImpl implements ELReportService {
 
 	@Override
 	public List<Map<String, Object>> getELActualIncrementalProfitReport(Long orgId, String clientCode, String finyear,
-			String yearType) {
+			String yearType,String month) {
 		String previousYear = null;
 		if (yearType.equals("FY")) {
 			FinancialYearVO financialYearVO = financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(orgId,
@@ -761,7 +761,7 @@ public class ELReportServiceImpl implements ELReportService {
 		System.out.println(previousYear);
 
 		Set<Object[]> ELactualIncrementalDetails = budgetRepo.getELActualIncrementalProfitReport(orgId, clientCode,
-				finyear);
+				finyear,month);
 		return ElActualIncrement(ELactualIncrementalDetails);
 	}
 

@@ -400,7 +400,7 @@ public class ELReportController extends BaseController {
 
 	@GetMapping("/getElActualIncrementalReport")
 	public ResponseEntity<ResponseDTO> getELActualIncrementalProfitReport(@RequestParam Long orgId,
-			@RequestParam String clientCode, @RequestParam String finyear, @RequestParam String yearType) {
+			@RequestParam String clientCode, @RequestParam String finyear, @RequestParam String yearType,@RequestParam String month) {
 		String methodName = "getELActualIncrementalProfitReport()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
@@ -408,7 +408,7 @@ public class ELReportController extends BaseController {
 		ResponseDTO responseDTO = null;
 		List<Map<String, Object>> elActualReport = new ArrayList<Map<String, Object>>();
 		try {
-			elActualReport = elReportService.getELActualIncrementalProfitReport(orgId, clientCode, finyear, yearType);
+			elActualReport = elReportService.getELActualIncrementalProfitReport(orgId, clientCode, finyear, yearType,month);
 		} catch (Exception e) {
 			errorMsg = e.getMessage();
 			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
