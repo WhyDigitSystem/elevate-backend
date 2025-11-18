@@ -616,15 +616,29 @@ public interface BudgetRepo extends JpaRepository<BudgetVO, Long> {
 	List<Object[]> getMonthWiseSumForFinishedGoods(Long org, String clientcode, String yr,
 			List<String> finishedGoodsCodes);
 
-	@Query(nativeQuery = true, value = "SELECT\r\n" + "    a.accountcode,\r\n" + "    a.accountname,\r\n"
-			+ "    ROUND(SUM(a.budgetYTD), 2) AS budgetYTD,\r\n" + "    ROUND(SUM(a.ActYTD), 2) AS ActYTD\r\n"
-			+ "FROM (\r\n" + "    SELECT accountcode, accountname, SUM(amount) AS budgetYTD, 0 AS ActYTD\r\n"
-			+ "    FROM budgetincrementalprofit\r\n" + "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3 \r\n"
-			+ "    GROUP BY accountcode, accountname\r\n" + "\r\n" + "    UNION ALL\r\n" + "\r\n"
+	@Query(nativeQuery = true, value = "SELECT\r\n"
+			+ "    a.accountcode,\r\n"
+			+ "    a.accountname,\r\n"
+			+ "    ROUND(SUM(a.budgetYTD), 2) AS budgetYTD,\r\n"
+			+ "    ROUND(SUM(a.ActYTD), 2) AS ActYTD,b.displayseq\r\n"
+			+ "FROM (\r\n"
+			+ "    SELECT accountcode, accountname, SUM(amount) AS budgetYTD, 0 AS ActYTD\r\n"
+			+ "    FROM budgetincrementalprofit\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3\r\n"
+			+ "    GROUP BY accountcode, accountname\r\n"
+			+ "\r\n"
+			+ "    UNION\r\n"
+			+ "\r\n"
 			+ "    SELECT accountcode, accountname, 0 AS budgetYTD, SUM(amount) AS ActYTD\r\n"
-			+ "    FROM pyincrementalprofit\r\n" + "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3 and month=?4\r\n"
-			+ "    GROUP BY accountcode, accountname\r\n" + ") a , groupledgers b where a.accountname=b.accountname\r\n"
-			+ "GROUP BY\r\n" + "    a.accountcode,\r\n" + "    a.accountname ,b.displayseq order by cast(b.displayseq as unsigned) asc")
+			+ "    FROM pyincrementalprofit\r\n"
+			+ "    WHERE orgid = ?1 AND clientcode = ?2 AND year = ?3 AND month = ?4\r\n"
+			+ "    GROUP BY accountcode, accountname\r\n"
+			+ ") a,\r\n"
+			+ "groupledgers b\r\n"
+			+ "WHERE a.accountname = b.accountname and b.groupname='Incremental Analysis'\r\n"
+			+ "GROUP BY\r\n"
+			+ "    a.accountcode,\r\n"
+			+ "    a.accountname,b.displayseq order by cast(b.displayseq as unsigned) asc")
 	Set<Object[]> getELActualIncrementalProfitReport(Long orgId, String clientCode, String year,String month);
 
 	@Query(nativeQuery = true, value = "SELECT\r\n" + "a.department,a.category,\r\n"
