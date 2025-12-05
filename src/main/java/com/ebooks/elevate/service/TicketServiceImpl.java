@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -379,25 +381,38 @@ public class TicketServiceImpl implements TicketService {
 
 	public String loadHtmlTemplate(Long ticketId, String subject, String status, String description,String CreatedBy,String Email,String createdOn) {
 		try {
-			String content = Files.readString(Paths.get("src/main/resources/template/email_template.html"));
-			return content.replace("${ticketId}", ticketId.toString()).replace("${subject}", subject)
-					.replace("${status}", status).replace("${description}", description).replace("${raisedBy}", CreatedBy).replace("${raisedEamil}", Email).replace("${raisedOn}", createdOn);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "<p>Default email content</p>";
-		}
+	        ClassPathResource resource = new ClassPathResource("template/email_template.html");
+	        String content = new String(resource.getInputStream().readAllBytes());
+
+	        return content.replace("${ticketId}", ticketId.toString())
+	                      .replace("${subject}", subject)
+	                      .replace("${status}", status)
+	                      .replace("${description}", description)
+	                      .replace("${raisedBy}", CreatedBy)
+	                      .replace("${raisedEamil}", Email)
+	                      .replace("${raisedOn}", createdOn);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "<p>Default email content</p>";
+	    }
 	}
 	
 	
 	public String loadHtmlTemplateUpdateMail(Long ticketId, String subject, String status, String description) {
 		try {
-			String content = Files.readString(Paths.get("src/main/resources/template/Updates_mail.html"));
-			return content.replace("${ticketId}", ticketId.toString()).replace("${subject}", subject)
-					.replace("${status}", status).replace("${description}", description);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "<p>Default email content</p>";
-		}
+	        ClassPathResource resource = new ClassPathResource("template/Updates_mail.html");
+	        String content = new String(resource.getInputStream().readAllBytes());
+
+	        return content.replace("${ticketId}", ticketId.toString())
+	                      .replace("${subject}", subject)
+	                      .replace("${status}", status)
+	                      .replace("${description}", description);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "<p>Default email content</p>";
+	    }
 	}
 
 }

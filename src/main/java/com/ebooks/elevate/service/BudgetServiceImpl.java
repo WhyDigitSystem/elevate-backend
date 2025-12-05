@@ -886,7 +886,7 @@ public class BudgetServiceImpl implements BudgetService {
 			mp.put("category", sub[2] != null ? sub[2].toString() : "");
 			mp.put("month", sub[3] != null ? sub[3].toString() : "");
 			mp.put("headCount", sub[4] != null ? Integer.parseInt(sub[4].toString()) : 0);
-			mp.put("ctc", sub[5] != null ? new BigDecimal(sub[5].toString()) : BigDecimal.ZERO);
+			mp.put("ctc", sub[5] != null ? ((BigDecimal) sub[5]):0);
 			subgroup.add(mp);
 		}
 		return subgroup;
