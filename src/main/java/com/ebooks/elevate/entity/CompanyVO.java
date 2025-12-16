@@ -73,6 +73,7 @@ public class CompanyVO {
 	private Role role;
 	private String ceo;
 	private String gst;
+	private String license;
 
 	@JsonGetter("active")
 	public String getActive() {

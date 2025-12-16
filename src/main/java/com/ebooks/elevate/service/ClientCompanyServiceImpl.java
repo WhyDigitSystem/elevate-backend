@@ -12,16 +12,22 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.ClientCompanyDTO;
 import com.ebooks.elevate.entity.ClientCompanyReportAccessVO;
 import com.ebooks.elevate.entity.ClientCompanyVO;
+import com.ebooks.elevate.entity.ClientSegmentVO;
+import com.ebooks.elevate.entity.ClientUnitVO;
 import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.ClientCompanyRepo;
 import com.ebooks.elevate.repo.ClientCompanyReportAccessRepo;
+import com.ebooks.elevate.repo.ClientSegmentRepo;
+import com.ebooks.elevate.repo.ClientUnitRepo;
 import com.ebooks.elevate.util.CryptoUtils;
 
 @Service
@@ -37,6 +43,15 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 	
 	@Autowired
 	ClientCompanyReportAccessRepo clientCompanyReportAccessRepo;
+	
+	@Autowired
+	ClientUnitRepo clientUnitRepo;
+	
+	@Autowired
+	ClientSegmentRepo clientSegmentRepo;
+	
+	@Value("${clientcount}")
+	private int clientLimit;
 	
 	@Override
 	public List<ClientCompanyVO> getClientCompanyByOrgId(Long orgId) {
@@ -55,6 +70,11 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		ClientCompanyVO clientCompanyVO;
 
 		String message = null;
+		
+		int count= clientCompanyRepo.getClientCount(clientCompanyDTO.getOrgId());
+		if(count>=clientLimit && clientCompanyDTO.isActive()) {
+			throw new ApplicationContextException("No of Active Clients Limit Exceeded...");
+		}
 
 		if (ObjectUtils.isEmpty(clientCompanyDTO.getId())) {
 
@@ -175,6 +195,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		clientCompanyVO.setPhone(clientCompanyDTO.getPhone());
 		clientCompanyVO.setWebSite(clientCompanyDTO.getWebSite());
 		clientCompanyVO.setOrgId(clientCompanyDTO.getOrgId());
+		clientCompanyVO.setClientYear(clientCompanyDTO.getClientYear());
 		clientCompanyVO.setActive(clientCompanyDTO.isActive());
 		clientCompanyVO.setBussinessType(clientCompanyDTO.getBussinessType());
 		clientCompanyVO.setLevelOfService(clientCompanyDTO.getLevelOfService());
@@ -192,6 +213,12 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 		{
 			List<ClientCompanyReportAccessVO> clientCompanyReportAccessVO= clientCompanyReportAccessRepo.findByClientCompanyVO(clientCompanyVO);
 			clientCompanyReportAccessRepo.deleteAll(clientCompanyReportAccessVO);
+			
+			List<ClientUnitVO>clientUnitVOs= clientUnitRepo.findByClientCompanyVO(clientCompanyVO);
+			clientUnitRepo.deleteAll(clientUnitVOs);
+			
+			List<ClientSegmentVO>clientSegment= clientSegmentRepo.findByClientCompanyVO(clientCompanyVO);
+			clientSegmentRepo.deleteAll(clientSegment);
 		}
 		
 		if (!ObjectUtils.isEmpty(clientCompanyDTO.getClientCompanyReportAccessDTO())) {
@@ -205,7 +232,33 @@ public class ClientCompanyServiceImpl implements ClientCompanyService{
 						return clientCompanyReportAccessVOs;
 					}).collect(Collectors.toList());
 			clientCompanyVO.setClientCompanyReportAccessVO(accessList);
-		}		
+		}	
+		
+		if (!ObjectUtils.isEmpty(clientCompanyDTO.getClientUnitDTO())) {
+			List<ClientUnitVO>unitList= clientCompanyDTO.getClientUnitDTO().stream()
+					.map(accessDTO -> {
+						ClientUnitVO clientUnitVOs= new ClientUnitVO();
+						clientUnitVOs.setUnit(accessDTO.getUnit());
+						clientUnitVOs.setLocation(accessDTO.getLocation());
+						clientUnitVOs.setActive(accessDTO.isActive());
+						clientUnitVOs.setClientCompanyVO(clientCompanyVO);
+						return clientUnitVOs;
+					}).collect(Collectors.toList());
+			clientCompanyVO.setClientUnitVO(unitList);
+		}
+		
+		if (!ObjectUtils.isEmpty(clientCompanyDTO.getClientSegmentDTO())) {
+			List<ClientSegmentVO>segmentList= clientCompanyDTO.getClientSegmentDTO().stream()
+					.map(accessDTO -> {
+						ClientSegmentVO clientSegmentVOs= new ClientSegmentVO();
+						clientSegmentVOs.setUnit(accessDTO.getUnit());
+						clientSegmentVOs.setSegment(accessDTO.getSegment());
+						clientSegmentVOs.setActive(accessDTO.isActive());
+						clientSegmentVOs.setClientCompanyVO(clientCompanyVO);
+						return clientSegmentVOs;
+					}).collect(Collectors.toList());
+			clientCompanyVO.setClientSegmentVO(segmentList);
+		}
 		return clientCompanyVO;
 	}
 

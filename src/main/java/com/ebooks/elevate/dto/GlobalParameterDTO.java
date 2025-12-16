@@ -15,5 +15,6 @@ public class GlobalParameterDTO {
 	private String clientCode;
 	private String clientName;
 	private String month;
+	public String clientYear;
 
 }

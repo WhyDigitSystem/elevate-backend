@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ import com.ebooks.elevate.dto.UserLoginBranchAccessDTO;
 import com.ebooks.elevate.dto.UserLoginClientAccessDTO;
 import com.ebooks.elevate.dto.UserLoginRoleAccessDTO;
 import com.ebooks.elevate.dto.UserResponseDTO;
+import com.ebooks.elevate.entity.CompanyVO;
 import com.ebooks.elevate.entity.ResponsibilityVO;
 import com.ebooks.elevate.entity.RolesResponsibilityVO;
 import com.ebooks.elevate.entity.RolesVO;
@@ -47,6 +49,7 @@ import com.ebooks.elevate.entity.UserLoginRolesVO;
 import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.ClientAccessRepo;
+import com.ebooks.elevate.repo.CompanyRepo;
 import com.ebooks.elevate.repo.ResponsibilitiesRepo;
 import com.ebooks.elevate.repo.RolesRepo;
 import com.ebooks.elevate.repo.RolesResponsibilityRepo;
@@ -74,11 +77,13 @@ public class AuthServiceImpl implements AuthService {
 	UserActionRepo userActionRepo;
 
 	@Autowired
+	CompanyRepo companyRepo;
+
+	@Autowired
 	UserLoginRolesRepo loginRolesRepo;
 
 	@Autowired
 	UserBranchAccessRepo branchAccessRepo;
-
 
 	@Autowired
 	TokenProvider tokenProvider;
@@ -100,10 +105,19 @@ public class AuthServiceImpl implements AuthService {
 
 	@Autowired
 	RolesResponsibilityRepo rolesResponsibilityRepo;
-	
+
 	@Autowired
 	ClientAccessRepo clientAccessRepo;
 
+	@Autowired
+	LicenseService licenseService;
+
+	
+	@Value("${usercount}")
+	private int userLimit;
+	
+	
+	
 	@Override
 	public void signup(SignUpFormDTO signUpRequest) {
 		String methodName = "signup()";
@@ -116,6 +130,10 @@ public class AuthServiceImpl implements AuthService {
 //		{
 //			throw new ApplicationContextException(UserConstants.ERRROR_MSG_USER_INFORMATION_ALREADY_REGISTERED);
 //		}
+		int count= userRepo.getUserCount(signUpRequest.getOrgId());
+		if(count>=userLimit && signUpRequest.isActive()) {
+			throw new ApplicationContextException("No of Active Users Limit Exceeded...");
+		}
 		UserVO userVO = getUserVOFromSignUpFormDTO(signUpRequest);
 		userRepo.save(userVO);
 		userService.createUserAction(userVO.getUserName(), userVO.getId(), UserConstants.USER_ACTION_ADD_ACCOUNT);
@@ -140,9 +158,9 @@ public class AuthServiceImpl implements AuthService {
 			branchAccessRepo.deleteAll(branch);
 			List<UserLoginClientAccessVO> client1 = clientAccessRepo.findByUserVO(userVO);
 			clientAccessRepo.deleteAll(client1);
-			
+
 		}
-		
+
 		userVO.setUserName(signUpFormDTO.getUserName());
 		if (ObjectUtils.isEmpty(userVO.getId())) {
 			try {
@@ -157,6 +175,7 @@ public class AuthServiceImpl implements AuthService {
 		userVO.setEmail(signUpFormDTO.getEmail());
 		userVO.setEmployeeCode(signUpFormDTO.getEmployeeCode());
 		userVO.setMobileNo(signUpFormDTO.getMobileNo());
+
 		userVO.setUserType(signUpFormDTO.getUserType());
 		userVO.setActive(signUpFormDTO.isActive());
 		userVO.setOrgId(signUpFormDTO.getOrgId());
@@ -215,9 +234,29 @@ public class AuthServiceImpl implements AuthService {
 		UserVO userVO = userRepo.findByUserNameOrEmailOrMobileNo(loginRequest.getUserName(), loginRequest.getUserName(),
 				loginRequest.getUserName());
 
+		CompanyVO companyVO1 = companyRepo.findById(userVO.getOrgId()).get();
+
+		if (companyVO1.getLicense() != null) {
+			if (!licenseService.validateLicenseKey(companyVO1.getId(), companyVO1.getLicense())) {
+				throw new ApplicationException("License Expired, Please Contact Administrator");
+			}
+		}
+		else {
+			throw new ApplicationException("Licence Not Exists...");
+		}
+		
+
+		String orgActive = null;
+		boolean isClientActive = true;
+		if (!loginRequest.getUserName().equals("sadmin")) {
+			CompanyVO companyVO = companyRepo.findById(userVO.getOrgId()).get();
+			orgActive = companyVO.getActive();
+			isClientActive = "Active".equals(orgActive) ? true : false;
+		}
+
 		if (ObjectUtils.isNotEmpty(userVO)) {
-			if(userVO.getActive()=="In-Active")
-			{
+
+			if (userVO.getActive() == "In-Active") {
 				throw new ApplicationException("Your account is In-Active, Please Contact Administrator");
 			}
 			if (compareEncodedPasswordWithEncryptedPassword(loginRequest.getPassword(), userVO.getPassword())) {
@@ -230,6 +269,7 @@ public class AuthServiceImpl implements AuthService {
 					UserConstants.ERRROR_MSG_USER_INFORMATION_NOT_FOUND_AND_ASKING_SIGNUP);
 		}
 		UserResponseDTO userResponseDTO = mapUserVOToDTO(userVO);
+		userResponseDTO.setOrgActive(isClientActive);
 
 		List<Map<String, Object>> roleVOList = new ArrayList<>();
 
@@ -443,7 +483,7 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public Map<String, Object> createUpdateResponsibilities(ResponsibilityDTO responsibilityDTO)
-			throws ApplicationException  {
+			throws ApplicationException {
 
 		ResponsibilityVO responsibilityVO = new ResponsibilityVO();
 		String message;
@@ -455,7 +495,7 @@ public class AuthServiceImpl implements AuthService {
 //					responsibilityDTO.getOrgId())) {
 //				throw new ApplicationException("Responsibility Name already exists");
 //			}
- 
+
 			responsibilityVO.setCreatedBy(responsibilityDTO.getCreatedBy());
 			responsibilityVO.setUpdatedBy(responsibilityDTO.getCreatedBy());
 			// Set the values from responsibilityDTO to responsibilityVO

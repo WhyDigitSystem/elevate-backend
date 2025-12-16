@@ -37,7 +37,16 @@ public class GlobalParameterVO {
 	@Column(name = "clientname")
 	private String clientName;
 	private String month;
+	@Column(name = "clientyear")
+	private String clientYear;
+	@Column(name = "previousYear")
+	private String py;
+	
+	@Column(name = "monthclose") // Optional, if persisted
+	private String monthClose;
 
 	@Embedded
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
+
+	
 }

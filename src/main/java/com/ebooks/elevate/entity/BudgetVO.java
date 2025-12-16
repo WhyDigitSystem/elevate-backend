@@ -49,6 +49,12 @@ public class BudgetVO {
 	private String natureOfAccount;
 	@Column(name = "amount",length = 100)
 	private BigDecimal amount;
+	@Column(name = "maingroup",length = 100)
+	private String mainGroup;
+	@Column(name = "subgroup",length = 100)
+	private String subGroup;
+	@Column(name = "subgroupcode",length = 100)
+	private String subGroupCode;
 	@Column(name = "active")
 	private boolean active;
 	@Column(name = "createdby",length = 50)
@@ -57,6 +63,10 @@ public class BudgetVO {
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
+	@Column(name = "quater",length = 5)
+	private String quater;
+	
+	private int monthsequence;
 	
 	@Embedded
 	private CreatedUpdatedDate createdUpdatedDate= new CreatedUpdatedDate();

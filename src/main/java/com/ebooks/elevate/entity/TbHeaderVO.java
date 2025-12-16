@@ -18,7 +18,6 @@ import com.ebooks.elevate.dto.CreatedUpdatedDate;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -27,7 +26,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 
 public class TbHeaderVO {
 	
@@ -63,13 +61,12 @@ public class TbHeaderVO {
 	private boolean active=true;
 	
 	
-	@OneToMany(mappedBy ="tbHeaderVO",cascade =CascadeType.ALL)
+	@OneToMany(mappedBy ="tbHeaderVO",cascade =CascadeType.MERGE)
 	@JsonManagedReference
 	private List<TbDetailsVO> tbDetailsVO;
 	
 
 	@Embedded
-	@Builder.Default
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
 	
 }

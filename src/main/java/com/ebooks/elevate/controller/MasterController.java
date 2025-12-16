@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -21,12 +24,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
+import com.ebooks.elevate.dto.AutomationDTO;
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
+import com.ebooks.elevate.dto.GroupMapping2DTO;
+import com.ebooks.elevate.dto.GroupMappingDTO;
+import com.ebooks.elevate.dto.ListOfValuesDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
+import com.ebooks.elevate.dto.SegmentMappingDTO;
+import com.ebooks.elevate.entity.AutomationVO;
 import com.ebooks.elevate.entity.BranchVO;
+import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.EmployeeVO;
+import com.ebooks.elevate.entity.GroupMappingVO;
+import com.ebooks.elevate.entity.ListOfValuesVO;
 import com.ebooks.elevate.entity.SacCodeVO;
+import com.ebooks.elevate.entity.SegmentMappingVO;
 import com.ebooks.elevate.entity.SetTaxRateVO;
 import com.ebooks.elevate.entity.SubLedgerAccountVO;
 import com.ebooks.elevate.service.MasterService;
@@ -270,8 +283,6 @@ public class MasterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	
-
 	@GetMapping("/getSetTaxRateByActive")
 	public ResponseEntity<ResponseDTO> getSetTaxRateByActive() {
 		String methodName = "getSetTaxRateByActive()";
@@ -381,8 +392,6 @@ public class MasterController extends BaseController {
 
 	}
 
-
-
 	// SubLedgerAccount
 
 	@GetMapping("/getAllSubLedgerAccountByOrgId")
@@ -440,8 +449,6 @@ public class MasterController extends BaseController {
 		return ResponseEntity.ok().body(responseDTO);
 	}
 
-	
-
 	@GetMapping("/getSubLedgerAccountByActive")
 	public ResponseEntity<ResponseDTO> getSubLedgerAccountByActive() {
 		String methodName = "getSubLedgerAccountByActive()";
@@ -470,4 +477,463 @@ public class MasterController extends BaseController {
 
 	}
 
+	// ListOfValues
+
+	@GetMapping("/getListOfValuesById")
+	public ResponseEntity<ResponseDTO> getListOfValuesById(@RequestParam(required = false) Long id) {
+		String methodName = "getListOfValuesById()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<ListOfValuesVO> listOfValuesVO = new ArrayList<>();
+		try {
+			listOfValuesVO = masterService.getListOfValuesById(id);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "listOfValues information get successfully By Id");
+			responseObjectsMap.put("listOfValuesVO", listOfValuesVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					"listOfValues information receive failed By Id", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getListOfValuesByOrgId")
+	public ResponseEntity<ResponseDTO> getListOfValuesByOrgId(@RequestParam(required = false) Long orgid) {
+		String methodName = "getListOfValuesByOrgId()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<ListOfValuesVO> listOfValuesVO = new ArrayList<>();
+		try {
+			listOfValuesVO = masterService.getAllListOfValuesByOrgId(orgid);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "listOfValues information get successfully By OrgId");
+			responseObjectsMap.put("listOfValuesVO", listOfValuesVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					"listOfValues information receive failed By OrgId", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@PutMapping("/updateCreateListOfValues")
+	public ResponseEntity<ResponseDTO> updateCreateListOfValues(@Valid @RequestBody ListOfValuesDTO listOfValuesDTO) {
+		String methodName = "updateCreateListOfValues()";
+
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+
+		try {
+			ListOfValuesVO listOfValuesVO = masterService.updateCreateListOfValues(listOfValuesDTO);
+			boolean isUpdate = listOfValuesDTO.getId() != null;
+			if (listOfValuesVO != null) {
+				responseObjectsMap.put(CommonConstant.STRING_MESSAGE,
+						isUpdate ? "ListOfValues updated successfully" : "ListOfValues created successfully");
+				responseObjectsMap.put("listOfValuesVO", listOfValuesVO);
+				responseDTO = createServiceResponse(responseObjectsMap);
+			} else {
+				errorMsg = isUpdate ? "ListOfValues not found for ID: " + listOfValuesDTO.getId()
+						: "ListOfValues creation failed";
+				responseDTO = createServiceResponseError(responseObjectsMap,
+						isUpdate ? "ListOfValues update failed" : "ListOfValues creation failed", errorMsg);
+			}
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			boolean isUpdate = listOfValuesDTO.getId() != null;
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap,
+					isUpdate ? "ListOfValues update failed" : "ListOfValues creation failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getListValues")
+	public ResponseEntity<ResponseDTO> getListValues(@RequestParam Long orgId, @RequestParam String name) {
+		String methodName = "getListValues()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> listValues = new ArrayList<>();
+		try {
+			listValues = masterService.getBudgetGroup(orgId, name);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "List Values information get successfully");
+			responseObjectsMap.put("listValues", listValues);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "List Values information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getSubGroups")
+	public ResponseEntity<ResponseDTO> getSubGroups(@RequestParam Long orgId) {
+		String methodName = "getSubGroups()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<CoaVO> coaVO = new ArrayList<>();
+		try {
+			coaVO = masterService.getSubGroup(orgId);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Sub Group information get successfully");
+			responseObjectsMap.put("coaVO", coaVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Sub Group information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getLedgers")
+	public ResponseEntity<ResponseDTO> getLedgers(@RequestParam Long orgId, @RequestParam List<String> accountCode) {
+		String methodName = "getLedgers()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<CoaVO> coaVO = new ArrayList<>();
+		try {
+			coaVO = masterService.getLegders(orgId, accountCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Ledgers information get successfully");
+			responseObjectsMap.put("coaVO", coaVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Ledgers information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@PutMapping("/createUpdateGroupMapping")
+	public ResponseEntity<ResponseDTO> createUpdateGroupMapping(@RequestBody GroupMappingDTO groupMappingDTO) {
+		String methodName = "createUpdateGroupMapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> groupMappingVO = masterService.createUpdateGroupMapping(groupMappingDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, groupMappingVO.get("message"));
+			responseObjectsMap.put("groupMappingVO", groupMappingVO.get("groupMappingVO"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getGroupMappingAll")
+	public ResponseEntity<ResponseDTO> getGroupMappingAll(@RequestParam Long orgId) {
+		String methodName = "getGroupMappingAll()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<GroupMappingVO> groupMappingVO = new ArrayList<>();
+		try {
+			groupMappingVO = masterService.getGroupMappingAll(orgId);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Group Mapping information get successfully");
+			responseObjectsMap.put("groupMappingVO", groupMappingVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Group Mapping information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+	@GetMapping("/getGroupMappingById")
+	public ResponseEntity<ResponseDTO> getGroupMappingById(@RequestParam Long id) {
+		String methodName = "getGroupMappingById()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		Optional<GroupMappingVO> groupMappingVO = null;
+		try {
+			groupMappingVO = masterService.getGroupMappingById(id);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Group Mapping information get successfully by id");
+			responseObjectsMap.put("groupMappingVO", groupMappingVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Group Mapping information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+
+//GroupMapping2
+
+	
+	@PutMapping("/createUpdateGroupMapping2")
+	public ResponseEntity<ResponseDTO> createUpdateGroupMapping2(@RequestBody GroupMapping2DTO groupMapping2DTO) {
+		String methodName = "createUpdateGroupMapping2()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> groupMappingVO = masterService.createUpdateGroupMapping2(groupMapping2DTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, groupMappingVO.get("message"));
+			responseObjectsMap.put("groupMappingVO", groupMappingVO.get("groupMappingVO"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getLegdresForGroupMapping")
+	public ResponseEntity<ResponseDTO> getLegdresForGroupMapping(@RequestParam Long orgId,@RequestParam String segment) {
+		String methodName = "getLegdresForGroupMapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> ledgers = new ArrayList<>();
+		try {
+			ledgers = masterService.getLedgersDetailsForGroupMapping(orgId,segment);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Sub Group information get successfully");
+			responseObjectsMap.put("ledgers", ledgers);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Sub Group information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdateSegmentMapping")
+	public ResponseEntity<ResponseDTO> createUpdateSegmentMapping(@RequestBody SegmentMappingDTO segmentMappingDTO) {
+		String methodName = "createUpdateSegmentMapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> segmentMappingVO = masterService.createUpdateSegmentMapping(segmentMappingDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, segmentMappingVO.get("message"));
+			responseObjectsMap.put("segmentMappingVO", segmentMappingVO.get("segmentMappingVO"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getAllSegmentMapping")
+	public ResponseEntity<ResponseDTO> getAllSegmentMapping(@RequestParam Long orgId) {
+		String methodName = "getAllSegmentMapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<SegmentMappingVO> segmentMappingVO = new ArrayList<>();
+		try {
+			segmentMappingVO = masterService.getAllSegmentMapping(orgId);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Segment information get successfully");
+			responseObjectsMap.put("segmentMappingVO", segmentMappingVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Segment information receive failed", errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getSegmentMappingById")
+	public ResponseEntity<ResponseDTO> getSegmentMappingById(@RequestParam Long id) {
+		String methodName = "getSegmentMappingById()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		Optional<SegmentMappingVO> segmentMappingVO = null;
+		try {
+			segmentMappingVO = masterService.getSegmentMappingById(id);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Segment Mapping Mapping information get successfully by id");
+			responseObjectsMap.put("segmentMappingVO", segmentMappingVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Segment Mapping information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getSegmentDetails")
+	public ResponseEntity<ResponseDTO> getSegmentDetails(@RequestParam Long orgId) {
+		String methodName = "getSegmentDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> segment = new ArrayList<>();
+		try {
+			segment = masterService.getSegmentDetailsByClient(orgId);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Segment information get successfully");
+			responseObjectsMap.put("segment", segment);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Segment information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@PutMapping("/createUpdateAutomationMapping")
+	public ResponseEntity<ResponseDTO> createUpdateAutomationMapping(@RequestBody AutomationDTO automationDTO) {
+		String methodName = "createUpdateAutomationMapping()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> automationVO = masterService.createUpdateAutomationGroupMapping(automationDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, automationVO.get("message"));
+			responseObjectsMap.put("automationVO", automationVO.get("automationVO"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getAllAutomationDetails")
+	public ResponseEntity<ResponseDTO> getAllAutomationDetails(@RequestParam Long orgId) {
+		String methodName = "getAllAutomationDetails()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<AutomationVO> automationVO = new ArrayList<>();
+		try {
+			automationVO = masterService.getAutomationByOrgId(orgId);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Automation Mapping information get successfully");
+			responseObjectsMap.put("automationVO", automationVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Automation Mapping information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
+	
+	@GetMapping("/getAutomationById")
+	public ResponseEntity<ResponseDTO> getAutomationById(@RequestParam Long id) {
+		String methodName = "getAutomationById()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		AutomationVO automationVO = new AutomationVO();
+		try {
+			automationVO = masterService.getAutomationById(id);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "Automation Mapping information get successfully");
+			responseObjectsMap.put("automationVO", automationVO);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "Automation Mapping information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 }

@@ -22,6 +22,9 @@ public class ClientCompanyDTO {
 	private String createdBy;
 	private boolean active;
 	private String bussinessType;
+	private String clientGLCode;
+	private String clientYear;
+	private Long startNo;
 	private String turnOver;
 	private String levelOfService;
 	private String repPerson;
@@ -32,6 +35,10 @@ public class ClientCompanyDTO {
 	private String password="HzNOsmwTefzQ4WWqCURfjDYdOzoyMT4nlgQk6p77fso=";
 	
 	private List<ClientCompanyReportAccessDTO> clientCompanyReportAccessDTO;
+	
+	private List<ClientUnitDTO> clientUnitDTO;
+	
+	private List<ClientSegmentDTO>clientSegmentDTO;
 
 	
 }

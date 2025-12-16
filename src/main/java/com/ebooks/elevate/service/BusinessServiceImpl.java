@@ -4,13 +4,12 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.EncryptedDocumentException;
@@ -40,6 +39,7 @@ import com.ebooks.elevate.entity.ServiceLevelDetailsVO;
 import com.ebooks.elevate.entity.ServiceLevelVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.CCoaRepo;
+import com.ebooks.elevate.repo.ClientCompanyRepo;
 import com.ebooks.elevate.repo.CoaRepo;
 import com.ebooks.elevate.repo.LedgerMappingRepo;
 import com.ebooks.elevate.repo.ServiceLevelDetailsRepo;
@@ -60,6 +60,9 @@ public class BusinessServiceImpl implements BusinessService {
 	LedgerMappingRepo ledgerMappingRepo;
 
 	@Autowired
+	ClientCompanyRepo clientCompanyRepo;
+
+	@Autowired
 	ServiceLevelRepo serviceLevelRepo;
 
 	@Autowired
@@ -77,7 +80,7 @@ public class BusinessServiceImpl implements BusinessService {
 		if (ObjectUtils.isEmpty(coaDTO.getId())) {
 			// Create operation
 
-			if (coaRepo.existsByOrgIdAndAccountCode(coaDTO.getOrgId(), coaDTO.getAccountCode())) {
+			if (coaRepo.existsByOrgIdAndAccountCodeIgnoreCase(coaDTO.getOrgId(), coaDTO.getAccountCode())) {
 
 				String errorMessage = String.format("This AccountCode: %s Already Exists", coaDTO.getAccountCode());
 				throw new ApplicationException(errorMessage);
@@ -96,7 +99,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 			if (!coaVO.getAccountCode().equalsIgnoreCase(coaDTO.getAccountCode())) {
 
-				if (coaRepo.existsByOrgIdAndAccountCode(coaDTO.getOrgId(), coaDTO.getAccountCode())) {
+				if (coaRepo.existsByOrgIdAndAccountCodeIgnoreCase(coaDTO.getOrgId(), coaDTO.getAccountCode())) {
 
 					String errorMessage = String.format("This AccountCode: %s Already Exists", coaDTO.getAccountCode());
 					throw new ApplicationException(errorMessage);
@@ -194,98 +197,221 @@ public class BusinessServiceImpl implements BusinessService {
 
 	}
 
+//	@Override
+//	public Map<String, Object> createUpdateCCoa(CCoaDTO cCoaDTO) throws ApplicationException {
+//		CCoaVO cCoaVO = null;
+//		String message = null;
+//
+//		ClientCompanyVO clientCompanyVO = clientCompanyRepo.findByClientCode(cCoaDTO.getClientCode());
+//
+//		if (clientCompanyVO.getClientGLCode().equals("Yes")) {
+//			// Determine if it's a create or update operation
+//			if (ObjectUtils.isEmpty(cCoaDTO.getId())) {
+//				// Create operation
+//
+//				if (cCoaRepo.existsByOrgIdAndClientCodeAndAccountCode(cCoaDTO.getOrgId(), cCoaDTO.getClientCode(),
+//						cCoaDTO.getAccountCode())) {
+//
+//					String errorMessage = String.format("This AccountCode: %s Already Exists",
+//							cCoaDTO.getAccountCode());
+//					throw new ApplicationException(errorMessage);
+//				}
+//
+//				if (cCoaRepo.existsByOrgIdAndClientCodeAndAccountNameIgnoreCase(cCoaDTO.getOrgId(),
+//						cCoaDTO.getClientCode(), cCoaDTO.getAccountName())) {
+//
+//					String errorMessage = String.format("This AccountGroupName: %s Already Exists",
+//							cCoaDTO.getAccountName());
+//					throw new ApplicationException(errorMessage);
+//				}
+//
+//				cCoaVO = new CCoaVO();
+//				cCoaVO.setAccountCode(cCoaDTO.getAccountCode());
+//				cCoaVO.setCreatedBy(cCoaDTO.getCreatedBy());
+//				cCoaVO.setUpdatedBy(cCoaDTO.getCreatedBy());
+//				message = "Chart Of Account Creation Successful";
+//			} else {
+//				// Update operation
+//				cCoaVO = cCoaRepo.findById(cCoaDTO.getId()).orElseThrow(
+//						() -> new ApplicationException("Chart Of Account not found with id: " + cCoaDTO.getId()));
+//				cCoaVO.setUpdatedBy(cCoaDTO.getCreatedBy());
+//
+//				if (!cCoaVO.getAccountCode().equalsIgnoreCase(cCoaDTO.getAccountCode())) {
+//
+//					if (cCoaRepo.existsByOrgIdAndClientCodeAndAccountCode(cCoaDTO.getOrgId(), cCoaDTO.getClientCode(),
+//							cCoaDTO.getAccountCode())) {
+//
+//						String errorMessage = String.format("This AccountCode: %s Already Exists",
+//								cCoaDTO.getAccountCode());
+//						throw new ApplicationException(errorMessage);
+//					}
+//
+//					cCoaVO.setAccountCode(cCoaDTO.getAccountCode());
+//				}
+//
+//				if (!cCoaVO.getAccountName().equalsIgnoreCase(cCoaDTO.getAccountName())) {
+//
+//					if (cCoaRepo.existsByOrgIdAndClientCodeAndAccountNameIgnoreCase(cCoaDTO.getOrgId(),
+//							cCoaDTO.getClientCode(), cCoaDTO.getAccountName())) {
+//
+//						String errorMessage = String.format("This AccountGroupName: %s Already Exists",
+//								cCoaDTO.getAccountName());
+//						throw new ApplicationException(errorMessage);
+//					}
+//
+//					cCoaVO.setAccountName(cCoaDTO.getAccountName());
+//				}
+//
+//				message = "Chart Of Account Updation Successful";
+//			}
+//		} else {
+//			if (ObjectUtils.isEmpty(cCoaDTO.getId())) {
+//				// Create operation
+//
+//				if (cCoaRepo.existsByOrgIdAndClientCodeAndAccountNameIgnoreCase(cCoaDTO.getOrgId(),
+//						cCoaDTO.getClientCode(), cCoaDTO.getAccountName())) {
+//
+//					String errorMessage = String.format("This AccountGroupName: %s Already Exists",
+//							cCoaDTO.getAccountName());
+//					throw new ApplicationException(errorMessage);
+//				}
+//
+//				cCoaVO = new CCoaVO();
+//				cCoaVO.setAccountCode(clientCompanyVO.getStartNo().toString());
+//				cCoaVO.setCreatedBy(cCoaDTO.getCreatedBy());
+//				cCoaVO.setUpdatedBy(cCoaDTO.getCreatedBy());
+//				Long startNo=clientCompanyVO.getStartNo();
+//				startNo=startNo+1;
+//				clientCompanyVO.setStartNo(startNo);
+//				clientCompanyRepo.save(clientCompanyVO);//
+//				message = "Chart Of Account Creation Successful";
+//			} else {
+//				// Update operation
+//				cCoaVO = cCoaRepo.findById(cCoaDTO.getId()).orElseThrow(
+//						() -> new ApplicationException("Chart Of Account not found with id: " + cCoaDTO.getId()));
+//				cCoaVO.setUpdatedBy(cCoaDTO.getCreatedBy());
+//				
+//				if (!cCoaVO.getAccountName().equalsIgnoreCase(cCoaDTO.getAccountName())) {
+//
+//					if (cCoaRepo.existsByOrgIdAndClientCodeAndAccountNameIgnoreCase(cCoaDTO.getOrgId(),
+//							cCoaDTO.getClientCode(), cCoaDTO.getAccountName())) {
+//
+//						String errorMessage = String.format("This AccountGroupName: %s Already Exists",
+//								cCoaDTO.getAccountName());
+//						throw new ApplicationException(errorMessage);
+//					}
+//
+//					cCoaVO.setAccountName(cCoaDTO.getAccountName());
+//				}
+//
+//				message = "Chart Of Account Updation Successful";
+//			}
+//		}
+//	}
+//
+//	// Map fields from DTO to VO
+//
+//	getCCoaVOFromCCoaDTO(cCoaVO, cCoaDTO);
+//
+//		// Save the entity to the repository
+//		cCoaRepo.save(cCoaVO);
+//
+//		// Prepare the response
+//		Map<String, Object> response = new HashMap<>();
+//		response.put("message", message);
+//		response.put("cCoaVO", cCoaVO);
+//
+//		return response;
+//	}
+//
+//	private CCoaVO getCCoaVOFromCCoaDTO(CCoaVO cCoaVO, CCoaDTO cCoaDTO) throws ApplicationException {
+//		// Basic field mapping
+//
+//		cCoaVO.setAccountName(cCoaDTO.getAccountName());
+//		cCoaVO.setCreatedBy(cCoaDTO.getCreatedBy());
+//		cCoaVO.setCurrency(cCoaDTO.getCurrency());
+//		cCoaVO.setActive(cCoaDTO.isActive());
+//		cCoaVO.setOrgId(cCoaDTO.getOrgId());
+//		cCoaVO.setClientName(cCoaDTO.getClientName());
+//		cCoaVO.setClientCode(cCoaDTO.getClientCode());
+//		cCoaVO.setNatureOfAccount(cCoaDTO.getNatureOfAccount());
+//		return cCoaVO;
+//	}
+	
 	@Override
 	public Map<String, Object> createUpdateCCoa(CCoaDTO cCoaDTO) throws ApplicationException {
-		CCoaVO cCoaVO = null;
-		String message;
+	    CCoaVO cCoaVO= new CCoaVO();
+	    String message;
 
-		// Determine if it's a create or update operation
-		if (ObjectUtils.isEmpty(cCoaDTO.getId())) {
-			// Create operation
+	    // Fetch client company details
 
-			if (cCoaRepo.existsByOrgIdAndAccountCodeAndClientCode(cCoaDTO.getOrgId(), cCoaDTO.getAccountCode(),
-					cCoaDTO.getClientCode())) {
+	    // Check if client uses GLCode
 
-				String errorMessage = String.format("This AccountCode: %s Already Exists", cCoaDTO.getAccountCode());
-				throw new ApplicationException(errorMessage);
-			}
+	    if (ObjectUtils.isEmpty(cCoaDTO.getId())) {
+	        // CREATE OPERATION
+	       
+	            // Validate Account Code and Account Name
+	            cCoaVO.setAccountCode(cCoaDTO.getAccountCode());
+	            // Validate only Account Name, generate Account Code
+	            if (cCoaRepo.existsByOrgIdAndClientCodeAndAccountNameIgnoreCase(
+	                    cCoaDTO.getOrgId(), cCoaDTO.getClientCode(), cCoaDTO.getAccountName())) {
+	                throw new ApplicationException(String.format("This AccountGroupName: %s Already Exists", cCoaDTO.getAccountName()));
+	            }
+	        
+	        
+	        cCoaVO.setCreatedBy(cCoaDTO.getCreatedBy());
+	        cCoaVO.setUpdatedBy(cCoaDTO.getCreatedBy());
+	        message = "Chart Of Account Creation Successful";
+	    } else {
+	        // UPDATE OPERATION
+	        cCoaVO = cCoaRepo.findById(cCoaDTO.getId()).orElseThrow(
+	                () -> new ApplicationException("Chart Of Account not found with id: " + cCoaDTO.getId()));
 
-			if (cCoaRepo.existsByOrgIdAndAccountNameAndClientCode(cCoaDTO.getOrgId(), cCoaDTO.getAccountName(),
-					cCoaDTO.getClientCode())) {
+	        cCoaVO.setUpdatedBy(cCoaDTO.getCreatedBy());
 
-				String errorMessage = String.format("This AccountGroupName: %s Already Exists",
-						cCoaDTO.getAccountName());
-				throw new ApplicationException(errorMessage);
-			}
+	        if (!cCoaVO.getAccountName().equalsIgnoreCase(cCoaDTO.getAccountName())) {
+	            validateAccountName(cCoaDTO);
+	            cCoaVO.setAccountName(cCoaDTO.getAccountName());
+	        }
 
-			cCoaVO = new CCoaVO();
+	        message = "Chart Of Account Updation Successful";
+	    }
 
-			cCoaVO.setCreatedBy(cCoaDTO.getCreatedBy());
-			cCoaVO.setUpdatedBy(cCoaDTO.getCreatedBy());
-			message = "Chart Of Account Creation Successful";
-		} else {
-			// Update operation
-			cCoaVO = cCoaRepo.findById(cCoaDTO.getId()).orElseThrow(
-					() -> new ApplicationException("Chart Of Account not found with id: " + cCoaDTO.getId()));
-			cCoaVO.setUpdatedBy(cCoaDTO.getCreatedBy());
+	    // Map DTO to VO
+	    getCCoaVOFromCCoaDTO(cCoaVO, cCoaDTO);
 
-			if (!cCoaVO.getAccountCode().equalsIgnoreCase(cCoaDTO.getAccountCode())) {
+	    // Save entity
+	    cCoaRepo.save(cCoaVO);
 
-				if (cCoaRepo.existsByOrgIdAndAccountCodeAndClientCode(cCoaDTO.getOrgId(), cCoaDTO.getAccountCode(),
-						cCoaDTO.getClientCode())) {
-
-					String errorMessage = String.format("This AccountCode: %s Already Exists",
-							cCoaDTO.getAccountCode());
-					throw new ApplicationException(errorMessage);
-				}
-
-				cCoaVO.setAccountCode(cCoaDTO.getAccountCode());
-			}
-
-			if (!cCoaVO.getAccountName().equalsIgnoreCase(cCoaDTO.getAccountName())) {
-
-				if (cCoaRepo.existsByOrgIdAndAccountNameAndClientCode(cCoaDTO.getOrgId(), cCoaDTO.getAccountName(),
-						cCoaDTO.getClientCode())) {
-
-					String errorMessage = String.format("This AccountGroupName: %s Already Exists",
-							cCoaDTO.getAccountName());
-					throw new ApplicationException(errorMessage);
-				}
-
-				cCoaVO.setAccountName(cCoaDTO.getAccountName());
-			}
-
-			message = "Chart Of Account Updation Successful";
-		}
-
-		// Map fields from DTO to VO
-		cCoaVO = getCCoaVOFromCCoaDTO(cCoaVO, cCoaDTO);
-
-		// Save the entity to the repository
-		cCoaRepo.save(cCoaVO);
-
-		// Prepare the response
-		Map<String, Object> response = new HashMap<>();
-		response.put("message", message);
-		response.put("cCoaVO", cCoaVO);
-
-		return response;
+	    // Prepare response
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("message", message);
+	    response.put("cCoaVO", cCoaVO);
+	    
+	    return response;
 	}
 
-	private CCoaVO getCCoaVOFromCCoaDTO(CCoaVO cCoaVO, CCoaDTO cCoaDTO) throws ApplicationException {
-		// Basic field mapping
-		cCoaVO.setAccountCode(cCoaDTO.getAccountCode());
-		cCoaVO.setAccountName(cCoaDTO.getAccountName());
-		cCoaVO.setCreatedBy(cCoaDTO.getCreatedBy());
-		cCoaVO.setCurrency(cCoaDTO.getCurrency());
-		cCoaVO.setActive(cCoaDTO.isActive());
-		cCoaVO.setOrgId(cCoaDTO.getOrgId());
-		cCoaVO.setClientName(cCoaDTO.getClientName());
-		cCoaVO.setClientCode(cCoaDTO.getClientCode());
-		cCoaVO.setNatureOfAccount(cCoaDTO.getNatureOfAccount());
-
-		return cCoaVO;
+	
+	private void validateAccountName(CCoaDTO cCoaDTO) throws ApplicationException {
+	    if (cCoaRepo.existsByOrgIdAndClientCodeAndAccountNameIgnoreCase(
+	            cCoaDTO.getOrgId(), cCoaDTO.getClientCode(), cCoaDTO.getAccountName())) {
+	        throw new ApplicationException(String.format("This AccountGroupName: %s Already Exists", cCoaDTO.getAccountName()));
+	    }
 	}
+
+	
+	private CCoaVO getCCoaVOFromCCoaDTO(CCoaVO cCoaVO, CCoaDTO cCoaDTO) {
+	    cCoaVO.setAccountName(cCoaDTO.getAccountName());
+	    cCoaVO.setCreatedBy(cCoaDTO.getCreatedBy());
+	    cCoaVO.setCurrency(cCoaDTO.getCurrency());
+	    cCoaVO.setActive(cCoaDTO.isActive());
+	    cCoaVO.setOrgId(cCoaDTO.getOrgId());
+	    cCoaVO.setClientName(cCoaDTO.getClientName());
+	    cCoaVO.setClientCode(cCoaDTO.getClientCode());
+	    cCoaVO.setNatureOfAccount(cCoaDTO.getNatureOfAccount());
+	    return cCoaVO;
+	}
+
 
 	@Override
 	public List<CCoaVO> getAllCCao(Long orgId, String clientCode) {
@@ -327,7 +453,6 @@ public class BusinessServiceImpl implements BusinessService {
 		return successfulUploads;
 	}
 
-	@Transactional
 	@Override
 	public void excelUploadForCoa(MultipartFile[] files, String createdBy, Long orgId)
 			throws ApplicationException, EncryptedDocumentException, java.io.IOException {
@@ -367,9 +492,13 @@ public class BusinessServiceImpl implements BusinessService {
 						String accountName = getStringCellValue1(row.getCell(3));
 						String natureOfAccount = getStringCellValue1(row.getCell(4));
 						String activeString = getStringCellValue1(row.getCell(5)); // Get value from the cell
-						
-						if(coaRepo.existsByOrgIdAndAccountCode(orgId, accountCode)) {
-							throw new ApplicationException("AccountCode "+accountCode+" Already Exist");
+
+						if (coaRepo.existsByOrgIdAndAccountCodeIgnoreCase(orgId, accountCode)) {
+							throw new ApplicationException("AccountCode " + accountCode + " Already Exist");
+						}
+
+						if (coaRepo.existsByOrgIdAndAccountGroupNameIgnoreCase(orgId, accountName)) {
+							throw new ApplicationException("AccountName " + accountName + " Already Exist");
 						}
 
 						// Convert activeString to integer and handle the conditions
@@ -413,9 +542,8 @@ public class BusinessServiceImpl implements BusinessService {
 							} else {
 
 								CoaVO vo = coaRepo.getOrgIdAndMainAccountGroupName(orgId, groupName);
-								if(vo==null)
-								{
-									throw new ApplicationException("The GroupName not exist in the COA"+groupName);
+								if (vo == null) {
+									throw new ApplicationException("The GroupName not exist in the COA" + groupName);
 								}
 								coaVO.setParentCode(vo.getAccountCode());
 								coaVO.setParentId(vo.getId().toString());
@@ -426,9 +554,8 @@ public class BusinessServiceImpl implements BusinessService {
 						} else if ("Account".equalsIgnoreCase(type) && groupName != null && !groupName.isEmpty()) {
 							// Account (groupName is not null)
 							CoaVO vo = coaRepo.getOrgIdAndSubAccountGroupName(orgId, groupName);
-							if(vo==null)
-							{
-								throw new ApplicationException("The GroupName not exist in the COA"+groupName);
+							if (vo == null) {
+								throw new ApplicationException("The GroupName not exist in the COA" + groupName);
 							}
 							coaVO.setParentCode(vo.getAccountCode());
 							coaVO.setParentId(vo.getId().toString());
@@ -444,8 +571,8 @@ public class BusinessServiceImpl implements BusinessService {
 				}
 
 				if (!errorMessages.isEmpty()) {
-					throw new ApplicationException(
-						    "Excel upload failed. " + String.join(", ", errorMessages) + ". Except for these lines, all other data has been uploaded.");
+					throw new ApplicationException("Excel upload failed. " + String.join(", ", errorMessages)
+							+ ".Except for these lines, all other data has been uploaded.");
 				}
 
 			} catch (IOException e) {
@@ -545,7 +672,8 @@ public class BusinessServiceImpl implements BusinessService {
 		return true;
 	}
 
-	@Transactional
+
+
 	@Override
 	public ExcelUploadResultDTO excelUploadForCCoa(MultipartFile[] files, String createdBy, String clientCode,
 			String clientName, Long orgId)
@@ -553,51 +681,53 @@ public class BusinessServiceImpl implements BusinessService {
 
 		totalRows = 0;
 		successfulUploads = 0;
-		ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result Object
-
-		List<CCoaVO> mainGroupList = new ArrayList<>();
+		ExcelUploadResultDTO result = new ExcelUploadResultDTO();
 		result.setTotalExcelRows(0);
 		result.setSuccessfulUploads(0);
 		result.setUnsuccessfulUploads(0);
 
+		List<CCoaVO> mainGroupList = new ArrayList<>();
+
 		for (MultipartFile file : files) {
 			try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
 				Sheet sheet = workbook.getSheetAt(0);
-				Row headerRow = sheet.getRow(0);
+				
 
 				List<String> errorMessages = new ArrayList<>();
-				// Validate header
+				Set<String> existingAccountCodes = new HashSet<>();
+				Set<String> existingAccountNames = new HashSet<>();
+
+				List<CCoaVO> existingAccounts = cCoaRepo.findByOrgIdAndClientCode(orgId, clientCode);
+				for (CCoaVO account : existingAccounts) {
+					existingAccountNames.add(account.getAccountName().trim().toLowerCase());
+				}
 
 				for (Row row : sheet) {
 					if (row.getRowNum() == 0 || isRowEmpty(row)) {
 						continue; // Skip header and empty rows
 					}
+					result.setTotalExcelRows(result.getTotalExcelRows() + 1);
 					totalRows++;
-					result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment totalRows
+
 					try {
-						// Parse cell values
-						String accountCode = getStringCellValue(row.getCell(0));
-						String accountName = getStringCellValue(row.getCell(1));
-						String natureOfAccount = getStringCellValue1(row.getCell(2));
-						String activeString = getStringCellValue(row.getCell(3));
+						
+						// ✅ Trim and Parse cell values
+						String accountName = getStringCellValue(row.getCell(0)).trim();
+						String activeString = getStringCellValue(row.getCell(1)).trim();
+						boolean active = "1".equals(activeString);
 
-						boolean active = "1".equals(activeString); // Convert "1"/"0" to boolean
-
-						// Business Validations
-						if (cCoaRepo.existsByOrgIdAndAccountCodeAndClientCode(orgId, accountCode, clientCode)) {
+						// ✅ Check for duplicate Account Name in DB or current batch
+						if (existingAccountNames.contains(accountName.toLowerCase())) {
 							throw new ApplicationException(
-									String.format("Account Code '%s' already exists for this Client", accountCode));
+									"Duplicate Account Name: " + accountName + " already exists");
 						}
 
-						if (cCoaRepo.existsByOrgIdAndAccountNameAndClientCode(orgId, accountName, clientCode)) {
-							throw new ApplicationException(
-									String.format("Account Name '%s' already exists for this Client", accountName));
-						}
+						// ✅ Store for checking duplicates within the same upload batch
+						existingAccountNames.add(accountName.toLowerCase());
 
-						// Create and add CCoaVO
+						// ✅ Create and add CCoaVO object
 						CCoaVO cCoaVO = new CCoaVO();
 						cCoaVO.setAccountName(accountName);
-						cCoaVO.setAccountCode(accountCode);
 						cCoaVO.setCreatedBy(createdBy);
 						cCoaVO.setOrgId(orgId);
 						cCoaVO.setClientName(clientName);
@@ -605,35 +735,38 @@ public class BusinessServiceImpl implements BusinessService {
 						cCoaVO.setActive(active);
 						cCoaVO.setUpdatedBy(createdBy);
 						cCoaVO.setClientCode(clientCode);
-						cCoaVO.setNatureOfAccount(natureOfAccount);
 
 						mainGroupList.add(cCoaVO);
 						result.setSuccessfulUploads(result.getSuccessfulUploads() + 1);
 						successfulUploads++;
+						
 					} catch (Exception e) {
-						errorMessages.add("Row No " + (row.getRowNum() + 1) + ": " + e.getMessage());
+						String errorMessage = "Row " + (row.getRowNum() + 1) + ": " + e.getMessage();
+						errorMessages.add(errorMessage);
 						result.setUnsuccessfulUploads(result.getUnsuccessfulUploads() + 1);
-						String error = String.format("Row %d: %s", row.getRowNum() + 1, e.getMessage());
-						result.addFailureReason(error); // Capture failure reason
+						result.addFailureReason(errorMessage);
 					}
 				}
+
+				// ✅ If any errors occurred, throw exception with details
 				if (!errorMessages.isEmpty()) {
-					throw new ApplicationException(
-						    "Excel upload failed. " + String.join(", ", errorMessages) + ". Except for these lines, all other data has been uploaded.");
+					throw new ApplicationException("Excel upload failed. " + String.join(", ", errorMessages)
+							+ ". Please Make Correction for above Lines and Re-Upload the Exccel Sheet");
 				}
-			}
-			catch (IOException e) {
+
+			} catch (IOException e) {
 				throw new ApplicationException(
 						"Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
 			}
 		}
 
-		// Save the successfully processed records
+		// ✅ Save records and flush to ensure immediate persistence
 		if (!mainGroupList.isEmpty()) {
 			cCoaRepo.saveAll(mainGroupList);
+			cCoaRepo.flush(); // Forces the database to persist data immediately
 		}
 
-		return result; // Return the result summary
+		return result;
 	}
 
 	@Override
@@ -653,7 +786,6 @@ public class BusinessServiceImpl implements BusinessService {
 			ledgerMappingVO.setCreatedBy(ledgerMappingDTO.getCreatedBy());
 			ledgerMappingVO.setUpdatedBy(ledgerMappingDTO.getCreatedBy());
 			ledgerMappingVO.setClientCoa(ledgerMappingDTO.getClientCoa());
-			ledgerMappingVO.setClientCoaCode(ledgerMappingDTO.getClientCoaCode());
 			ledgerMappingVO.setCoa(ledgerMappingDTO.getCoa());
 			ledgerMappingVO.setClientName(ledgerMappingDTO.getClientName());
 			ledgerMappingVO.setOrgId(ledgerMappingDTO.getOrgId());
@@ -662,13 +794,7 @@ public class BusinessServiceImpl implements BusinessService {
 			ledgerMappingVO.setActive(ledgerMappingDTO.isActive());
 			ledgerMappingVO.setClientCode(ledgerMappingDTO.getClientCode());
 
-			if (ledgerMappingRepo.existsByOrgIdAndClientCoaCodeAndClientCode(ledgerMappingDTO.getOrgId(),
-					ledgerMappingDTO.getClientCoaCode(), ledgerMappingDTO.getClientCode())) {
-
-				String errorMessage = String.format("This Client Account Code: %s Already Exists",
-						ledgerMappingDTO.getClientCoaCode());
-				throw new ApplicationException(errorMessage);
-			}
+			
 
 			if (ledgerMappingRepo.existsByOrgIdAndClientCoaAndClientCode(ledgerMappingDTO.getOrgId(),
 					ledgerMappingDTO.getClientCoa(), ledgerMappingDTO.getClientCode())) {
@@ -689,18 +815,7 @@ public class BusinessServiceImpl implements BusinessService {
 			ledgerMappingVO = ledgerMappingRepo.findById(ledgerMappingDTO.getId()).orElseThrow(
 					() -> new ApplicationException("LedgerMapping not found with id: " + ledgerMappingDTO.getId()));
 
-			if (!ledgerMappingVO.getClientCoaCode().equalsIgnoreCase(ledgerMappingDTO.getClientCoaCode())) {
-
-				if (ledgerMappingRepo.existsByOrgIdAndClientCoaCodeAndClientCode(ledgerMappingDTO.getOrgId(),
-						ledgerMappingDTO.getClientCoaCode(), ledgerMappingDTO.getClientCode())) {
-
-					String errorMessage = String.format("This Client Account Code: %s Already Exists",
-							ledgerMappingDTO.getClientCoaCode());
-					throw new ApplicationException(errorMessage);
-				}
-
-				ledgerMappingVO.setClientCoaCode(ledgerMappingDTO.getClientCoaCode());
-			}
+			
 
 			if (!ledgerMappingVO.getClientCoa().equalsIgnoreCase(ledgerMappingDTO.getClientCoa())) {
 
@@ -831,17 +946,19 @@ public class BusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
-	public List<LedgerMappingVO> getAllLedgerMapping(Long orgId,String clientCode) {
-		return ledgerMappingRepo.findAllByOrgIdAndClientCode(orgId,clientCode);
+	public List<LedgerMappingVO> getAllLedgerMapping(Long orgId, String clientCode) {
+		return ledgerMappingRepo.findAllByOrgIdAndClientCode(orgId, clientCode);
 	}
 
 	@Override
 	public ExcelUploadResultDTO excelUploadForLedgerMapping(MultipartFile[] files, String createdBy, String clientCode,
-			Long orgId, String clientName) throws EncryptedDocumentException, java.io.IOException, ApplicationException {
+			Long orgId, String clientName)
+			throws EncryptedDocumentException, java.io.IOException, ApplicationException {
 
 		totalRows = 0;
 		successfulUploads = 0;
 		ExcelUploadResultDTO result = new ExcelUploadResultDTO(); // Result Object
+		String clientAccountCode=null;
 
 		List<LedgerMappingVO> mainGroupList = new ArrayList<>();
 		result.setTotalExcelRows(0);
@@ -864,28 +981,22 @@ public class BusinessServiceImpl implements BusinessService {
 					result.setTotalExcelRows(result.getTotalExcelRows() + 1); // Increment totalRows
 					try {
 						// Parse cell values
-						String clientAccountCodes = getStringCellValue(row.getCell(1));
-						String elAccountCodes = getStringCellValue(row.getCell(2));
+						String clientAccountName=getStringCellValue(row.getCell(0));
+						String elAccountCodes = getStringCellValue(row.getCell(1));
 						String activeString = getStringCellValue(row.getCell(3));
 
-						CCoaVO cCoaVO = cCoaRepo.findByOrgIdAndAccountCode(orgId, clientAccountCodes);
+						CCoaVO cCoaVO = cCoaRepo.findByOrgIdAndClientCodeAndAccountNameIgnoreCase(orgId,clientCode ,clientAccountName);
 
-						String clientAccountName = cCoaVO.getAccountName();
-						String clientAccountCode = cCoaVO.getAccountCode();
+						if (cCoaVO == null) {
+						    errorMessages.add("Row No " + (row.getRowNum() + 1) + ": Not Found Account Name " + clientAccountName + " in Client COA");
+						} else {
+						    clientAccountCode = cCoaVO.getAccountCode();
+						    // Proceed with processing
+						}
 
 						boolean active = "1".equals(activeString); // Convert "1"/"0" to boolean
 
-						// Business Validations
-						if (ledgerMappingRepo.existsByOrgIdAndClientCoaCodeAndClientCode(orgId, clientAccountCode,
-								clientCode)) {
-
-							String errorMessage = String.format("This Client Account Code: %s Already Exists",
-									clientAccountCode);
-							throw new ApplicationException(errorMessage);
-						}
-
-						if (ledgerMappingRepo.existsByOrgIdAndClientCoaAndClientCode(orgId, clientAccountName,
-								clientCode)) {
+						if (ledgerMappingRepo.existsByOrgIdAndClientCodeAndClientCoaIgnoreCase(orgId,clientCode, clientAccountName)) {
 
 							String errorMessage = String.format("This Client Account Name: %s Already Exists",
 									clientAccountName);
@@ -893,8 +1004,9 @@ public class BusinessServiceImpl implements BusinessService {
 						}
 
 						CoaVO coa = coaRepo.findByOrgIdAndAccountCode(orgId, elAccountCodes);
-						if (coa.getAccountCode() == null) {
-							String errorMessage = String.format("This EL Account Code: %s Not Found", elAccountCodes);
+						
+						if (coa== null) {
+							 errorMessages.add("Row No " + (row.getRowNum() + 1) + ": This EL Account Code: %s Not Found " + elAccountCodes );
 						}
 
 						LedgerMappingVO ledgerMappingVO = new LedgerMappingVO();
@@ -902,7 +1014,6 @@ public class BusinessServiceImpl implements BusinessService {
 						ledgerMappingVO.setCreatedBy(createdBy);
 						ledgerMappingVO.setUpdatedBy(createdBy);
 						ledgerMappingVO.setClientCoa(clientAccountName);
-						ledgerMappingVO.setClientCoaCode(clientAccountCode);
 						ledgerMappingVO.setClientName(clientName);
 						ledgerMappingVO.setClientCode(clientCode);
 						ledgerMappingVO.setOrgId(orgId);
@@ -923,11 +1034,9 @@ public class BusinessServiceImpl implements BusinessService {
 					}
 				}
 				if (!errorMessages.isEmpty()) {
-					throw new ApplicationException(
-						    "Excel upload failed. " + String.join(", ", errorMessages) + ". Except for these lines, all other data has been uploaded.");
+					throw new ApplicationException("Excel upload failed. " + String.join(", ", errorMessages));
 				}
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				throw new ApplicationException(
 						"Failed to process file: " + file.getOriginalFilename() + " - " + e.getMessage());
 			}
@@ -950,7 +1059,8 @@ public class BusinessServiceImpl implements BusinessService {
 
 		if (ObjectUtils.isEmpty(serviceLevelDTO.getId())) {
 
-			if (serviceLevelRepo.existsByLevelCodeAndOrgId(serviceLevelDTO.getLevelCode(),serviceLevelDTO.getOrgId())) {
+			if (serviceLevelRepo.existsByLevelCodeAndOrgId(serviceLevelDTO.getLevelCode(),
+					serviceLevelDTO.getOrgId())) {
 
 				String errorFormat = String.format("The LevelCode Already Exists This Organization",
 						serviceLevelDTO.getLevelCode());
@@ -958,7 +1068,8 @@ public class BusinessServiceImpl implements BusinessService {
 
 			}
 
-			if (serviceLevelRepo.existsByLevelNameAndOrgId(serviceLevelDTO.getLevelName(),serviceLevelDTO.getOrgId())) {
+			if (serviceLevelRepo.existsByLevelNameAndOrgId(serviceLevelDTO.getLevelName(),
+					serviceLevelDTO.getOrgId())) {
 
 				String errorFormat = String.format("The LevelName Already Exists This Organization",
 						serviceLevelDTO.getLevelName());
@@ -978,7 +1089,8 @@ public class BusinessServiceImpl implements BusinessService {
 
 			if (!serviceLevelVO.getLevelCode().equalsIgnoreCase(serviceLevelDTO.getLevelCode())) {
 
-				if (serviceLevelRepo.existsByLevelCodeAndOrgId(serviceLevelDTO.getLevelCode(),serviceLevelDTO.getOrgId())) {
+				if (serviceLevelRepo.existsByLevelCodeAndOrgId(serviceLevelDTO.getLevelCode(),
+						serviceLevelDTO.getOrgId())) {
 
 					String errorFormat = String.format("The LevelCode Already Exists This Organization",
 							serviceLevelDTO.getLevelCode());
@@ -990,7 +1102,8 @@ public class BusinessServiceImpl implements BusinessService {
 
 			if (!serviceLevelVO.getLevelName().equalsIgnoreCase(serviceLevelDTO.getLevelName())) {
 
-				if (serviceLevelRepo.existsByLevelNameAndOrgId(serviceLevelDTO.getLevelName(),serviceLevelDTO.getOrgId())) {
+				if (serviceLevelRepo.existsByLevelNameAndOrgId(serviceLevelDTO.getLevelName(),
+						serviceLevelDTO.getOrgId())) {
 
 					String errorFormat = String.format("The LevelName Already Exists This Organization",
 							serviceLevelDTO.getLevelName());

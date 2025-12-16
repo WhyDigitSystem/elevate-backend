@@ -23,7 +23,6 @@ import com.ebooks.elevate.entity.ClientVO;
 import com.ebooks.elevate.entity.CompanyVO;
 import com.ebooks.elevate.entity.CountryVO;
 import com.ebooks.elevate.entity.CurrencyVO;
-import com.ebooks.elevate.entity.FinScreenVO;
 import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.entity.RegionVO;
 import com.ebooks.elevate.entity.ScreenNamesVO;
@@ -135,6 +134,8 @@ public interface CommonMasterService {
 	List<ClientVO> getAllClients(Long orgId);
 
 	Optional<ClientVO> getClientById(Long id);
+
+	List<Map<String, Object>> getFinYearByClient(Long orgId, String clientCode);
 
 	
 

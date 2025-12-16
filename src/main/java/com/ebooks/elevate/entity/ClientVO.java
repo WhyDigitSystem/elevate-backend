@@ -10,7 +10,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.ebooks.elevate.dto.CreatedUpdatedDate;
-import com.ebooks.elevate.dto.Role;
 import com.fasterxml.jackson.annotation.JsonGetter;
 
 import lombok.AllArgsConstructor;

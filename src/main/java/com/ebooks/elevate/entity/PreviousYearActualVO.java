@@ -56,6 +56,17 @@ public class PreviousYearActualVO {
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
+	@Column(name = "maingroup",length = 100)
+	private String mainGroup;
+	@Column(name = "subgroup",length = 100)
+	private String subGroup;
+	@Column(name = "subgroupcode",length = 100)
+	private String subGroupCode;
+	
+	private int monthsequence;
+	
+	@Column(name = "quater")
+	private String quater;
 
 	@Embedded
 	private CreatedUpdatedDate createdUpdatedDate = new CreatedUpdatedDate();

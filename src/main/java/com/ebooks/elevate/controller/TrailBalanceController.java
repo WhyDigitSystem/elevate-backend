@@ -24,12 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
-import com.ebooks.elevate.dto.CoaDTO;
 import com.ebooks.elevate.dto.ExcelUploadResultDTO;
 import com.ebooks.elevate.dto.ResponseDTO;
 import com.ebooks.elevate.dto.TbHeaderDTO;
-import com.ebooks.elevate.entity.CoaVO;
-import com.ebooks.elevate.entity.SubLedgerAccountVO;
 import com.ebooks.elevate.entity.TbHeaderVO;
 import com.ebooks.elevate.service.TrailBalanceService;
 
@@ -70,7 +67,7 @@ public class TrailBalanceController extends BaseController {
 			responseObjectsMap.put("status", true);
 			responseObjectsMap.put("totalRows", totalRows);
 			responseObjectsMap.put("successfulUploads", successfulUploads);
-			responseObjectsMap.put("message", "Excel Upload For CCoa successful");
+			responseObjectsMap.put("message", "Excel Upload For Client TB successful");
 //			// Populate success response
 //			responseObjectsMap.put("statusFlag", "Ok");
 //			responseObjectsMap.put("status", true);
@@ -84,7 +81,7 @@ public class TrailBalanceController extends BaseController {
 			responseObjectsMap.put("status", false);
 			responseObjectsMap.put("errorMessage", errorMsg);
 
-			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client COA Failed",
+			responseDTO = createServiceResponseError(responseObjectsMap, "Excel Upload For Client Trial Balance Failed",
 					e.getMessage());
 		}
 

@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -55,7 +56,13 @@ public class ClientCompanyVO {
 	private String updatedBy;
 	@Column(name = "cancel")
 	private boolean cancel;
+	@Column(name = "clientyear",length = 50)
+	private String clientYear;
 	
+	@Column(name = "clientGLCode",length = 50)
+	private String clientGLCode;
+	@Column(name = "startno")
+	private Long startNo;
 	@Column(name = "currency",length = 50)
 	private String currency;
 	@Column(name = "yearstartdate")
@@ -84,6 +91,14 @@ public class ClientCompanyVO {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "clientCompanyVO", cascade = CascadeType.ALL)
 	private List<ClientCompanyReportAccessVO>clientCompanyReportAccessVO;
+	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "clientCompanyVO", cascade = CascadeType.ALL)
+	private List<ClientUnitVO>clientUnitVO;
+	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "clientCompanyVO", cascade = CascadeType.ALL)
+	private List<ClientSegmentVO>clientSegmentVO;
 
 	@JsonGetter("active")
 	public String getActive() {

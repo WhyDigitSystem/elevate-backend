@@ -19,15 +19,20 @@ public interface CCoaRepo extends JpaRepository<CCoaVO, Long>{
 	Set<Object[]> findGroups();
 
 
-	boolean existsByAccountCode(String accountCode);
 
 	CCoaVO findByOrgIdAndAccountCode(Long orgId, String clientAccountCodes);
 
-	boolean existsByOrgIdAndAccountNameAndClientCode(Long orgId, String accountName, String clientCode);
-
-	boolean existsByOrgIdAndAccountCodeAndClientCode(Long orgId, String accountCode, String clientCode);
 
 	@Query(value = "select a from CCoaVO a where a.orgId=?1 and a.clientCode=?2")
 	List<CCoaVO> findAllByOrgIdAndClientCode(Long orgId, String clientCode);
+
+
+	boolean existsByOrgIdAndClientCodeAndAccountNameIgnoreCase(Long orgId, String clientCode, String accountName);
+
+	boolean existsByOrgIdAndClientCodeAndAccountCode(Long orgId, String clientCode, String accountCode);
+
+	List<CCoaVO> findByOrgIdAndClientCode(Long orgId, String clientCode);
+
+	CCoaVO findByOrgIdAndClientCodeAndAccountNameIgnoreCase(Long orgId, String clientCode, String clientAccountName);
 
 }

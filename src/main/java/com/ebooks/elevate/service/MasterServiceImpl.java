@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
@@ -14,20 +16,50 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ebooks.elevate.dto.AutomationDTO;
+import com.ebooks.elevate.dto.AutomationDetailsDTO;
 import com.ebooks.elevate.dto.BranchDTO;
 import com.ebooks.elevate.dto.EmployeeDTO;
+import com.ebooks.elevate.dto.GroupLedgersDTO;
+import com.ebooks.elevate.dto.GroupMapping2DTO;
+import com.ebooks.elevate.dto.GroupMapping2SubGroupDTO;
+import com.ebooks.elevate.dto.GroupMappingDTO;
+import com.ebooks.elevate.dto.ListOfValuesDTO;
+import com.ebooks.elevate.dto.ListOfValuesDetailsDTO;
+import com.ebooks.elevate.dto.SegmentMappingDTO;
+import com.ebooks.elevate.dto.SegmentMappingDetailsDTO;
+import com.ebooks.elevate.dto.SubGroupDetailsDTO;
+import com.ebooks.elevate.entity.AutomationDetailsVO;
+import com.ebooks.elevate.entity.AutomationVO;
 import com.ebooks.elevate.entity.BranchVO;
+import com.ebooks.elevate.entity.CoaVO;
 import com.ebooks.elevate.entity.EmployeeVO;
+import com.ebooks.elevate.entity.GroupLedgersVO;
+import com.ebooks.elevate.entity.GroupMappingVO;
+import com.ebooks.elevate.entity.ListOfValuesDetailsVO;
+import com.ebooks.elevate.entity.ListOfValuesVO;
 import com.ebooks.elevate.entity.SacCodeVO;
+import com.ebooks.elevate.entity.SegmentMappingDetailsVO;
+import com.ebooks.elevate.entity.SegmentMappingVO;
 import com.ebooks.elevate.entity.SetTaxRateVO;
+import com.ebooks.elevate.entity.SubGroupDetailsVO;
 import com.ebooks.elevate.entity.SubLedgerAccountVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.AutomationDetailsRepo;
+import com.ebooks.elevate.repo.AutomationRepo;
 import com.ebooks.elevate.repo.BranchRepo;
 import com.ebooks.elevate.repo.CoaRepo;
 import com.ebooks.elevate.repo.DocumentTypeMappingDetailsRepo;
 import com.ebooks.elevate.repo.EmployeeRepo;
+import com.ebooks.elevate.repo.GroupLedgersRepo;
+import com.ebooks.elevate.repo.GroupMappingRepo;
+import com.ebooks.elevate.repo.ListOfValuesDetailsRepo;
+import com.ebooks.elevate.repo.ListOfValuesRepo;
 import com.ebooks.elevate.repo.SacCodeRepo;
+import com.ebooks.elevate.repo.SegmentMappingDetailsRepo;
+import com.ebooks.elevate.repo.SegmentMappingRepo;
 import com.ebooks.elevate.repo.SetTaxRateRepo;
+import com.ebooks.elevate.repo.SubGroupDetailsRepo;
 import com.ebooks.elevate.repo.SubLedgerAccountRepo;
 
 @Service
@@ -41,9 +73,28 @@ public class MasterServiceImpl implements MasterService {
 	EmployeeRepo employeeRepo;
 
 	@Autowired
+	GroupMappingRepo groupMappingRepo;
+
+	@Autowired
+	SubGroupDetailsRepo subGroupDetailsRepo;
+
+	@Autowired
+	GroupLedgersRepo groupLedgersRepo;
+	
+	@Autowired
+	AutomationRepo automationRepo;
+	
+	@Autowired
+	AutomationDetailsRepo automationDetailsRepo;
+
+	@Autowired
 	SetTaxRateRepo setTaxRateRepo;
 
-	
+	@Autowired
+	ListOfValuesRepo listOfValuesRepo;
+
+	@Autowired
+	ListOfValuesDetailsRepo listOfValuesDetailsRepo;
 
 	@Autowired
 	CoaRepo coaRepo;
@@ -54,9 +105,14 @@ public class MasterServiceImpl implements MasterService {
 	@Autowired
 	SubLedgerAccountRepo subLedgerAccountRepo;
 
-	
 	@Autowired
 	DocumentTypeMappingDetailsRepo documentTypeMappingDetailsRepo;
+	
+	@Autowired
+	SegmentMappingRepo segmentMappingRepo;
+	
+	@Autowired
+	SegmentMappingDetailsRepo segmentMappingDetailsRepo;
 	// Branch
 
 	@Override
@@ -271,8 +327,6 @@ public class MasterServiceImpl implements MasterService {
 		return setTaxRateVO;
 	}
 
-	
-
 	@Override
 	public List<SetTaxRateVO> getSetTaxRateByActive() {
 		return setTaxRateRepo.findSetTaxRateByActive();
@@ -314,7 +368,7 @@ public class MasterServiceImpl implements MasterService {
 		return sacCodeVO;
 	}
 
-		@Override
+	@Override
 	public List<SubLedgerAccountVO> getAllSubLedgerAccountById(Long id) {
 		List<SubLedgerAccountVO> subLedgerAccountVO = new ArrayList<>();
 		if (ObjectUtils.isNotEmpty(id)) {
@@ -340,12 +394,472 @@ public class MasterServiceImpl implements MasterService {
 		return subLedgerAccountVO;
 	}
 
-	
-
 	@Override
 	public List<SubLedgerAccountVO> getSubLedgerAccountByActive() {
 		return subLedgerAccountRepo.findSubLedgerAccountByActive();
 
 	}
 
+	@Override
+	public List<ListOfValuesVO> getAllListOfValuesByOrgId(Long orgId) {
+		return listOfValuesRepo.findAllByOrgId(orgId);
+	}
+
+	@Override
+	public List<ListOfValuesVO> getListOfValuesById(Long id) {
+		List<ListOfValuesVO> listOfValuesVO = new ArrayList<>();
+		if (ObjectUtils.isNotEmpty(id)) {
+			LOGGER.info("Successfully Received  List Of Values Information BY Id : {}", id);
+			listOfValuesVO = listOfValuesRepo.getAllById(id);
+		}
+		return listOfValuesVO;
+	}
+
+	@Override
+	public ListOfValuesVO updateCreateListOfValues(@Valid ListOfValuesDTO listOfValuesDTO) throws ApplicationException {
+		ListOfValuesVO listOfValuesVO = new ListOfValuesVO();
+		boolean isUpdate = false;
+		if (ObjectUtils.isNotEmpty(listOfValuesDTO.getId())) {
+			isUpdate = true;
+			listOfValuesVO = listOfValuesRepo.findById(listOfValuesDTO.getId())
+					.orElseThrow(() -> new ApplicationException("Invalid ListOfValues details"));
+			listOfValuesVO.setUpdatedBy(listOfValuesDTO.getCreatedBy());
+		}
+
+		else {
+			if (listOfValuesRepo.existsByNameAndOrgId(listOfValuesDTO.getName(), listOfValuesDTO.getOrgId())) {
+				throw new ApplicationException("List Name already Exists");
+			}
+			listOfValuesVO.setUpdatedBy(listOfValuesDTO.getCreatedBy());
+			listOfValuesVO.setCreatedBy(listOfValuesDTO.getCreatedBy());
+		}
+
+		if (isUpdate) {
+			ListOfValuesVO listOfValues = listOfValuesRepo.findById(listOfValuesDTO.getId()).orElse(null);
+			if (!listOfValues.getName().equals(listOfValuesDTO.getName())) {
+				if (listOfValuesRepo.existsByNameAndOrgId(listOfValuesDTO.getName(), listOfValuesDTO.getOrgId())) {
+					throw new ApplicationException("List Name already Exists");
+				}
+			}
+		}
+		getListOfValuesVOFromTypesOfValuesDTO(listOfValuesDTO, listOfValuesVO);
+		listOfValuesVO = listOfValuesRepo.save(listOfValuesVO);
+
+		List<ListOfValuesDetailsVO> listOfValues1VOList = listOfValuesDetailsRepo.findByListOfValuesVO(listOfValuesVO);
+		listOfValuesDetailsRepo.deleteAll(listOfValues1VOList);
+
+		List<ListOfValuesDetailsVO> listOfValues1VOs = new ArrayList<>();
+		if (listOfValuesDTO.getListOfValuesDetailsDTO() != null) {
+			for (ListOfValuesDetailsDTO listOfValues1DTO : listOfValuesDTO.getListOfValuesDetailsDTO()) {
+
+				ListOfValuesDetailsVO listOfValues1VO = new ListOfValuesDetailsVO();
+				listOfValues1VO.setValuesDescription(listOfValues1DTO.getValuesDescription());
+				listOfValues1VO.setActive(listOfValues1DTO.isActive());
+				listOfValues1VO.setListOfValuesVO(listOfValuesVO);
+				listOfValues1VOs.add(listOfValues1VO);
+			}
+		}
+
+		listOfValuesVO.setUpdatedBy(listOfValuesDTO.getCreatedBy());
+		listOfValuesVO.setListOfValuesDetailsVO(listOfValues1VOs);
+		return listOfValuesRepo.save(listOfValuesVO);
+
+	}
+
+	private void getListOfValuesVOFromTypesOfValuesDTO(@Valid ListOfValuesDTO listOfValuesDTO,
+			ListOfValuesVO listOfValuesVO) {
+		listOfValuesVO.setName(listOfValuesDTO.getName());
+		listOfValuesVO.setOrgId(listOfValuesDTO.getOrgId());
+		listOfValuesVO.setActive(true);
+
+	}
+
+	@Override
+	public List<Map<String, Object>> getBudgetGroup(Long orgId, String name) throws ApplicationException {
+
+		Set<Object[]> obj = listOfValuesRepo.getListValuesDetailsForBudget(orgId, name);
+		return ListofValue(obj);
+	}
+
+	private List<Map<String, Object>> ListofValue(Set<Object[]> obj) {
+		List<Map<String, Object>> details = new ArrayList<>();
+		for (Object[] det : obj) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("valuesDescription", det[0] != null ? det[0].toString() : "");
+			details.add(mp);
+		}
+		return details;
+	}
+
+	@Override
+	public List<CoaVO> getSubGroup(Long orgId) {
+
+		return coaRepo.getOrgIdAndSubGroupName(orgId);
+	}
+
+	@Override
+	public List<CoaVO> getLegders(Long orgId, List<String> accountCode) {
+
+		return coaRepo.getOrgIdAndSubGroupName(orgId, accountCode);
+	}
+
+	@Override
+	public Map<String, Object> createUpdateGroupMapping(GroupMappingDTO groupMappingDTO) throws ApplicationException {
+
+		GroupMappingVO groupMappingVO = new GroupMappingVO();
+
+		String message = null;
+
+		if (ObjectUtils.isEmpty(groupMappingDTO.getId())) {
+
+			if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMappingDTO.getOrgId(),
+					groupMappingDTO.getGroupName())) {
+				throw new ApplicationException("Group Name already Exists");
+			}
+			groupMappingVO.setCreatedBy(groupMappingDTO.getCreatedBy());
+			groupMappingVO.setUpdatedBy(groupMappingDTO.getCreatedBy());
+			groupMappingVO.setGroupName(groupMappingDTO.getGroupName());
+
+			message = "Group Mapping Creation SuccessFully";
+
+		} else {
+
+			groupMappingVO = groupMappingRepo.findById(groupMappingDTO.getId()).orElseThrow(
+					() -> new ApplicationException("Group DTO not found with id: " + groupMappingDTO.getId()));
+			if (!groupMappingVO.getGroupName().equals(groupMappingDTO.getGroupName())) {
+				if (groupMappingRepo.existsByOrgIdAndGroupNameIgnoreCase(groupMappingDTO.getOrgId(),
+						groupMappingDTO.getGroupName())) {
+					throw new ApplicationException("Group Name already Exists");
+				}
+				groupMappingVO.setGroupName(groupMappingDTO.getGroupName());
+			}
+			groupMappingVO.setUpdatedBy(groupMappingDTO.getCreatedBy());
+
+			message = "Group Mapping Updation SuccessFully";
+		}
+
+		groupMappingVO = getGroupMappingVOFromGroupMappingDTO(groupMappingVO, groupMappingDTO);
+		groupMappingRepo.save(groupMappingVO);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", message);
+		response.put("groupMappingVO", groupMappingVO); // Return the list of saved records
+		return response;
+	}
+
+	private GroupMappingVO getGroupMappingVOFromGroupMappingDTO(GroupMappingVO groupMappingVO,
+			GroupMappingDTO groupMappingDTO) {
+
+		groupMappingVO.setActive(true);
+
+		groupMappingVO.setOrgId(groupMappingDTO.getOrgId());
+
+		if (groupMappingDTO.getId() != null) {
+			List<SubGroupDetailsVO> detailsVOs = subGroupDetailsRepo.findByGroupMappingVO(groupMappingVO);
+			subGroupDetailsRepo.deleteAll(detailsVOs);
+
+			List<GroupLedgersVO> ledgersVOs = groupLedgersRepo.findByGroupMappingVO(groupMappingVO);
+			groupLedgersRepo.deleteAll(ledgersVOs);
+		}
+
+		List<SubGroupDetailsVO> subGroupDetailsVO = new ArrayList<>();
+		List<SubGroupDetailsDTO> subGroupDetailsDTOs = groupMappingDTO.getSubGroupDetailsVO();
+		if (subGroupDetailsDTOs != null && !subGroupDetailsDTOs.isEmpty()) {
+			for (SubGroupDetailsDTO subGroupDetailsDTO : subGroupDetailsDTOs) {
+				SubGroupDetailsVO detailsVO = new SubGroupDetailsVO();
+				detailsVO.setAccountCode(subGroupDetailsDTO.getAccountCode());
+				detailsVO.setAccountName(subGroupDetailsDTO.getAccountName());
+				detailsVO.setActive(subGroupDetailsDTO.isActive());
+				detailsVO.setDisplaySeq(subGroupDetailsDTO.getDisplaySeq());
+				detailsVO.setGroupMappingVO(groupMappingVO);
+				subGroupDetailsVO.add(detailsVO);
+			}
+			groupMappingVO.setSubGroupDetailsVO(subGroupDetailsVO);
+		}
+
+		List<GroupLedgersVO> groupLedgersVO = new ArrayList<>();
+		List<GroupLedgersDTO> groupLedgersDTOs = groupMappingDTO.getGroupLedgersDTO();
+		if (groupLedgersDTOs != null && !groupLedgersDTOs.isEmpty()) {
+			for (GroupLedgersDTO groupLedgersDTO : groupLedgersDTOs) {
+				GroupLedgersVO ledgersVO = new GroupLedgersVO();
+				ledgersVO.setParentCode(groupLedgersDTO.getParentCode());
+				ledgersVO.setGroupName(groupLedgersDTO.getGroupName());
+				ledgersVO.setOrgId(groupMappingDTO.getOrgId());
+				ledgersVO.setDisplaySeq(groupLedgersDTO.getDisplaySeq());
+				ledgersVO.setMainGroupName(groupMappingDTO.getGroupName());
+				ledgersVO.setAccountCode(groupLedgersDTO.getAccountCode());
+				ledgersVO.setAccountName(groupLedgersDTO.getAccountName());
+				ledgersVO.setActive(groupLedgersDTO.isActive());
+				ledgersVO.setGroupMappingVO(groupMappingVO);
+				groupLedgersVO.add(ledgersVO);
+			}
+			groupMappingVO.setGroupLedgresVOs(groupLedgersVO);
+		}
+		return groupMappingVO;
+	}
+
+	@Override
+	public List<GroupMappingVO> getGroupMappingAll(Long orgId) {
+		return groupMappingRepo.getGroupMappingAll(orgId);
+	}
+
+	@Override
+	public Optional<GroupMappingVO> getGroupMappingById(Long id) {
+		return groupMappingRepo.findById(id);
+	}
+
+	@Override
+	public Map<String, Object> createUpdateGroupMapping2(GroupMapping2DTO groupMapping2DTO)
+			throws ApplicationException {
+
+		if (ObjectUtils.isEmpty(groupMapping2DTO)) {
+			throw new ApplicationException("GroupMapping2DTO is null or empty");
+		}
+
+		GroupMappingVO groupMappingVO;
+		String message;
+
+		if (groupMapping2DTO.getId() == null) {
+			groupMappingVO = new GroupMappingVO();
+			groupMappingVO.setCreatedBy(groupMapping2DTO.getCreatedBy());
+			groupMappingVO.setUpdatedBy(groupMapping2DTO.getCreatedBy());
+			message = "GroupMapping2 Created Successfully";
+		} else {
+			// Update flow
+
+			groupMappingVO = groupMappingRepo.findById(groupMapping2DTO.getId())
+					.orElseThrow(() -> new ApplicationException("Invalid Groupmapping Details"));
+
+			groupMappingVO.setGroupName(groupMapping2DTO.getSegment());
+
+			groupMappingVO.setUpdatedBy(groupMapping2DTO.getCreatedBy());
+			message = "GroupMapping2 Updated Successfully";
+		}
+
+		groupMappingVO = mapDTOToVO(groupMappingVO, groupMapping2DTO);
+		groupMappingRepo.save(groupMappingVO);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("groupMappingVO", groupMappingVO);
+		response.put("message", message);
+		return response;
+	}
+
+	private GroupMappingVO mapDTOToVO(GroupMappingVO groupMappingVO, GroupMapping2DTO groupMapping2DTO) {
+		groupMappingVO.setGroupName(groupMapping2DTO.getSegment());
+		groupMappingVO.setSubheading(groupMapping2DTO.getHeader());
+		groupMappingVO.setActive(groupMapping2DTO.isActive());
+		groupMappingVO.setOrgId(groupMapping2DTO.getOrgId());
+		if (groupMapping2DTO.getId() != null) {
+			List<GroupLedgersVO> existingLedgers = groupLedgersRepo.findByGroupMappingVO(groupMappingVO);
+			groupLedgersRepo.deleteAll(existingLedgers);
+		}
+
+		List<GroupLedgersVO> newLedgers = new ArrayList<>();
+		if (groupMapping2DTO.getGroupMapping2SubGroupDTO() != null) {
+			for (GroupMapping2SubGroupDTO dto : groupMapping2DTO.getGroupMapping2SubGroupDTO()) {
+				GroupLedgersVO ledger = new GroupLedgersVO();
+				ledger.setMainGroupName(groupMapping2DTO.getSegment());
+				ledger.setDisplaySeq(dto.getDisplaySeq());
+				ledger.setGroupName(groupMapping2DTO.getHeader());
+				ledger.setAccountCode(dto.getSubGroupCode());
+				ledger.setAccountName(dto.getSubGroup());
+				ledger.setActive(groupMapping2DTO.isActive());
+				ledger.setOrgId(groupMapping2DTO.getOrgId());
+				ledger.setGroupMappingVO(groupMappingVO);
+				newLedgers.add(ledger);
+			}
+		}
+
+		groupMappingVO.setGroupLedgresVOs(newLedgers);
+		return groupMappingVO;
+	}
+
+	@Override
+	public List<Map<String, Object>> getLedgersDetailsForGroupMapping(Long orgId, String segment) {
+		
+		Set<Object []> ledgerDetails=groupLedgersRepo.ledgersDetails(orgId, segment);
+		return ledgDetails(ledgerDetails);
+	}
+
+	private List<Map<String, Object>> ledgDetails(Set<Object[]> ledgerDetails) {
+		List<Map<String, Object>> details = new ArrayList<>();
+		for (Object[] det : ledgerDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("ledger", det[0] != null ? det[0].toString() : "");
+			mp.put("subGroupCode", det[1] != null ? det[1].toString() : null);
+			details.add(mp);
+		}
+		return details;
+	}
+
+	@Override
+	public Map<String, Object> createUpdateSegmentMapping(SegmentMappingDTO segmentMappingDTO)
+			throws ApplicationException {
+
+		SegmentMappingVO segMappingVO = new SegmentMappingVO();
+
+		String message = null;
+
+		if (ObjectUtils.isEmpty(segmentMappingDTO.getId())) {
+
+			
+			segMappingVO.setCreatedBy(segmentMappingDTO.getCreatedBy());
+			segMappingVO.setUpdatedBy(segmentMappingDTO.getCreatedBy());
+			message = "Segment Mapping Creation SuccessFully";
+
+		} else {
+
+			segMappingVO = segmentMappingRepo.findById(segmentMappingDTO.getId()).orElseThrow(
+					() -> new ApplicationException("Segment DTO not found with id: " + segmentMappingDTO.getId()));
+			segMappingVO.setUpdatedBy(segmentMappingDTO.getCreatedBy());
+
+			message = "Segment Mapping Updation SuccessFully";
+		}
+
+		segMappingVO = getSegmentMappingVOFromSegmentMappingDTO(segMappingVO, segmentMappingDTO);
+		segmentMappingRepo.save(segMappingVO);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", message);
+		response.put("segmentMappingVO", segMappingVO); // Return the list of saved records
+		return response;
+	}
+
+	private SegmentMappingVO getSegmentMappingVOFromSegmentMappingDTO(SegmentMappingVO segmentMappingVO,
+			SegmentMappingDTO segmentMappingDTO) {
+
+		segmentMappingVO.setActive(segmentMappingDTO.isActive());
+		segmentMappingVO.setClientName(segmentMappingDTO.getClientName());
+		segmentMappingVO.setClientCode(segmentMappingDTO.getClientCode());
+		segmentMappingVO.setSegmentType(segmentMappingDTO.getSegmentType());
+		segmentMappingVO.setOrgId(segmentMappingDTO.getOrgId());
+		
+
+		if (segmentMappingDTO.getId() != null) {
+			List<SegmentMappingDetailsVO> detailsVOs = segmentMappingDetailsRepo.findBySegmentMappingVO(segmentMappingVO);
+			segmentMappingDetailsRepo.deleteAll(detailsVOs);
+		}
+
+		List<SegmentMappingDetailsVO> segmentMappingDetailsVO = new ArrayList<>();
+		List<SegmentMappingDetailsDTO> segmentMappingDetailsDTO = segmentMappingDTO.getSegmentMappingDetailsDTO();
+		if (segmentMappingDetailsDTO != null && !segmentMappingDetailsDTO.isEmpty()) {
+			for (SegmentMappingDetailsDTO segmentMappingDetailsDTOs : segmentMappingDetailsDTO) {
+				SegmentMappingDetailsVO detailsVO = new SegmentMappingDetailsVO();
+				detailsVO.setActive(segmentMappingDetailsDTOs.isActive());
+				detailsVO.setValue(segmentMappingDetailsDTOs.getValue());
+				detailsVO.setActive(segmentMappingDetailsDTOs.isActive());
+				detailsVO.setSegmentMappingVO(segmentMappingVO);
+				segmentMappingDetailsVO.add(detailsVO);
+			}
+			segmentMappingVO.setSegmentMappingDetailsVO(segmentMappingDetailsVO);
+		}
+		return segmentMappingVO;
+	}
+
+	@Override
+	public List<SegmentMappingVO> getAllSegmentMapping(Long orgId) {
+		
+		return segmentMappingRepo.findByOrgId(orgId);
+	}
+
+	@Override
+	public Optional<SegmentMappingVO> getSegmentMappingById(Long id) {
+		// TODO Auto-generated method stub
+		return segmentMappingRepo.findById(id);
+	}
+	
+	
+	@Override
+	public List<Map<String, Object>> getSegmentDetailsByClient(Long orgId) {
+		
+		Set<Object []> segmentDetails=segmentMappingRepo.getSegmentDetailsByClient(orgId);
+		return segDetails(segmentDetails);
+	}
+
+	private List<Map<String, Object>> segDetails(Set<Object[]> ledgerDetails) {
+		List<Map<String, Object>> details = new ArrayList<>();
+		for (Object[] det : ledgerDetails) {
+			Map<String, Object> mp = new HashMap<>();
+			mp.put("values", det[0] != null ? det[0].toString() : "");
+			details.add(mp);
+		}
+		return details;
+	}
+
+	@Override
+	public Map<String, Object> createUpdateAutomationGroupMapping(AutomationDTO automationDTO)
+			throws ApplicationException {
+
+		AutomationVO automationVO = new AutomationVO();
+
+		String message = null;
+
+		if (ObjectUtils.isEmpty(automationDTO.getId())) {
+
+			automationVO = getAutomationVOFromAutomationDTO(automationVO, automationDTO);
+			automationVO.setCreatedBy(automationDTO.getCreatedBy());
+			automationVO.setUpdatedBy(automationDTO.getCreatedBy());
+			message = "Automation Mapping Creation SuccessFully";
+
+		} else {
+
+			automationVO = automationRepo.findById(automationDTO.getId()).orElseThrow(
+					() -> new ApplicationException("Automation Mapping not found with id: " + automationDTO.getId()));
+			automationVO.setUpdatedBy(automationDTO.getCreatedBy());
+			automationVO = getAutomationVOFromAutomationDTO(automationVO, automationDTO);
+			message = "Automation Mapping Updation SuccessFully";
+		}
+
+		
+		automationRepo.save(automationVO);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", message);
+		response.put("automationVO", automationVO); // Return the list of saved records
+		return response;
+	}
+
+	private AutomationVO getAutomationVOFromAutomationDTO(AutomationVO automationVO,
+			AutomationDTO automationDTO) {
+
+		automationVO.setMainGroupName(automationDTO.getMainGroupName());
+		automationVO.setSubheading(automationDTO.getSubHeading());
+		automationVO.setCancel(false);
+		automationVO.setActive(true);
+		automationVO.setOrgId(automationDTO.getOrgId());
+		
+		if (automationDTO.getId() != null) {
+			List<AutomationDetailsVO> detailsVOs = automationDetailsRepo.findByAutomationVO(automationVO);
+			automationDetailsRepo.deleteAll(detailsVOs);
+		}
+
+		List<AutomationDetailsVO> automationDetailsVO = new ArrayList<>();
+		List<AutomationDetailsDTO> automationDetailsDTO = automationDTO.getAutomationDetailsDTO();
+		if (automationDetailsDTO != null && !automationDetailsDTO.isEmpty()) {
+			for (AutomationDetailsDTO automationDetailsDTOs : automationDetailsDTO) {
+				AutomationDetailsVO detailsVO = new AutomationDetailsVO();
+			detailsVO.setMainGroup(automationDetailsDTOs.getMainGroup());
+			detailsVO.setSubGroup(automationDetailsDTOs.getSubGroup());
+			detailsVO.setAccountCode(automationDetailsDTOs.getAccountCode());
+			detailsVO.setAccountName(automationDetailsDTOs.getAccountName());
+			detailsVO.setAutomationVO(automationVO);
+			automationDetailsVO.add(detailsVO);
+			}
+			automationVO.setAutomationDetailsVO(automationDetailsVO);
+		}
+		return automationVO;
+	}
+	
+	@Override
+	public AutomationVO getAutomationById(Long id) {
+		// TODO Auto-generated method stub
+		return automationRepo.findById(id).get();
+	}
+	
+	@Override
+	public List<AutomationVO> getAutomationByOrgId(Long orgId) {
+		// TODO Auto-generated method stub
+		return automationRepo.findByOrgId(orgId);
+	}
 }
