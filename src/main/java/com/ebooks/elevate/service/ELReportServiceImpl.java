@@ -599,7 +599,7 @@ public class ELReportServiceImpl implements ELReportService {
 
 	private List<Map<String, Object>> ElActual(Set<Object[]> ELactualDetails) {
 
-		List<Map<String, Object>> YTDTB = new ArrayList<>();
+		List<Map<String, Object>> YTDTB1 = new ArrayList<>();
 		for (Object[] bud : ELactualDetails) {
 			Map<String, Object> b = new HashMap<>();
 			b.put("elGlCode", bud[3] != null ? bud[3].toString() : "");
@@ -615,10 +615,11 @@ public class ELReportServiceImpl implements ELReportService {
 			b.put("fullPy", bud[13] != null ? new BigDecimal(bud[13].toString()) : BigDecimal.ZERO);
 			b.put("estimate", bud[14] != null ? new BigDecimal(bud[14].toString()) : BigDecimal.ZERO);
 			
+			System.out.println("budgetYTD:"+ bud[9]);
 			
-			YTDTB.add(b);
+			YTDTB1.add(b);
 		}
-		return YTDTB;
+		return YTDTB1;
 	}
 
 	@Override

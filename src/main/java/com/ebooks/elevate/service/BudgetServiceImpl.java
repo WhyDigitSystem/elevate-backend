@@ -151,7 +151,7 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Autowired
 	PySalesPurchaseItemRepo pySalesPurchaseItemRepo;
-	
+
 	@Autowired
 	MonthlyProcessService monthlyProcessService;
 
@@ -219,13 +219,12 @@ public class BudgetServiceImpl implements BudgetService {
 		Set<String> distinctMonths = budgetDTOList.stream().map(BudgetDTO::getMonth).filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-
 		List<BudgetDTO> positiveAmountList = budgetDTOList.stream()
-				.filter(dto -> dto.getAmount() != null || dto.getAmount() !=BigDecimal.ZERO )
+				.filter(dto -> dto.getAmount() != null || dto.getAmount() != BigDecimal.ZERO)
 //				.filter(dto -> monthlyProcessService.validateMonthOpen(dto.getClientCode(), dto.getYear(), dto.getMonth()))
 				.collect(Collectors.toList());
 		Set<String> distinctSubgroup = new HashSet<>();
-		
+
 		for (BudgetDTO pto : positiveAmountList) {
 			GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(pto.getOrgId(),
 					pto.getAccountName(), pto.getMainGroup());
@@ -240,9 +239,9 @@ public class BudgetServiceImpl implements BudgetService {
 //		            System.out.println("Skipping deletion for closed month: " + month);
 //		            continue;
 //		        }
-				
-				budgetRepo.deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(orgId, clientCode,
-						year, mainGroup, subg, month);
+
+				budgetRepo.deleteByOrgIdAndClientAndYearAndMainGroupAndSubGroupAndMonth(orgId, clientCode, year,
+						mainGroup, subg, month);
 			}
 		}
 
@@ -265,11 +264,11 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 
 		for (BudgetDTO dto : positiveAmountList) {
-			
-			if(dto.getAmount()==BigDecimal.ZERO) {
+
+			if (dto.getAmount() == BigDecimal.ZERO) {
 				continue;
 			}
-			
+
 			BudgetVO vo = new BudgetVO();
 			vo.setOrgId(dto.getOrgId());
 			vo.setClient(dto.getClient());
@@ -288,10 +287,10 @@ public class BudgetServiceImpl implements BudgetService {
 				GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(dto.getOrgId(),
 						dto.getAccountName(), dto.getMainGroup());
 				if (groupVO != null && groupVO.getParentCode() != null) {
-				    vo.setSubGroupCode(groupVO.getParentCode());
-				    		
-				    } else {
-				    vo.setSubGroupCode(null);
+					vo.setSubGroupCode(groupVO.getParentCode());
+
+				} else {
+					vo.setSubGroupCode(null);
 				}
 				vo.setSubGroup(groupVO.getGroupName());
 			} catch (Exception e) {
@@ -477,12 +476,12 @@ public class BudgetServiceImpl implements BudgetService {
 				GroupLedgersVO groupVO = groupLedgersRepo.findByOrgIdAndAccountNameAndMainGroupName(dto.getOrgId(),
 						dto.getAccountName(), dto.getMainGroup());
 				if (groupVO != null && groupVO.getParentCode() != null) {
-				    vo.setSubGroupCode(groupVO.getParentCode());
-				    		
-				    } else {
-				    vo.setSubGroupCode(null);
+					vo.setSubGroupCode(groupVO.getParentCode());
+
+				} else {
+					vo.setSubGroupCode(null);
 				}
-				vo.setSubGroup(groupVO.getGroupName());	
+				vo.setSubGroup(groupVO.getGroupName());
 			} catch (Exception e) {
 				System.out.println("Group fetch failed: " + dto.getAccountName() + " | " + dto.getMainGroup());
 			}
@@ -886,7 +885,7 @@ public class BudgetServiceImpl implements BudgetService {
 			mp.put("category", sub[2] != null ? sub[2].toString() : "");
 			mp.put("month", sub[3] != null ? sub[3].toString() : "");
 			mp.put("headCount", sub[4] != null ? Integer.parseInt(sub[4].toString()) : 0);
-			mp.put("ctc", sub[5] != null ? ((BigDecimal) sub[5]):0);
+			mp.put("ctc", sub[5] != null ? ((BigDecimal) sub[5]) : 0);
 			subgroup.add(mp);
 		}
 		return subgroup;
@@ -1821,12 +1820,14 @@ public class BudgetServiceImpl implements BudgetService {
 		Long org = null;
 		String clientcode = null;
 		String yr = null;
+		String month = null;
 		for (LoanOutstandingDTO budgetDTO2 : loanOutstandingDTO) {
 			org = budgetDTO2.getOrgId();
 			clientcode = budgetDTO2.getClientCode();
 			yr = budgetDTO2.getYear();
+			month = budgetDTO2.getMonth();
 
-			List<PyLoansOutStandingVO> vo = pyLoansOutStandingRepo.getClientBudgetDls(org, clientcode, yr);
+			List<PyLoansOutStandingVO> vo = pyLoansOutStandingRepo.getClientBudgetDls(org, clientcode, yr, month);
 			if (vo != null) {
 				pyLoansOutStandingRepo.deleteAll(vo);
 			}
@@ -1896,10 +1897,9 @@ public class BudgetServiceImpl implements BudgetService {
 
 		Set<String> distinctMonths = salesPurchaseDTO.stream().map(SalesPurchaseDTO::getMonth).filter(Objects::nonNull)
 				.collect(Collectors.toSet());
-		
+
 		for (String months : distinctMonths) {
-			budgetSalesPurchaseRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode,
-					year, type, months);
+			budgetSalesPurchaseRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode, year, type, months);
 		}
 		for (SalesPurchaseDTO dto : salesPurchaseDTO) {
 			if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0)
@@ -1948,19 +1948,15 @@ public class BudgetServiceImpl implements BudgetService {
 
 		Set<String> distinctMonths = salesPurchaseDTO.stream().map(SalesPurchaseDTO::getMonth).filter(Objects::nonNull)
 				.collect(Collectors.toSet());
-		
+
 		for (String months : distinctMonths) {
-			pySalesPurchaseRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode,
-					year, type, months);
+			pySalesPurchaseRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode, year, type, months);
 		}
-		
+
 		// Delete existing records
-		
 
 		List<PySalesPurchaseVO> existing = pySalesPurchaseRepo.getClientPySalesPurchaseDtls(orgId, clientCode, year,
 				type, month);
-
-		
 
 		for (SalesPurchaseDTO dto : salesPurchaseDTO) {
 			if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0)
@@ -2008,18 +2004,18 @@ public class BudgetServiceImpl implements BudgetService {
 		String type = firstDto.getType();
 		String month = firstDto.getMonth();
 
-		Set<String> distinctMonths = salesPurchaseItemDTO.stream().map(SalesPurchaseItemDTO::getMonth).filter(Objects::nonNull)
-				.collect(Collectors.toSet());
-		
+		Set<String> distinctMonths = salesPurchaseItemDTO.stream().map(SalesPurchaseItemDTO::getMonth)
+				.filter(Objects::nonNull).collect(Collectors.toSet());
+
 		for (String months : distinctMonths) {
-			budgetSalesPurchaseItemRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode,
-					year, type, months);
+			budgetSalesPurchaseItemRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode, year, type,
+					months);
 		}
 
 		for (SalesPurchaseItemDTO dto : salesPurchaseItemDTO) {
-			if (dto.getValue() == null || dto.getValue().compareTo(BigDecimal.ZERO) == 0 && dto.getQty() == null
-					|| dto.getQty().compareTo(BigDecimal.ZERO) == 0)
+			if (dto.getValue().compareTo(BigDecimal.ZERO) == 0 && dto.getQty().compareTo(BigDecimal.ZERO) == 0) {
 				continue;
+			}
 
 			BudgetSalesPurchaseItemVO vo = new BudgetSalesPurchaseItemVO();
 			vo.setOrgId(dto.getOrgId());
@@ -2062,18 +2058,17 @@ public class BudgetServiceImpl implements BudgetService {
 		String type = firstDto.getType();
 		String month = firstDto.getMonth();
 
-		Set<String> distinctMonths = salesPurchaseItemDTO.stream().map(SalesPurchaseItemDTO::getMonth).filter(Objects::nonNull)
-				.collect(Collectors.toSet());
-		
+		Set<String> distinctMonths = salesPurchaseItemDTO.stream().map(SalesPurchaseItemDTO::getMonth)
+				.filter(Objects::nonNull).collect(Collectors.toSet());
+
 		for (String months : distinctMonths) {
-			pySalesPurchaseItemRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode,
-					year, type, months);
+			pySalesPurchaseItemRepo.deleteByOrgIdAndClientAndYearAndTypeAndMonth(orgId, clientCode, year, type, months);
 		}
 
 		for (SalesPurchaseItemDTO dto : salesPurchaseItemDTO) {
-			if (dto.getValue() == null || dto.getValue().compareTo(BigDecimal.ZERO) == 0 && dto.getQty() == null
-					|| dto.getQty().compareTo(BigDecimal.ZERO) == 0)
+			if (dto.getValue().compareTo(BigDecimal.ZERO) == 0 && dto.getQty().compareTo(BigDecimal.ZERO) == 0) {
 				continue;
+			}
 
 			PySalesPurchaseItemVO vo = new PySalesPurchaseItemVO();
 			vo.setOrgId(dto.getOrgId());
