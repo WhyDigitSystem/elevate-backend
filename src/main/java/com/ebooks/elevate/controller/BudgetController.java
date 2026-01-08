@@ -531,14 +531,14 @@ public class BudgetController extends BaseController {
 	}
 	
 	@PutMapping("/createUpdatePYUnitWise")
-	public ResponseEntity<ResponseDTO> createUpdatePYUnitWise(@RequestBody List<BudgetUnitWiseDTO> budgetUnitWiseDTO) {
+	public ResponseEntity<ResponseDTO> createUpdatePYUnitWise(@RequestBody List<BudgetUnitWiseDTO> pyUnitWiseDTO) {
 		String methodName = "createUpdatePYUnitWise()";
 		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
 		String errorMsg = null;
 		Map<String, Object> responseObjectsMap = new HashMap<>();
 		ResponseDTO responseDTO = null;
 		try {
-			Map<String, Object> budgetUnitWise = budgetService.createUpdatePYUnitWise(budgetUnitWiseDTO);
+			Map<String, Object> budgetUnitWise = budgetService.createUpdatePYUnitWise(pyUnitWiseDTO);
 			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, budgetUnitWise.get("message"));
 			responseDTO = createServiceResponse(responseObjectsMap);
 		} catch (Exception e) {

@@ -38,6 +38,7 @@ import com.ebooks.elevate.entity.BudgetSalesPurchaseItemVO;
 import com.ebooks.elevate.entity.BudgetSalesPurchaseVO;
 import com.ebooks.elevate.entity.BudgetUnitWiseVO;
 import com.ebooks.elevate.entity.BudgetVO;
+import com.ebooks.elevate.entity.ClientCompanyVO;
 import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.entity.GroupLedgersVO;
 import com.ebooks.elevate.entity.OrderBookingVO;
@@ -59,6 +60,7 @@ import com.ebooks.elevate.repo.BudgetRepo;
 import com.ebooks.elevate.repo.BudgetSalesPurchaseItemRepo;
 import com.ebooks.elevate.repo.BudgetSalesPurchaseRepo;
 import com.ebooks.elevate.repo.BudgetUnitWiseRepo;
+import com.ebooks.elevate.repo.ClientCompanyRepo;
 import com.ebooks.elevate.repo.FinancialYearRepo;
 import com.ebooks.elevate.repo.GroupLedgersRepo;
 import com.ebooks.elevate.repo.GroupMappingRepo;
@@ -154,6 +156,9 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Autowired
 	MonthlyProcessService monthlyProcessService;
+	
+	@Autowired
+	ClientCompanyRepo clientCompanyRepo;
 
 	@Override
 	public List<Map<String, Object>> getSubGroupDetails(Long orgId, String mainGroup) {
@@ -803,9 +808,17 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	public List<Map<String, Object>> getPYDetailsAutomatic(Long orgId, String year, String clientCode,
 			String mainGroup) {
-
-		Set<Object[]> subGroupDetails = budgetRepo.getPYDetailsAuto(orgId, year, clientCode, mainGroup);
+		Set<Object[]> subGroupDetails= new HashSet<>();
+		
+		int findDivideamount=getDevideAmount(clientCode);
+		 subGroupDetails = budgetRepo.getPYDetailsAuto(orgId, year, clientCode, mainGroup,findDivideamount);
 		return getPYAuto(subGroupDetails);
+	}
+
+	private int getDevideAmount(String clientCode) {
+		ClientCompanyVO clientCompanyVO= clientCompanyRepo.findByClientCode(clientCode);
+		
+		return clientCompanyVO.getClientYear().equals("FY") ? 100000 : 1000000;
 	}
 
 	private List<Map<String, Object>> getPYAuto(Set<Object[]> subGroupDetails) {

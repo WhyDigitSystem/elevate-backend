@@ -15,6 +15,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.springframework.data.annotation.LastModifiedDate;
+
 import com.ebooks.elevate.dto.CreatedUpdatedDate;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -110,6 +112,9 @@ public class ClientCompanyVO {
 	public String getCancel() {
 		return cancel ? "T" : "F";
 	}
+	
+	@LastModifiedDate
+	private LocalDate moDate;
 
 	@Embedded
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();

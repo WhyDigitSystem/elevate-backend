@@ -604,7 +604,7 @@ public interface TrialBalanceRepo extends JpaRepository<TrialBalanceVO, Long> {
 			+ "AND a.maingroup = ?6\r\n"
 			+ "AND (a.groupname = ?7 OR 'ALL' = ?7)")
 	Set<Object[]> getElYTDTbdetailsforMonthlyProcess(Long orgId, String clientCode, String finyear, String month,
-			String previousYear,String mainGroupName,String subGroupCode);
+			String previousYear,String mainGroupName,String subGroupCode,int findDivideamount);
 
 	
 	@Query(nativeQuery = true, value = "select * from tbexcelupload where finyear=?1 and clientcode=?2 and month=?3")

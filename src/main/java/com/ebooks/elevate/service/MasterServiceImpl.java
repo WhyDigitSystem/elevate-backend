@@ -683,11 +683,15 @@ public class MasterServiceImpl implements MasterService {
 	}
 
 	private List<Map<String, Object>> ledgDetails(Set<Object[]> ledgerDetails) {
+		
 		List<Map<String, Object>> details = new ArrayList<>();
+		
 		for (Object[] det : ledgerDetails) {
+			
 			Map<String, Object> mp = new HashMap<>();
 			mp.put("ledger", det[0] != null ? det[0].toString() : "");
 			mp.put("subGroupCode", det[1] != null ? det[1].toString() : null);
+			
 			details.add(mp);
 		}
 		return details;

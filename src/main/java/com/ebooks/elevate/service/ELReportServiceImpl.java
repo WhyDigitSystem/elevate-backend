@@ -28,11 +28,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ebooks.elevate.dto.ElMfrDTO;
+import com.ebooks.elevate.entity.ClientCompanyVO;
 import com.ebooks.elevate.entity.ElMfrVO;
 import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.BudgetHeadCountRepo;
 import com.ebooks.elevate.repo.BudgetRepo;
+import com.ebooks.elevate.repo.ClientCompanyRepo;
 import com.ebooks.elevate.repo.ElMfrRepo;
 import com.ebooks.elevate.repo.FinancialYearRepo;
 import com.ebooks.elevate.repo.OrderBookingRepo;
@@ -69,6 +71,9 @@ public class ELReportServiceImpl implements ELReportService {
 	
 	@Autowired
     private SummaryPLService summaryPLService;
+	
+	@Autowired
+	ClientCompanyRepo clientCompanyRepo;
 
 	@Override
 	public Map<String, Object> createUpdateElMfr(ElMfrDTO elMfrDTO) throws ApplicationException {
@@ -460,9 +465,10 @@ public class ELReportServiceImpl implements ELReportService {
 		} else {
 			previousYear = finyear;
 		}
-
+		int findDivideamount=getDevideAmount(clientCode);
+		
 		Set<Object[]> ElTBdetails = trialBalanceRepo.getElYTDTbdetailsforMonthlyProcess(orgId, clientCode, finyear,
-				month, previousYear, mainGroupName, subGroupCode);
+				month, previousYear, mainGroupName, subGroupCode,findDivideamount);
 		return getMonthlyProcess(ElTBdetails);
 	}
 
@@ -591,9 +597,11 @@ public class ELReportServiceImpl implements ELReportService {
 			previousYear = financialYearVO2.getFinYearIdentifier();
 		}
 		System.out.println(previousYear);
+		
+		int findDivideamount=getDevideAmount(clientCode);
 
 		Set<Object[]> ELactualDetails = budgetRepo.getELActualDetails(orgId, clientCode, finyear, previousYear, month,
-				mainGroupName, subGroupCode);
+				mainGroupName, subGroupCode,findDivideamount);
 		return ElActual(ELactualDetails);
 	}
 
@@ -614,8 +622,6 @@ public class ELReportServiceImpl implements ELReportService {
 			b.put("fullBudget", bud[12] != null ? new BigDecimal(bud[12].toString()) : BigDecimal.ZERO);
 			b.put("fullPy", bud[13] != null ? new BigDecimal(bud[13].toString()) : BigDecimal.ZERO);
 			b.put("estimate", bud[14] != null ? new BigDecimal(bud[14].toString()) : BigDecimal.ZERO);
-			
-			System.out.println("budgetYTD:"+ bud[9]);
 			
 			YTDTB1.add(b);
 		}
@@ -643,14 +649,16 @@ public class ELReportServiceImpl implements ELReportService {
 			previousYear = financialYearVO2.getFinYearIdentifier();
 		}
 		System.out.println(previousYear);
+		
+		int finDevideAmount=getDevideAmount(clientCode);
 
 		Set<Object[]> ELactualDetails = new HashSet<Object[]>();
 		if(mainGroupName.equals("Balance Sheet") || mainGroupName.equals("Profit And Loss Account")) {
-			ELactualDetails=previousYearActualRepo.getELActualAutomaticQuaterDetails(orgId, clientCode, finyear, previousYear, month, mainGroupName);
+			ELactualDetails=previousYearActualRepo.getELActualAutomaticQuaterDetails(orgId, clientCode, finyear, previousYear, month, mainGroupName,finDevideAmount);
 			return ElActualAutomaticQuater(ELactualDetails);
 		}else {
 			ELactualDetails=previousYearActualRepo.getELActualQuaterDetails(orgId, clientCode, finyear,
-				previousYear, month, mainGroupName, subGroupCode);
+				previousYear, month, mainGroupName, subGroupCode,finDevideAmount);
 			return ElActualQuater(ELactualDetails);
 		}
 		
@@ -711,31 +719,58 @@ public class ELReportServiceImpl implements ELReportService {
 			previousYear = financialYearVO2.getFinYearIdentifier();
 		}
 		System.out.println(previousYear);
+		
+		int findDivideamount=getDevideAmount(clientCode);
 
 		Set<Object[]> ELactualDetails = budgetRepo.getELActualDetailsAutomatic(orgId, finyear, clientCode,
-				mainGroupName, month, previousYear);
-		return ElActualAutomatic(ELactualDetails);
+				mainGroupName, month, previousYear,findDivideamount);
+		return ElActualAutomatic(ELactualDetails,mainGroupName);
+	}
+	private int getDevideAmount(String clientCode) {
+		ClientCompanyVO clientCompanyVO= clientCompanyRepo.findByClientCode(clientCode);
+		
+		return clientCompanyVO.getClientYear().equals("FY") ? 100000 : 1000000;
 	}
 
-	private List<Map<String, Object>> ElActualAutomatic(Set<Object[]> ELactualDetails) {
+	private List<Map<String, Object>> ElActualAutomatic(Set<Object[]> ELactualDetails,String mainGroupName) {
 
 		List<Map<String, Object>> YTDTB = new ArrayList<>();
 		for (Object[] bud : ELactualDetails) {
-			Map<String, Object> b = new HashMap<>();
-			b.put("elGlCode", bud[0] != null ? bud[0].toString() : "");
-			b.put("elGl", bud[1] != null ? bud[1].toString() : "");
-			b.put("natureOfAccount", "");
-			b.put("budget", bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO);
-			b.put("actual", bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO);
-			b.put("py", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
-			b.put("budgetYTD", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
-			b.put("ActualYTD", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
-			b.put("pyYTD", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
-			b.put("fullBudget", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
-			b.put("estimate", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
-			b.put("fullPy", bud[10] != null ? new BigDecimal(bud[10].toString()) : BigDecimal.ZERO);
-			YTDTB.add(b);
-		}
+
+	        Map<String, Object> b = new HashMap<>();
+
+	        b.put("elGlCode", bud[0] != null ? bud[0].toString() : "");
+	        b.put("elGl", bud[1] != null ? bud[1].toString() : "");
+	        b.put("natureOfAccount", "");
+
+	        BigDecimal budget = bud[2] != null ? new BigDecimal(bud[2].toString()) : BigDecimal.ZERO;
+	        BigDecimal actual = bud[3] != null ? new BigDecimal(bud[3].toString()) : BigDecimal.ZERO;
+	        BigDecimal py = bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO;
+
+	        b.put("budget", budget);
+	        b.put("actual", actual);
+	        b.put("py", py);
+
+	        if ("Balance Sheet".equalsIgnoreCase(mainGroupName)) {
+	            // 🔥 Balance Sheet logic
+	            b.put("budgetYTD", budget);
+	            b.put("ActualYTD", actual);
+	            b.put("pyYTD", py);
+	            b.put("fullBudget", budget);
+	            b.put("estimate", actual);
+	            b.put("fullPy", py);
+	        } else {
+	            // ✅ Normal logic
+	            b.put("budgetYTD", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
+	            b.put("ActualYTD", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+	            b.put("pyYTD", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
+	            b.put("fullBudget", bud[8] != null ? new BigDecimal(bud[8].toString()) : BigDecimal.ZERO);
+	            b.put("estimate", bud[9] != null ? new BigDecimal(bud[9].toString()) : BigDecimal.ZERO);
+	            b.put("fullPy", bud[10] != null ? new BigDecimal(bud[10].toString()) : BigDecimal.ZERO);
+	        }
+
+	        YTDTB.add(b);
+	    }
 		return YTDTB;
 	}
 
