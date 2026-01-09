@@ -113,8 +113,7 @@ public class ClientCompanyVO {
 		return cancel ? "T" : "F";
 	}
 	
-	@LastModifiedDate
-	private LocalDate moDate;
+
 
 	@Embedded
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
