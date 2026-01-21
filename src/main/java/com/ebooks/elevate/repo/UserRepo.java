@@ -33,6 +33,8 @@ public interface UserRepo extends JpaRepository<UserVO, Long> {
 	@Query(nativeQuery = true, value = "select count(*) from users where username <>'EBSPL/ITADMIN' and orgid=?1 and is_active=1")
 	int getUserCount(Long orgId);
 
+	boolean existsByUserName(String userName);
+
 
 //	UserVO findByUserNameAndUsersId(String userName, Long usersId);
 

@@ -199,12 +199,12 @@ public class CompanyServiceImpl implements CompanyService {
 	        }
 	        companyEmployeeVO.setEmployeeCode(companyEmployeeDTO.getEmployeeCode());
 
-	        if (companyEmployeeRepo.existsByEmailAndOrgId(companyEmployeeDTO.getEmail(),
-	                companyEmployeeDTO.getOrgId())) {
-	            String errorMessage = String.format("The CompanyMail: %s already exists in this Organization.",
-	                    companyEmployeeDTO.getEmail());
-	            throw new ApplicationException(errorMessage);
-	        }
+//	        if (companyEmployeeRepo.existsByEmailAndOrgId(companyEmployeeDTO.getEmail(),
+//	                companyEmployeeDTO.getOrgId())) {
+//	            String errorMessage = String.format("The CompanyMail: %s already exists in this Organization.",
+//	                    companyEmployeeDTO.getEmail());
+//	            throw new ApplicationException(errorMessage);
+//	        }
 	        companyEmployeeVO.setEmail(companyEmployeeDTO.getEmail());
 	        companyEmployeeVO.setCreatedBy(companyEmployeeDTO.getCreatedBy());
 	        companyEmployeeVO.setUpdatedBy(companyEmployeeDTO.getCreatedBy());
@@ -226,16 +226,16 @@ public class CompanyServiceImpl implements CompanyService {
 	            companyEmployeeVO.setEmployeeCode(companyEmployeeDTO.getEmployeeCode());
 	        }
 
-	        if (!companyEmployeeVO.getEmail().equalsIgnoreCase(companyEmployeeDTO.getEmail())) {
-	            if (companyEmployeeRepo.existsByEmailAndOrgId(companyEmployeeDTO.getEmail(),
-	                    companyEmployeeDTO.getOrgId())) {
-	                String errorMessage = String.format("The CompanyMail: %s already exists in this Organization.",
-	                        companyEmployeeDTO.getEmail());
-	                throw new ApplicationException(errorMessage);
-	            }
-	            companyEmployeeVO.setEmail(companyEmployeeDTO.getEmail());
-	            companyEmployeeVO.setUpdatedBy(companyEmployeeDTO.getCreatedBy());
-	        }
+//	        if (!companyEmployeeVO.getEmail().equalsIgnoreCase(companyEmployeeDTO.getEmail())) {
+//	            if (companyEmployeeRepo.existsByEmailAndOrgId(companyEmployeeDTO.getEmail(),
+//	                    companyEmployeeDTO.getOrgId())) {
+//	                String errorMessage = String.format("The CompanyMail: %s already exists in this Organization.",
+//	                        companyEmployeeDTO.getEmail());
+//	                throw new ApplicationException(errorMessage);
+//	            }
+//	            companyEmployeeVO.setEmail(companyEmployeeDTO.getEmail());
+//	            companyEmployeeVO.setUpdatedBy(companyEmployeeDTO.getCreatedBy());
+//	        }
 	        message = "Company Employee Updation Successfully";
 	    }
 

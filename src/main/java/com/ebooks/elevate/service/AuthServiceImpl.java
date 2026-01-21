@@ -145,10 +145,8 @@ public class AuthServiceImpl implements AuthService {
 		UserVO userVO = new UserVO();
 
 //		userVO=userRepo.findByUserNameOrEmailOrMobileNo(signUpFormDTO.getUserName(), signUpFormDTO.getEmail(), signUpFormDTO.getEmail());
-		if (userRepo.existsByUserNameOrEmailOrMobileNo(signUpFormDTO.getUserName(), signUpFormDTO.getEmail(),
-				signUpFormDTO.getEmail())) {
-			userVO = userRepo.findByUserNameOrEmailOrMobileNo(signUpFormDTO.getUserName(), signUpFormDTO.getEmail(),
-					signUpFormDTO.getEmail());
+		if (userRepo.existsByUserName(signUpFormDTO.getUserName())) {
+			userVO = userRepo.findByUserName(signUpFormDTO.getUserName());
 
 			List<UserLoginRolesVO> roles = loginRolesRepo.findByUserVO(userVO);
 			loginRolesRepo.deleteAll(roles);

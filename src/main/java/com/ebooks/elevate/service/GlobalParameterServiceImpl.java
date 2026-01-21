@@ -38,7 +38,7 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 
 	@Autowired
 	UserRepo userRepo;
-	
+
 	@Autowired
 	FinancialYearRepo financialYearRepo;
 
@@ -50,10 +50,10 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 
 	@Autowired
 	ClientRepo clientRepo;
-	
+
 	@Autowired
 	ClientCompanyRepo clientCompanyRepo;
-	
+
 	@Autowired
 	MonthCloseRepo monthCloseRepo;
 
@@ -79,85 +79,75 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 
 	@Override
 	public Map<String, Object> updateCreateGlobalparam(@Valid GlobalParameterDTO globalParameterDTO)
-	        throws ApplicationException {
+			throws ApplicationException {
 
-	    String message;
-	    GlobalParameterVO globalParameterVO;
-	    
-	    
+		String message;
+		GlobalParameterVO globalParameterVO;
 
-	    // Check if a record with the same UserId exists
-	    GlobalParameterVO existingRecord = globalParameterRepo.findByUserid(globalParameterDTO.getUserId());
-	    
-	    ClientCompanyVO clientCompanyVO= clientCompanyRepo.findByClientCode(globalParameterDTO.getClientCode()); 
-	    
-	    String previousYear=null;
-		if(clientCompanyVO.getClientYear().equals("FY"))
-		{
-			FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(clientCompanyVO.getOrgId(),globalParameterDTO.getFinYear(),clientCompanyVO.getClientYear());
-			int preYear=financialYearVO.getFinYear()-1;
-			FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(clientCompanyVO.getOrgId(),preYear,clientCompanyVO.getClientYear());
-			previousYear=financialYearVO2.getFinYearIdentifier();
+		// Check if a record with the same UserId exists
+		GlobalParameterVO existingRecord = globalParameterRepo.findByUserid(globalParameterDTO.getUserId());
+
+		ClientCompanyVO clientCompanyVO = clientCompanyRepo.findByClientCode(globalParameterDTO.getClientCode());
+
+		String previousYear = null;
+		if (clientCompanyVO.getClientYear().equals("FY")) {
+			FinancialYearVO financialYearVO = financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(
+					clientCompanyVO.getOrgId(), globalParameterDTO.getFinYear(), clientCompanyVO.getClientYear());
+			int preYear = financialYearVO.getFinYear() - 1;
+			FinancialYearVO financialYearVO2 = financialYearRepo.findByOrgIdAndFinYearAndYearType(
+					clientCompanyVO.getOrgId(), preYear, clientCompanyVO.getClientYear());
+			previousYear = financialYearVO2.getFinYearIdentifier();
+
+		} else if (clientCompanyVO.getClientYear().equals("CY")) {
+			FinancialYearVO financialYearVO = financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(
+					clientCompanyVO.getOrgId(), globalParameterDTO.getFinYear(), clientCompanyVO.getClientYear());
+			int preYear = financialYearVO.getFinYear() - 1;
+			FinancialYearVO financialYearVO2 = financialYearRepo.findByOrgIdAndFinYearAndYearType(
+					clientCompanyVO.getOrgId(), preYear, clientCompanyVO.getClientYear());
+			previousYear = financialYearVO2.getFinYearIdentifier();
+		}
+
+		if (existingRecord != null) {
+			// Update the existing record
+			existingRecord.setClientCode(globalParameterDTO.getClientCode());
+			existingRecord.setClientName(globalParameterDTO.getClientName());
+			existingRecord.setFinYear(globalParameterDTO.getFinYear());
+			existingRecord.setMonth(globalParameterDTO.getMonth());
+			existingRecord.setClientYear(clientCompanyVO.getClientYear());
+			existingRecord.setPy(previousYear);
+			Optional<MonthCloseVO> record = monthCloseRepo.findByClientCodeAndFinYearAndMonth(
+					globalParameterDTO.getClientCode(), globalParameterDTO.getFinYear(), globalParameterDTO.getMonth());
+			if (record != null) {
+				if (record.isPresent() && "CLOSED".equalsIgnoreCase(record.get().getStatus())) {
+					existingRecord.setMonthClose("CLOSED");
+				} else {
+					existingRecord.setMonthClose("OPEN");
+				}
+			}
+			globalParameterVO = globalParameterRepo.save(existingRecord);
+			message = "GlobalParameter Updation Successfully";
+		} else {
+			// Create a new record
+			globalParameterVO = new GlobalParameterVO();
+			globalParameterVO.setFinYear(globalParameterDTO.getFinYear());
+			globalParameterVO.setClientCode(globalParameterDTO.getClientCode());
+			globalParameterVO.setUserid(globalParameterDTO.getUserId());
+			globalParameterVO.setMonth(globalParameterDTO.getMonth());
+			globalParameterVO.setClientYear(globalParameterDTO.getClientYear());
+			globalParameterVO.setClientName(globalParameterDTO.getClientName());
+			globalParameterVO.setPy(previousYear);
 			
-		}
-		else if(clientCompanyVO.getClientYear().equals("CY"))
-		{
-			FinancialYearVO financialYearVO= financialYearRepo.findByOrgIdAndFinYearIdentifierAndYearType(clientCompanyVO.getOrgId(),globalParameterDTO.getFinYear(),clientCompanyVO.getClientYear());
-			int preYear=financialYearVO.getFinYear()-1;
-			FinancialYearVO financialYearVO2=financialYearRepo.findByOrgIdAndFinYearAndYearType(clientCompanyVO.getOrgId(),preYear,clientCompanyVO.getClientYear());
-			previousYear=financialYearVO2.getFinYearIdentifier();
+			globalParameterVO = globalParameterRepo.save(globalParameterVO);
+			message = "GlobalParameter Creation Successfully";
 		}
 
-	    if (existingRecord != null) {
-	        // Update the existing record
-	        existingRecord.setClientCode(globalParameterDTO.getClientCode());
-	        existingRecord.setClientName(globalParameterDTO.getClientName());
-	        existingRecord.setFinYear(globalParameterDTO.getFinYear());
-	        existingRecord.setMonth(globalParameterDTO.getMonth());
-	        existingRecord.setClientYear(clientCompanyVO.getClientYear());
-	        existingRecord.setPy(previousYear);
-	        Optional<MonthCloseVO> record = monthCloseRepo
-	                .findByClientCodeAndFinYearAndMonth(globalParameterDTO.getClientCode(), globalParameterDTO.getFinYear(), globalParameterDTO.getMonth());
-	        if (record.isPresent() && "CLOSED".equalsIgnoreCase(record.get().getStatus())) {
-	        	existingRecord.setMonthClose("CLOSED");
-	        }
-	        else {
-	        	existingRecord.setMonthClose("OPEN");
-	        }
-	        globalParameterVO = globalParameterRepo.save(existingRecord);
-	        message = "GlobalParameter Updation Successfully";
-	    } else {
-	        // Create a new record
-	        globalParameterVO = new GlobalParameterVO();
-	        globalParameterVO.setFinYear(globalParameterDTO.getFinYear());
-	        globalParameterVO.setClientCode(globalParameterDTO.getClientCode());
-	        globalParameterVO.setUserid(globalParameterDTO.getUserId());
-	        globalParameterVO.setMonth(globalParameterDTO.getMonth());
-	        globalParameterVO.setClientYear(globalParameterDTO.getClientYear());
-	        globalParameterVO.setClientName(globalParameterDTO.getClientName());
-	        globalParameterVO.setPy(previousYear);
-	        Optional<MonthCloseVO> record = monthCloseRepo
-	                .findByClientCodeAndFinYearAndMonth(globalParameterDTO.getClientCode(), globalParameterDTO.getFinYear(), globalParameterDTO.getMonth());
-	        if (record.isPresent() && "CLOSED".equalsIgnoreCase(record.get().getStatus())) {
-	        	existingRecord.setMonthClose("CLOSED");
-	        }
-	        else {
-	        	existingRecord.setMonthClose("OPEN");
-	        }
-	        globalParameterVO = globalParameterRepo.save(globalParameterVO);
-	        message = "GlobalParameter Creation Successfully";
-	    }
+		// Prepare the response
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", message);
+		response.put("globalParameterVO", globalParameterVO);
 
-	    // Prepare the response
-	    Map<String, Object> response = new HashMap<>();
-	    response.put("message", message);
-	    response.put("globalParameterVO", globalParameterVO);
-
-	    return response;
+		return response;
 	}
-
-   
-	
 
 	@Override
 	public List<Map<String, Object>> getClientCodeForGlopalParam(String userName) {
@@ -174,12 +164,12 @@ public class GlobalParameterServiceImpl implements GlobalParameterService {
 			List1.add(map); // Add the map to the list
 		}
 		return List1;
-	}  
- 
+	}
+
 	@Override
 	public Optional<GlobalParameterVO> getGlobalparamByUserId(Long userId) {
 
 		return globalParameterRepo.getGlobalParam(userId);
-	}  
+	}
 
 }
