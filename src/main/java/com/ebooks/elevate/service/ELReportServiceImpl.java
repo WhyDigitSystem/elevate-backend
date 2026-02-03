@@ -466,9 +466,10 @@ public class ELReportServiceImpl implements ELReportService {
 			previousYear = finyear;
 		}
 		int findDivideamount=getDevideAmount(clientCode);
+		int decimal=findDivideamount==100000 ? 2: 3;
 		
 		Set<Object[]> ElTBdetails = trialBalanceRepo.getElYTDTbdetailsforMonthlyProcess(orgId, clientCode, finyear,
-				month, previousYear, mainGroupName, subGroupCode,findDivideamount);
+				month, previousYear, mainGroupName, subGroupCode,findDivideamount,decimal);
 		return getMonthlyProcess(ElTBdetails);
 	}
 
@@ -599,9 +600,10 @@ public class ELReportServiceImpl implements ELReportService {
 		System.out.println(previousYear);
 		
 		int findDivideamount=getDevideAmount(clientCode);
+		int decimal=findDivideamount==100000 ? 2: 3;
 
 		Set<Object[]> ELactualDetails = budgetRepo.getELActualDetails(orgId, clientCode, finyear, previousYear, month,
-				mainGroupName, subGroupCode,findDivideamount);
+				mainGroupName, subGroupCode,findDivideamount,decimal);
 		return ElActual(ELactualDetails);
 	}
 
@@ -721,9 +723,10 @@ public class ELReportServiceImpl implements ELReportService {
 		System.out.println(previousYear);
 		
 		int findDivideamount=getDevideAmount(clientCode);
+		int decimal=findDivideamount==100000 ? 2: 3;
 
 		Set<Object[]> ELactualDetails = budgetRepo.getELActualDetailsAutomatic(orgId, finyear, clientCode,
-				mainGroupName, month, previousYear,findDivideamount);
+				mainGroupName, month, previousYear,findDivideamount,decimal);
 		return ElActualAutomatic(ELactualDetails,mainGroupName);
 	}
 	private int getDevideAmount(String clientCode) {
@@ -895,6 +898,7 @@ public class ELReportServiceImpl implements ELReportService {
 			b.put("slab4", bud[4] != null ? new BigDecimal(bud[4].toString()) : BigDecimal.ZERO);
 			b.put("slab5", bud[5] != null ? new BigDecimal(bud[5].toString()) : BigDecimal.ZERO);
 			b.put("slab6", bud[6] != null ? new BigDecimal(bud[6].toString()) : BigDecimal.ZERO);
+			b.put("outstanding", bud[7] != null ? new BigDecimal(bud[7].toString()) : BigDecimal.ZERO);
 			YTDTB.add(b);
 		}
 		return YTDTB;

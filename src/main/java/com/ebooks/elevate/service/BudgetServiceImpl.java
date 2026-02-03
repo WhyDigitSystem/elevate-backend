@@ -811,7 +811,8 @@ public class BudgetServiceImpl implements BudgetService {
 		Set<Object[]> subGroupDetails= new HashSet<>();
 		
 		int findDivideamount=getDevideAmount(clientCode);
-		 subGroupDetails = budgetRepo.getPYDetailsAuto(orgId, year, clientCode, mainGroup,findDivideamount);
+		int decimal=findDivideamount==100000 ? 2: 3;
+		 subGroupDetails = budgetRepo.getPYDetailsAuto(orgId, year, clientCode, mainGroup,findDivideamount,decimal);
 		return getPYAuto(subGroupDetails);
 	}
 

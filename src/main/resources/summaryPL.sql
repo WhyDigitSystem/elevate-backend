@@ -131,9 +131,9 @@ WHERE clientcode = ?1
 )t group by t.heading,t.maingroup
 union
 select t.heading,t.maingroup,sum(t.bud)bud,sum(t.act)act,sum(t.py)py from(
-select 'Profit And Loss Accounts'heading, maingroup,sum(amount)bud,0 act, 0 py from budget where clientcode=?1 and year=?2 and month=?4 and maingroup='Over Head' and subgroup='Overhead'union
-select 'Profit And Loss Accounts'heading,maingroup,0 bud,sum(amount)act, 0 py from previousyearactual where clientcode=?1 and year=?2 and month=?4 and maingroup='Over Head' and subgroup='Overhead' union
-select 'Profit And Loss Accounts'heading,maingroup,0 bud, 0 act,sum(amount) py from previousyearactual where clientcode=?1 and year=?3 and month=?4 and maingroup='Over Head' and subgroup='Overhead') t group by t.heading,t.maingroup
+select 'Profit And Loss Accounts'heading, maingroup,sum(amount)bud,0 act, 0 py from budget where clientcode=?1 and year=?2 and month=?4 and maingroup='Over Head' union
+select 'Profit And Loss Accounts'heading,maingroup,0 bud,sum(amount)act, 0 py from previousyearactual where clientcode=?1 and year=?2 and month=?4 and maingroup='Over Head'  union
+select 'Profit And Loss Accounts'heading,maingroup,0 bud, 0 act,sum(amount) py from previousyearactual where clientcode=?1 and year=?3 and month=?4 and maingroup='Over Head') t group by t.heading,t.maingroup
 union
 select t.heading,t.maingroup,sum(t.bud)bud,sum(t.act)act,sum(t.py)py from(SELECT 'Profit And Loss Accounts'heading,
     'Profit Befor Dep & Tax' AS maingroup,
@@ -599,9 +599,9 @@ WHERE clientcode = ?1
 )t group by t.heading,t.maingroup
 union
 select t.heading,t.maingroup,sum(t.bud)bud,sum(t.act)act,sum(t.py)py from(
-select 'Profit And Loss Accounts'heading, maingroup,sum(amount)bud,0 act, 0 py from budget where clientcode=?1 and year=?2 AND  monthsequence <=( select monthsequence from budget  where year=?2 and month=?4 and clientcode=?1 group by monthsequence) and maingroup='Over Head' and subgroup='Overhead'union
-select 'Profit And Loss Accounts'heading,maingroup,0 bud,sum(amount)act, 0 py from previousyearactual where clientcode=?1 and year=?2 AND  monthsequence <=( select monthsequence from previousyearactual  where year=?2 and month=?4 and clientcode=?1 group by monthsequence) and maingroup='Over Head' and subgroup='Overhead' union
-select 'Profit And Loss Accounts'heading,maingroup,0 bud, 0 act,sum(amount) py from previousyearactual where clientcode=?1 and year=?3 AND  monthsequence <=( select monthsequence from previousyearactual  where year=?3 and month=?4 and clientcode=?1 group by monthsequence) and maingroup='Over Head' and subgroup='Overhead') t group by t.heading,t.maingroup
+select 'Profit And Loss Accounts'heading, maingroup,sum(amount)bud,0 act, 0 py from budget where clientcode=?1 and year=?2 AND  monthsequence <=( select monthsequence from budget  where year=?2 and month=?4 and clientcode=?1 group by monthsequence) and maingroup='Over Head' union
+select 'Profit And Loss Accounts'heading,maingroup,0 bud,sum(amount)act, 0 py from previousyearactual where clientcode=?1 and year=?2 AND  monthsequence <=( select monthsequence from previousyearactual  where year=?2 and month=?4 and clientcode=?1 group by monthsequence) and maingroup='Over Head'  union
+select 'Profit And Loss Accounts'heading,maingroup,0 bud, 0 act,sum(amount) py from previousyearactual where clientcode=?1 and year=?3 AND  monthsequence <=( select monthsequence from previousyearactual  where year=?3 and month=?4 and clientcode=?1 group by monthsequence) and maingroup='Over Head' ) t group by t.heading,t.maingroup
 union
 select t.heading,t.maingroup,sum(t.bud)bud,sum(t.act)act,sum(t.py)py from(SELECT 'Profit And Loss Accounts'heading,
     'Profit Befor Dep & Tax' AS maingroup,
@@ -1066,9 +1066,9 @@ WHERE clientcode = ?1
 )t group by t.heading,t.maingroup
 union
 select t.heading,t.maingroup,sum(t.bud)bud,sum(t.act)act,sum(t.py)py from(
-select 'Profit And Loss Accounts'heading, maingroup,sum(amount)bud,0 act, 0 py from budget where clientcode=?1 and year=?2  and maingroup='Over Head' and subgroup='Overhead'union
-select 'Profit And Loss Accounts'heading,maingroup,0 bud,sum(amount)act, 0 py from previousyearactual where clientcode=?1 and year=?2  and maingroup='Over Head' and subgroup='Overhead' union
-select 'Profit And Loss Accounts'heading,maingroup,0 bud, 0 act,sum(amount) py from previousyearactual where clientcode=?1 and year=?3  and maingroup='Over Head' and subgroup='Overhead') t group by t.heading,t.maingroup
+select 'Profit And Loss Accounts'heading, maingroup,sum(amount)bud,0 act, 0 py from budget where clientcode=?1 and year=?2  and maingroup='Over Head' union
+select 'Profit And Loss Accounts'heading,maingroup,0 bud,sum(amount)act, 0 py from previousyearactual where clientcode=?1 and year=?2  and maingroup='Over Head'  union
+select 'Profit And Loss Accounts'heading,maingroup,0 bud, 0 act,sum(amount) py from previousyearactual where clientcode=?1 and year=?3  and maingroup='Over Head' ) t group by t.heading,t.maingroup
 union
 select t.heading,t.maingroup,sum(t.bud)bud,sum(t.act)act,sum(t.py)py from(SELECT 'Profit And Loss Accounts'heading,
     'Profit Befor Dep & Tax' AS maingroup,
