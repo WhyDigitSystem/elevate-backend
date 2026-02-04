@@ -21,44 +21,45 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "listofvalues")
+@Table(name="listofvalues")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ListOfValuesVO {
+	
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "listofvaluesgen")
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "listofvaluesgen")
 	@SequenceGenerator(name = "listofvaluesgen", sequenceName = "listofvaluesseq", initialValue = 1000000001, allocationSize = 1)
 	@Column(name = "listofvaluesid")
 	private Long id;
-	@Column(name = "listcode")
-	private String listCode;
-	@Column(name = "listdescription")
-	private String listDescription;
-	@Column(name = "cancel")
-	private boolean cancel;
-	@Column(name = "createdby")
+	
+	
+	@Column(name = "name", length = 150)
+	private String name;
+	
+	@Column(name = "createdby", length = 50)
 	private String createdBy;
-	@Column(name = "modifiedby")
-	private String  updatedBy;
-	@Column(name = "cancelremarks")
+	
+	@Column(name = "modifiedby", length = 50)
+	private String updatedBy;
+	
+	@Column(name = "cancelremarks", length = 150)
 	private String cancelRemarks;
 	
-	@Column(name="orgid")
+	private boolean cancel=false;
+	
+	private boolean active;
+	
+	@Column(name = "orgid")
 	private Long orgId;
-	@Column(name="active")
-    private boolean active;
-	
-	@OneToMany(mappedBy = "listOfValuesVO",cascade = CascadeType.ALL)
-	@JsonManagedReference
-	private List<ListOfValues1VO> listOfValues1VO;
-	
-	
+
 	@Embedded
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
 	
-//	@JsonGetter("active")
-//	public String getActive() {
-//		return active ? "Active" : "In-Active";
-//	}
+	@OneToMany(mappedBy ="listOfValuesVO",cascade =CascadeType.ALL)
+	@JsonManagedReference
+	private List<ListOfValuesDetailsVO>  listOfValuesDetailsVO;
+	
+	
+
 }

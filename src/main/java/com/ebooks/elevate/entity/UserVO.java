@@ -60,12 +60,6 @@ public class UserVO {
 	private String userType;
 	@Column(name = "customer")
 	private String customer;
-//	@Column(name = "warehouse")
-//	private String warehouse;
-//	@Column(name = "branch")
-//	private String branch;
-//	@Column(name = "branchcode")
-//	private String branchcode;
 	@Column(name = "client")
 	private String client;
 	@Column(name = "loginstatus")
@@ -79,6 +73,10 @@ public class UserVO {
 	@Column(name = "role")
 	private Role role;
 	private boolean allIndiaAcces;
+	@Column(name = "clientid")
+	private Long clientId;
+	
+	
 
 	@Embedded
 	private CreatedUpdatedDate commonDate = new CreatedUpdatedDate();
@@ -86,8 +84,8 @@ public class UserVO {
 	@OneToMany(mappedBy = "userVO", cascade = CascadeType.ALL)
 	private List<UserLoginRolesVO> roleAccessVO;
 
-//	@OneToMany(mappedBy = "userVO", cascade = CascadeType.ALL)
-//	private List<UserLoginClientAccessVO> clientAccessVO;
+	@OneToMany(mappedBy = "userVO", cascade = CascadeType.ALL)
+	private List<UserLoginClientAccessVO> clientAccessVO;
 
 	@OneToMany(mappedBy = "userVO", cascade = CascadeType.ALL)
 	private List<UserLoginBranchAccessibleVO> branchAccessibleVO;

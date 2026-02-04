@@ -12,14 +12,21 @@ public interface ResponsibilitiesRepo extends JpaRepository<ResponsibilityVO, Lo
 
 	boolean existsByResponsibilityAndOrgId(String responsibility,Long OrgId);
 
-	@Query(value="select a.id,a.responsibility from ResponsibilityVO a where a.orgId=?1 and a.active=true")
-	Set<Object[]> findActiveByOrgId(Long orgId);
+	
+//	@Query(value="select a from ResponsibilityVO a where a.orgId=?1 ")
+//	List<ResponsibilityVO> findAllResponsibilityByOrgId(Long orgId);
+
+	
+//	List<ResponsibilityVO> findAllActiveResponsibilityByOrgId();
+
+	@Query(value="select a.id,a.responsibility from ResponsibilityVO a where  a.active=true and orgid=?1")
+	Set<Object[]> findActiveResponsibility(Long orgId);
+
+	@Query(value="select a from ResponsibilityVO a where a.active=true and a.orgId=?1 ")
+	List<ResponsibilityVO> findAllActiveResponsibility(Long orgId);
 
 	@Query(value="select a from ResponsibilityVO a where a.orgId=?1 ")
-	List<ResponsibilityVO> findAllResponsibilityByOrgId(Long orgId);
-
-	@Query(value="select a from ResponsibilityVO a where a.orgId=?1 and a.active=true ")
-	List<ResponsibilityVO> findAllActiveResponsibilityByOrgId(Long orgId);
+	List<ResponsibilityVO> findAllByOrgId(Long orgId);
 
 
 }

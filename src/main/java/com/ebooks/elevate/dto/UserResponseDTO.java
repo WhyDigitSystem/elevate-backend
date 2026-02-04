@@ -29,6 +29,7 @@ public class UserResponseDTO {
 	private String client;
 	private boolean loginStatus;
 	private boolean active;
+	private boolean orgActive;
 	private boolean allIndiaAcces;
 	private List<Map<String, Object>> roleVO;
 //	private List<Map<String, Object>> responsibilityVO;

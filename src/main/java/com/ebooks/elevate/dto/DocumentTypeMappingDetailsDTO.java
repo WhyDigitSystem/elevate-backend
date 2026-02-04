@@ -17,4 +17,6 @@ public class DocumentTypeMappingDetailsDTO {
 	private String prefixField;
 	private String finYear;
 	private String finYearIdentifier;
+	private String client;
+	private String clientCode;
 }

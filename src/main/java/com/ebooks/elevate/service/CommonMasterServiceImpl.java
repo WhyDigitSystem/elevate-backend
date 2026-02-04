@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ebooks.elevate.dto.CityDTO;
+import com.ebooks.elevate.dto.ClientDTO;
 import com.ebooks.elevate.dto.CompanyDTO;
 import com.ebooks.elevate.dto.CountryDTO;
 import com.ebooks.elevate.dto.CurrencyDTO;
@@ -29,11 +30,12 @@ import com.ebooks.elevate.dto.Role;
 import com.ebooks.elevate.dto.ScreenNamesDTO;
 import com.ebooks.elevate.dto.StateDTO;
 import com.ebooks.elevate.entity.CityVO;
+import com.ebooks.elevate.entity.ClientVO;
+import com.ebooks.elevate.entity.CompanyEmployeeVO;
 import com.ebooks.elevate.entity.CompanyVO;
 import com.ebooks.elevate.entity.CountryVO;
 import com.ebooks.elevate.entity.CurrencyVO;
-import com.ebooks.elevate.entity.EmployeeVO;
-import com.ebooks.elevate.entity.FinScreenVO;
+import com.ebooks.elevate.entity.EltCompanyVO;
 import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.entity.RegionVO;
 import com.ebooks.elevate.entity.ScreenNamesVO;
@@ -41,9 +43,12 @@ import com.ebooks.elevate.entity.StateVO;
 import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.exception.ApplicationException;
 import com.ebooks.elevate.repo.CityRepo;
+import com.ebooks.elevate.repo.ClientRepo;
+import com.ebooks.elevate.repo.CompanyEmployeeRepo;
 import com.ebooks.elevate.repo.CompanyRepo;
 import com.ebooks.elevate.repo.CountryRepo;
 import com.ebooks.elevate.repo.CurrencyRepo;
+import com.ebooks.elevate.repo.EltCompanyRepo;
 import com.ebooks.elevate.repo.EmployeeRepo;
 import com.ebooks.elevate.repo.FinScreenRepo;
 import com.ebooks.elevate.repo.FinancialYearRepo;
@@ -65,6 +70,12 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 
 	@Autowired
 	CurrencyRepo currencyRepo;
+	
+	@Autowired
+	EltCompanyRepo eltCompanyRepo;
+	
+	@Autowired
+	CompanyEmployeeRepo companyEmployeeRepo;
 
 	@Autowired
 	StateRepo stateRepo;
@@ -101,6 +112,9 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 
 	@Autowired
 	ScreenNamesRepo screenNamesRepo;
+
+	@Autowired
+	ClientRepo clientRepo;
 
 	// Company
 
@@ -165,12 +179,41 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		getCompanyVOFromCompanyDTO(companyVO, companyDTO);
 		companyRepo.save(companyVO);
 
-		EmployeeVO employeeVO = new EmployeeVO();
-		employeeVO.setEmployeeName(companyVO.getEmployeeName());
-		employeeVO.setEmployeeCode(companyVO.getEmployeeCode());
-		employeeVO.setActive(true);
-		employeeVO.setOrgId(companyVO.getId());
-		employeeRepo.save(employeeVO);
+//		EmployeeVO employeeVO = new EmployeeVO();
+//		employeeVO.setEmployeeName(companyVO.getEmployeeName());
+//		employeeVO.setEmployeeCode(companyVO.getEmployeeCode());
+//		employeeVO.setRole(companyVO.getRole());
+//		employeeVO.setActive(true);
+//		employeeVO.setOrgId(companyVO.getId());
+//		employeeRepo.save(employeeVO);
+		
+		CompanyEmployeeVO companyEmployeeVO= new CompanyEmployeeVO();
+		companyEmployeeVO.setActive(true);
+		
+		if(companyEmployeeRepo.existsByOrgIdAndEmployeeCode(companyVO.getId(),companyVO.getEmployeeCode()))
+		{
+			throw new ApplicationContextException("This Employee Code Already Exist for This Company");
+		}
+		companyEmployeeVO.setEmployeeCode(companyVO.getEmployeeCode());
+		companyEmployeeVO.setEmployeeName(companyVO.getEmployeeName());
+		companyEmployeeVO.setEmail(companyVO.getEmail());
+		companyEmployeeVO.setOrgId(companyVO.getId());
+		companyEmployeeVO.setCreatedBy(companyVO.getCreatedBy());
+		companyEmployeeVO.setUpdatedBy(companyVO.getUpdatedBy());
+		companyEmployeeRepo.save(companyEmployeeVO);
+		
+		EltCompanyVO eltCompanyVO= new EltCompanyVO();
+		eltCompanyVO.setId(companyVO.getId());
+		eltCompanyVO.setCompanyCode(companyVO.getCompanyCode());
+		eltCompanyVO.setCompanyName(companyVO.getCompanyName());
+		eltCompanyVO.setActive(true);
+		eltCompanyVO.setCancel(false);
+		eltCompanyVO.setPhone(companyVO.getPhone());
+		eltCompanyVO.setWebSite(companyVO.getWebSite());
+		eltCompanyVO.setUpdatedBy(companyVO.getUpdatedBy());
+		eltCompanyVO.setCreatedBy(companyVO.getCreatedBy());
+		eltCompanyRepo.save(eltCompanyVO);	
+		
 
 		UserVO userVO = new UserVO();
 		userVO.setUserName(companyVO.getEmployeeCode());
@@ -178,8 +221,8 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		userVO.setEmployeeCode(companyVO.getEmployeeCode());
 		userVO.setEmail(companyVO.getEmail());
 		userVO.setMobileNo(companyVO.getPhone());
-		userVO.setRole(Role.ROLE_USER);
-		userVO.setUserType("admin");
+		userVO.setRole(companyVO.getRole());
+		userVO.setUserType("ADMIN");
 		userVO.setOrgId(companyVO.getId());
 		userVO.setCreatedby(companyVO.getCreatedBy());
 		userVO.setUpdatedby(companyVO.getCreatedBy());
@@ -213,6 +256,7 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		companyVO.setEmail(companyDTO.getEmail());
 		companyVO.setWebSite(companyDTO.getWebSite());
 		companyVO.setNote(companyDTO.getNote());
+		companyVO.setRole(Role.ADMIN);
 		companyVO.setEmployeeCode(companyDTO.getEmployeeCode());
 		companyVO.setEmployeeName(companyDTO.getEmployeeName());
 		companyVO.setCreatedBy(companyDTO.getCreatedBy());
@@ -230,6 +274,7 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		}
 	}
 
+	@Override
 	public CompanyVO updateCompany(CompanyDTO companyDTO) throws ApplicationException {
 
 		if (ObjectUtils.isEmpty(companyDTO.getId())) {
@@ -261,10 +306,9 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 //			companyVO.setEmployeeCode(companyDTO.getEmployeeCode());
 //			companyVO.setEmployeeName(companyDTO.getEmployeeName());
 		companyVO.setCreatedBy(companyDTO.getCreatedBy());
-		companyVO.setUpdatedBy(companyDTO.getUpdatedBy());
 		companyVO.setActive(companyDTO.isActive());
 		companyVO.setCancel(companyDTO.isCancel());
-		companyVO.setRole(companyDTO.getRole());
+		companyVO.setRole(Role.ADMIN);
 		companyVO.setGst(companyDTO.getGst());
 		companyVO.setCeo(companyDTO.getCeo());
 	}
@@ -947,26 +991,13 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		String message;
 
 		if (ObjectUtils.isEmpty(financialYearDTO.getId())) {
-			if (financialYearRepo.existsByFinYearAndOrgId(financialYearDTO.getFinYear(), financialYearDTO.getOrgId())) {
-				String errorMessage = String.format("ThiS finyear:%s Already Exists This Organization .",
-						financialYearDTO.getFinYear());
-				throw new ApplicationException(errorMessage);
-			}
-
+			
 			if (financialYearRepo.existsByFinYearIdentifierAndOrgId(financialYearDTO.getFinYearIdentifier(),
 					financialYearDTO.getOrgId())) {
 				String errorMessage = String.format("ThiS finyearidentifier:%s Already Exists This Organization .",
 						financialYearDTO.getFinYearIdentifier());
 				throw new ApplicationException(errorMessage);
 			}
-
-			if (financialYearRepo.existsByFinYearIdAndOrgId(financialYearDTO.getFinYearId(),
-					financialYearDTO.getOrgId())) {
-				String errorMessage = String.format("ThiS finyearid:%s Already Exists This Organization .",
-						financialYearDTO.getFinYearId());
-				throw new ApplicationException(errorMessage);
-			}
-
 			financialYearVO = new FinancialYearVO();
 			financialYearVO.setCreatedBy(financialYearDTO.getCreatedBy());
 			financialYearVO.setUpdatedBy(financialYearDTO.getCreatedBy());
@@ -977,15 +1008,8 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 					.orElseThrow(() -> new ApplicationException(String
 							.format("This Id Is Not Found Any Information, Invalid Id: %s", financialYearDTO.getId())));
 
-			if (financialYearVO.getFinYear() != financialYearDTO.getFinYear()) {
-				if (financialYearRepo.existsByFinYearAndOrgId(financialYearDTO.getFinYear(),
-						financialYearDTO.getOrgId())) {
-					String errorMessage = String.format("This finyear: %s already exists for this organization.",
-							financialYearDTO.getFinYear());
-					throw new ApplicationException(errorMessage);
-				}
+			
 				financialYearVO.setFinYear(financialYearDTO.getFinYear());
-			}
 
 			if (!financialYearVO.getFinYearIdentifier().equals(financialYearDTO.getFinYearIdentifier())) {
 				if (financialYearRepo.existsByFinYearIdentifierAndOrgId(financialYearDTO.getFinYearIdentifier(),
@@ -999,13 +1023,13 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 			}
 
 			if (financialYearVO.getFinYearId() != financialYearDTO.getFinYearId()) {
-				if (financialYearRepo.existsByFinYearIdAndOrgId(financialYearDTO.getFinYearId(),
+				if (financialYearRepo.existsByFinYearIdentifierAndOrgId(financialYearDTO.getFinYearIdentifier(),
 						financialYearDTO.getOrgId())) {
-					String errorMessage = String.format("This finyearId: %s already exists for this organization.",
-							financialYearDTO.getFinYearId());
+					String errorMessage = String.format("ThiS finyearidentifier:%s Already Exists This Organization .",
+							financialYearDTO.getFinYearIdentifier());
 					throw new ApplicationException(errorMessage);
 				}
-				financialYearVO.setFinYearId(financialYearDTO.getFinYearId());
+				financialYearVO.setFinYearIdentifier(financialYearDTO.getFinYearIdentifier());
 			}
 
 			financialYearVO.setUpdatedBy(financialYearDTO.getCreatedBy());
@@ -1031,6 +1055,7 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		financialYearVO.setCurrentFinYear(financialYearDTO.isCurrentFinYear());
 		financialYearVO.setClosed(financialYearDTO.isClosed());
 		financialYearVO.setOrgId(financialYearDTO.getOrgId());
+		financialYearVO.setYearType(financialYearDTO.getYearType());
 		financialYearVO.setActive(financialYearDTO.isActive());
 	}
 
@@ -1044,9 +1069,28 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 		return financialYearRepo.findFinancialYearByOrgId(orgId);
 	}
 
+	
 	@Override
 	public Optional<FinancialYearVO> getAllFInYearById(Long id) {
 		return financialYearRepo.findById(id);
+	}
+	
+	@Override
+	public List<Map<String, Object>> getFinYearByClient(Long orgId,String clientCode) {
+		Set<Object[]> finYear = financialYearRepo.getClientFinYear(orgId,clientCode);
+		return getFinYear(finYear); // Returning a list of Map<String, Object>
+	}
+
+	private List<Map<String, Object>> getFinYear(Set<Object[]> finYear) {
+		List<Map<String, Object>> currencyList = new ArrayList<>(); // Correct variable name
+
+		for (Object[] currency : finYear) { // Iterating over getFullGridCurrency
+			Map<String, Object> currencyMap = new HashMap<>();
+			currencyMap.put("finYear", currency[0] != null ? currency[0].toString() : "");
+
+			currencyList.add(currencyMap); // Add the Map to the list
+		}
+		return currencyList;
 	}
 
 	@Override
@@ -1067,6 +1111,187 @@ public class CommonMasterServiceImpl implements CommonMasterService {
 			currencyList.add(currencyMap); // Add the Map to the list
 		}
 		return currencyList;
+	}
+
+	// CLIENT
+
+	@Override
+	public Map<String, Object> createUpdateClient(ClientDTO clientDTO) throws ApplicationException {
+
+		ClientVO clientVO = null;
+		String message;
+
+		if (ObjectUtils.isEmpty(clientDTO.getId())) {
+
+			if (clientRepo.existsByClientCodeAndId(clientDTO.getClientCode(), clientDTO.getId())) {
+				String errorMessage = String.format("The Client Code:%s Already Exists This Id .",
+						clientDTO.getClientCode());
+				throw new ApplicationException(errorMessage);
+			}
+			if (clientRepo.existsByClientAndId(clientDTO.getClient(), clientDTO.getId())) {
+				String errorMessage = String.format("The Client:%s Already Exists This Id .", clientDTO.getClient());
+				throw new ApplicationException(errorMessage);
+
+			}
+			if (clientRepo.existsByClientMailAndId(clientDTO.getClientMail(), clientDTO.getId())) {
+				String errorMessage = String.format("The Client Mail:%s Already Exists This Id .",
+						clientDTO.getClientMail());
+				throw new ApplicationException(errorMessage);
+
+			}
+			if (clientRepo.existsByPhoneNoAndId(clientDTO.getPhoneNo(), clientDTO.getId())) {
+				String errorMessage = String.format("The Client Name:%s Already Exists This Id .",
+						clientDTO.getPhoneNo());
+				throw new ApplicationException(errorMessage);
+
+			}
+
+			clientVO = new ClientVO();
+			clientVO.setCreatedBy(clientDTO.getCreatedBy());
+			clientVO.setUpdatedBy(clientDTO.getCreatedBy());
+
+			message = "Client Creation Succesfully";
+		}
+
+		else {
+			// Update existing city
+			clientVO = clientRepo.findById(clientDTO.getId())
+					.orElseThrow(() -> new ApplicationException("Client not found with id: " + clientDTO.getId()));
+			clientVO.setUpdatedBy(clientDTO.getCreatedBy());
+
+			if (!clientVO.getClientCode().equalsIgnoreCase(clientDTO.getClientCode())) {
+
+				if (clientRepo.existsByClientCodeAndId(clientDTO.getClientCode(), clientDTO.getId())) {
+					String errorMessage = String.format("The Client Code:%s Already Exists This Id .",
+							clientDTO.getClientCode());
+					throw new ApplicationException(errorMessage);
+				}
+
+				clientVO.setClientCode(clientDTO.getClientCode());
+			}
+
+			if (!clientVO.getClient().equalsIgnoreCase(clientDTO.getClient())) {
+
+				if (clientRepo.existsByClientAndId(clientDTO.getClient(), clientDTO.getId())) {
+					String errorMessage = String.format("The Client:%s Already Exists This Id .",
+							clientDTO.getClient());
+					throw new ApplicationException(errorMessage);
+
+				}
+
+				clientVO.setClient(clientDTO.getClientCode());
+			}
+
+			if (!clientVO.getClientMail().equalsIgnoreCase(clientDTO.getClientMail())) {
+
+				if (clientRepo.existsByClientMailAndId(clientDTO.getClientMail(), clientDTO.getId())) {
+					String errorMessage = String.format("The Client Mail:%s Already Exists This Id .",
+							clientDTO.getClientMail());
+					throw new ApplicationException(errorMessage);
+
+				}
+
+				clientVO.setClientMail(clientDTO.getClientMail());
+			}
+
+			if (!clientVO.getPhoneNo().equalsIgnoreCase(clientDTO.getPhoneNo())) {
+
+				if (clientRepo.existsByPhoneNoAndId(clientDTO.getPhoneNo(), clientDTO.getId())) {
+					String errorMessage = String.format("The Client Name:%s Already Exists This Id .",
+							clientDTO.getPhoneNo());
+					throw new ApplicationException(errorMessage);
+
+				}
+
+				clientVO.setPhoneNo(clientDTO.getPhoneNo());
+			}
+
+			message = "Client Updation Succesfully";
+		}
+
+		clientVO = getClientVOFromClientDTO(clientVO, clientDTO);
+		clientRepo.save(clientVO);
+
+//		EmployeeVO employeeVO = new EmployeeVO();
+//		employeeVO.setEmployeeName(clientVO.getUserName());
+//		employeeVO.setEmployeeCode(clientVO.getClientCode());
+//		employeeVO.setRole(clientVO.getRole());
+//		employeeVO.setActive(true);
+//		employeeVO.setEmail(clientVO.getClientMail());
+//		employeeVO.setOrgId(clientVO.getId());
+//		employeeRepo.save(employeeVO);
+
+		UserVO userVO = new UserVO();
+		userVO.setUserName(clientVO.getUserName());
+		userVO.setUserName(clientVO.getClientCode());
+		// userVO.setEmployeeName(clientDTO.getClientAdminName());
+		userVO.setEmployeeCode(clientVO.getClientCode());
+		userVO.setEmail(clientVO.getClientMail());
+		userVO.setMobileNo(clientVO.getPhoneNo());
+		// userVO.setRole(clientVO.getRole());
+		userVO.setUserType(clientVO.getType());
+		userVO.setOrgId(clientVO.getOrgId());
+		userVO.setCreatedby(clientVO.getCreatedBy());
+		userVO.setUpdatedby(clientVO.getCreatedBy());
+		userVO.setActive(clientDTO.isActive());
+		userVO.setClientId(clientVO.getId());
+		userVO.setLoginStatus(false);
+
+		try {
+			userVO.setPassword(encoder.encode(CryptoUtils.getDecrypt(clientDTO.getPassword())));
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			throw new ApplicationContextException("Unable To Encode Password");
+		}
+
+		userRepo.save(userVO);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", message);
+		response.put("clientVO", clientVO);
+		return response;
+	}
+
+	private ClientVO getClientVOFromClientDTO(ClientVO clientVO, ClientDTO clientDTO) {
+
+		clientVO.setClient(clientDTO.getClient());
+		clientVO.setClientCode(clientDTO.getClientCode());
+		clientVO.setType(clientDTO.getType());
+		clientVO.setClientMail(clientDTO.getClientMail());
+		clientVO.setPhoneNo(clientDTO.getPhoneNo());
+		// clientVO.setContactPerson(clientDTO.getContactPerson());
+		clientVO.setUserName(clientDTO.getUserName());
+		clientVO.setPassword(clientDTO.getPassword());
+		clientVO.setActive(clientDTO.isActive());
+		clientVO.setCancel(clientDTO.isCancel());
+		clientVO.setOrgId(clientDTO.getOrgId());
+		clientVO.setCreatedBy(clientDTO.getCreatedBy());
+		// clientVO.setClientAdminName(clientDTO.getClientAdminName());
+		// clientVO.setRole(Role.ADMIN);
+
+		clientVO.setPassword(clientDTO.getPassword());
+
+		try {
+			clientVO.setPassword(encoder.encode(CryptoUtils.getDecrypt(clientDTO.getPassword())));
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			throw new ApplicationContextException("Unable To Encode Password");
+		}
+
+		return clientVO; // Return the populated ClientVO
+
+	}
+
+	@Override
+	public List<ClientVO> getAllClients(Long orgId) {
+
+		return clientRepo.findAllClientByorgId(orgId);
+	}
+
+	@Override
+	public Optional<ClientVO> getClientById(Long id) {
+
+		return clientRepo.findById(id);
 	}
 
 }

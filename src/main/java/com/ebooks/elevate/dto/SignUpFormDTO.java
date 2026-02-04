@@ -34,5 +34,6 @@ public class SignUpFormDTO {
 	private boolean allIndiaAcces;
 	private List<UserLoginRoleAccessDTO> roleAccessDTO;
 	private List<UserLoginBranchAccessDTO> branchAccessDTOList;
+	private List<UserLoginClientAccessDTO> clientAccessDTOList;
 
 }

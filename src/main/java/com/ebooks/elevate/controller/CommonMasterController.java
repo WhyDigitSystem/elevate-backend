@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ebooks.elevate.common.CommonConstant;
 import com.ebooks.elevate.common.UserConstants;
 import com.ebooks.elevate.dto.CityDTO;
+import com.ebooks.elevate.dto.ClientDTO;
 import com.ebooks.elevate.dto.CompanyDTO;
 import com.ebooks.elevate.dto.CountryDTO;
 import com.ebooks.elevate.dto.CurrencyDTO;
@@ -38,7 +39,6 @@ import com.ebooks.elevate.entity.CityVO;
 import com.ebooks.elevate.entity.CompanyVO;
 import com.ebooks.elevate.entity.CountryVO;
 import com.ebooks.elevate.entity.CurrencyVO;
-import com.ebooks.elevate.entity.FinScreenVO;
 import com.ebooks.elevate.entity.FinancialYearVO;
 import com.ebooks.elevate.entity.RegionVO;
 import com.ebooks.elevate.entity.ScreenNamesVO;
@@ -713,6 +713,32 @@ public class CommonMasterController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+	
+	@GetMapping("/getFinYearByClient")
+	public ResponseEntity<ResponseDTO> getFinYearByClient(@RequestParam Long orgId,@RequestParam String clientCode) {
+		String methodName = "getFinYearByClient()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		List<Map<String, Object>> financialYearVOs = new ArrayList<>();
+		try {
+			financialYearVOs = commonMasterService.getFinYearByClient(orgId, clientCode);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+		}
+		if (StringUtils.isBlank(errorMsg)) {
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, "FInYear information get successfully");
+			responseObjectsMap.put("financialYearVOs", financialYearVOs);
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} else {
+			responseDTO = createServiceResponseError(responseObjectsMap, "FInYear information receive failed",
+					errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 
 	@GetMapping("/getAllFInYearById")
 	public ResponseEntity<ResponseDTO> getAllFInYearById(Long id) {
@@ -899,5 +925,31 @@ public class CommonMasterController extends BaseController {
 		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
 		return ResponseEntity.ok().body(responseDTO);
 	}
+	
+	//CLIENT
+	
+	@PutMapping("/createUpdateClient")
+	public ResponseEntity<ResponseDTO> createUpdateClient(@RequestBody ClientDTO clientDTO) {
+		String methodName = "createUpdateClient()";
+		LOGGER.debug(CommonConstant.STARTING_METHOD, methodName);
+		String errorMsg = null;
+		Map<String, Object> responseObjectsMap = new HashMap<>();
+		ResponseDTO responseDTO = null;
+		try {
+			Map<String, Object> clientVO = commonMasterService.createUpdateClient(clientDTO);
+			responseObjectsMap.put(CommonConstant.STRING_MESSAGE, clientVO.get("messages"));
+			responseObjectsMap.put("clientVO", clientVO.get("clientVO"));
+			responseDTO = createServiceResponse(responseObjectsMap);
+		} catch (Exception e) {
+			errorMsg = e.getMessage();
+			LOGGER.error(UserConstants.ERROR_MSG_METHOD_NAME, methodName, errorMsg);
+			responseDTO = createServiceResponseError(responseObjectsMap, errorMsg, errorMsg);
+		}
+		LOGGER.debug(CommonConstant.ENDING_METHOD, methodName);
+		return ResponseEntity.ok().body(responseDTO);
+	}
 
+	
+	
+	
 }

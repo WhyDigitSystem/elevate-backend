@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,17 +34,22 @@ import com.ebooks.elevate.dto.RolesResponsibilityDTO;
 import com.ebooks.elevate.dto.ScreensDTO;
 import com.ebooks.elevate.dto.SignUpFormDTO;
 import com.ebooks.elevate.dto.UserLoginBranchAccessDTO;
+import com.ebooks.elevate.dto.UserLoginClientAccessDTO;
 import com.ebooks.elevate.dto.UserLoginRoleAccessDTO;
 import com.ebooks.elevate.dto.UserResponseDTO;
+import com.ebooks.elevate.entity.CompanyVO;
 import com.ebooks.elevate.entity.ResponsibilityVO;
 import com.ebooks.elevate.entity.RolesResponsibilityVO;
 import com.ebooks.elevate.entity.RolesVO;
 import com.ebooks.elevate.entity.ScreensVO;
 import com.ebooks.elevate.entity.TokenVO;
 import com.ebooks.elevate.entity.UserLoginBranchAccessibleVO;
+import com.ebooks.elevate.entity.UserLoginClientAccessVO;
 import com.ebooks.elevate.entity.UserLoginRolesVO;
 import com.ebooks.elevate.entity.UserVO;
 import com.ebooks.elevate.exception.ApplicationException;
+import com.ebooks.elevate.repo.ClientAccessRepo;
+import com.ebooks.elevate.repo.CompanyRepo;
 import com.ebooks.elevate.repo.ResponsibilitiesRepo;
 import com.ebooks.elevate.repo.RolesRepo;
 import com.ebooks.elevate.repo.RolesResponsibilityRepo;
@@ -71,11 +77,13 @@ public class AuthServiceImpl implements AuthService {
 	UserActionRepo userActionRepo;
 
 	@Autowired
+	CompanyRepo companyRepo;
+
+	@Autowired
 	UserLoginRolesRepo loginRolesRepo;
 
 	@Autowired
 	UserBranchAccessRepo branchAccessRepo;
-
 
 	@Autowired
 	TokenProvider tokenProvider;
@@ -98,6 +106,18 @@ public class AuthServiceImpl implements AuthService {
 	@Autowired
 	RolesResponsibilityRepo rolesResponsibilityRepo;
 
+	@Autowired
+	ClientAccessRepo clientAccessRepo;
+
+	@Autowired
+	LicenseService licenseService;
+
+	
+	@Value("${usercount}")
+	private int userLimit;
+	
+	
+	
 	@Override
 	public void signup(SignUpFormDTO signUpRequest) {
 		String methodName = "signup()";
@@ -110,6 +130,10 @@ public class AuthServiceImpl implements AuthService {
 //		{
 //			throw new ApplicationContextException(UserConstants.ERRROR_MSG_USER_INFORMATION_ALREADY_REGISTERED);
 //		}
+		int count= userRepo.getUserCount(signUpRequest.getOrgId());
+		if(count>=userLimit && signUpRequest.isActive()) {
+			throw new ApplicationContextException("No of Active Users Limit Exceeded...");
+		}
 		UserVO userVO = getUserVOFromSignUpFormDTO(signUpRequest);
 		userRepo.save(userVO);
 		userService.createUserAction(userVO.getUserName(), userVO.getId(), UserConstants.USER_ACTION_ADD_ACCOUNT);
@@ -121,18 +145,20 @@ public class AuthServiceImpl implements AuthService {
 		UserVO userVO = new UserVO();
 
 //		userVO=userRepo.findByUserNameOrEmailOrMobileNo(signUpFormDTO.getUserName(), signUpFormDTO.getEmail(), signUpFormDTO.getEmail());
-		if (userRepo.existsByUserNameOrEmailOrMobileNo(signUpFormDTO.getUserName(), signUpFormDTO.getEmail(),
-				signUpFormDTO.getEmail())) {
-			userVO = userRepo.findByUserNameOrEmailOrMobileNo(signUpFormDTO.getUserName(), signUpFormDTO.getEmail(),
-					signUpFormDTO.getEmail());
+		if (userRepo.existsByUserName(signUpFormDTO.getUserName())) {
+			userVO = userRepo.findByUserName(signUpFormDTO.getUserName());
 
 			List<UserLoginRolesVO> roles = loginRolesRepo.findByUserVO(userVO);
 			loginRolesRepo.deleteAll(roles);
-//			List<UserLoginClientAccessVO> client = clientAccessRepo.findByUserVO(userVO);
-//			clientAccessRepo.deleteAll(client);
+			List<UserLoginClientAccessVO> client = clientAccessRepo.findByUserVO(userVO);
+			clientAccessRepo.deleteAll(client);
 			List<UserLoginBranchAccessibleVO> branch = branchAccessRepo.findByUserVO(userVO);
 			branchAccessRepo.deleteAll(branch);
+			List<UserLoginClientAccessVO> client1 = clientAccessRepo.findByUserVO(userVO);
+			clientAccessRepo.deleteAll(client1);
+
 		}
+
 		userVO.setUserName(signUpFormDTO.getUserName());
 		if (ObjectUtils.isEmpty(userVO.getId())) {
 			try {
@@ -147,6 +173,7 @@ public class AuthServiceImpl implements AuthService {
 		userVO.setEmail(signUpFormDTO.getEmail());
 		userVO.setEmployeeCode(signUpFormDTO.getEmployeeCode());
 		userVO.setMobileNo(signUpFormDTO.getMobileNo());
+
 		userVO.setUserType(signUpFormDTO.getUserType());
 		userVO.setActive(signUpFormDTO.isActive());
 		userVO.setOrgId(signUpFormDTO.getOrgId());
@@ -167,17 +194,17 @@ public class AuthServiceImpl implements AuthService {
 		}
 
 		userVO.setRoleAccessVO(rolesVO);
-//		List<UserLoginClientAccessVO> clientAccessVOList = new ArrayList<>();
-//		if (signUpFormDTO.getClientAccessDTOList() != null) {
-//			for (UserLoginClientAccessDTO clientAccessDTO : signUpFormDTO.getClientAccessDTOList()) {
-//				UserLoginClientAccessVO clientAccessVO = new UserLoginClientAccessVO();
-//				clientAccessVO.setClient(clientAccessDTO.getClient());
-//				clientAccessVO.setCustomer(clientAccessDTO.getCustomer());
-//				clientAccessVO.setUserVO(userVO);
-//				clientAccessVOList.add(clientAccessVO);
-//			}
-//		}
-//		userVO.setClientAccessVO(clientAccessVOList);
+		List<UserLoginClientAccessVO> clientAccessVOList = new ArrayList<>();
+		if (signUpFormDTO.getClientAccessDTOList() != null) {
+			for (UserLoginClientAccessDTO clientAccessDTO : signUpFormDTO.getClientAccessDTOList()) {
+				UserLoginClientAccessVO clientAccessVO = new UserLoginClientAccessVO();
+				clientAccessVO.setClientName(clientAccessDTO.getClientName());
+				clientAccessVO.setClientCode(clientAccessDTO.getClientCode());
+				clientAccessVO.setUserVO(userVO);
+				clientAccessVOList.add(clientAccessVO);
+			}
+		}
+		userVO.setClientAccessVO(clientAccessVOList);
 
 		List<UserLoginBranchAccessibleVO> branchAccessList = new ArrayList<>();
 		if (signUpFormDTO.getBranchAccessDTOList() != null) {
@@ -205,9 +232,29 @@ public class AuthServiceImpl implements AuthService {
 		UserVO userVO = userRepo.findByUserNameOrEmailOrMobileNo(loginRequest.getUserName(), loginRequest.getUserName(),
 				loginRequest.getUserName());
 
+		CompanyVO companyVO1 = companyRepo.findById(userVO.getOrgId()).get();
+
+		if (companyVO1.getLicense() != null) {
+			if (!licenseService.validateLicenseKey(companyVO1.getId(), companyVO1.getLicense())) {
+				throw new ApplicationException("License Expired, Please Contact Administrator");
+			}
+		}
+		else {
+			throw new ApplicationException("Licence Not Exists...");
+		}
+		
+
+		String orgActive = null;
+		boolean isClientActive = true;
+		if (!loginRequest.getUserName().equals("sadmin")) {
+			CompanyVO companyVO = companyRepo.findById(userVO.getOrgId()).get();
+			orgActive = companyVO.getActive();
+			isClientActive = "Active".equals(orgActive) ? true : false;
+		}
+
 		if (ObjectUtils.isNotEmpty(userVO)) {
-			if(userVO.getActive()=="In-Active")
-			{
+
+			if (userVO.getActive() == "In-Active") {
 				throw new ApplicationException("Your account is In-Active, Please Contact Administrator");
 			}
 			if (compareEncodedPasswordWithEncryptedPassword(loginRequest.getPassword(), userVO.getPassword())) {
@@ -220,6 +267,7 @@ public class AuthServiceImpl implements AuthService {
 					UserConstants.ERRROR_MSG_USER_INFORMATION_NOT_FOUND_AND_ASKING_SIGNUP);
 		}
 		UserResponseDTO userResponseDTO = mapUserVOToDTO(userVO);
+		userResponseDTO.setOrgActive(isClientActive);
 
 		List<Map<String, Object>> roleVOList = new ArrayList<>();
 
@@ -441,10 +489,10 @@ public class AuthServiceImpl implements AuthService {
 		if (ObjectUtils.isEmpty(responsibilityDTO.getId())) {
 
 			// Validate if responsibility already exists by responsibility name
-			if (responsibilityRepo.existsByResponsibilityAndOrgId(responsibilityDTO.getResponsibility(),
-					responsibilityDTO.getOrgId())) {
-				throw new ApplicationException("Responsibility Name already exists");
-			}
+//			if (responsibilityRepo.existsByResponsibilityAndOrgId(responsibilityDTO.getResponsibility(),
+//					responsibilityDTO.getOrgId())) {
+//				throw new ApplicationException("Responsibility Name already exists");
+//			}
 
 			responsibilityVO.setCreatedBy(responsibilityDTO.getCreatedBy());
 			responsibilityVO.setUpdatedBy(responsibilityDTO.getCreatedBy());
@@ -460,10 +508,10 @@ public class AuthServiceImpl implements AuthService {
 
 			// Validate and update unique fields if changed
 			if (!responsibilityVO.getResponsibility().equalsIgnoreCase(responsibilityDTO.getResponsibility())) {
-				if (responsibilityRepo.existsByResponsibilityAndOrgId(responsibilityDTO.getResponsibility(),
-						responsibilityDTO.getOrgId())) {
-					throw new ApplicationException("Responsibility Name already exists");
-				}
+//				if (responsibilityRepo.existsByResponsibilityAndOrgId(responsibilityDTO.getResponsibility(),
+//						responsibilityDTO.getOrgId())) {
+//					throw new ApplicationException("Responsibility Name already exists");
+//				}
 				responsibilityVO.setResponsibility(responsibilityDTO.getResponsibility());
 			}
 
@@ -504,7 +552,7 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public List<Map<String, Object>> getResponsibilityForRolesByOrgId(Long orgId) {
-		Set<Object[]> activeResponsibility = responsibilityRepo.findActiveByOrgId(orgId);
+		Set<Object[]> activeResponsibility = responsibilityRepo.findActiveResponsibility(orgId);
 		return getActiveResponsibile(activeResponsibility);
 	}
 
@@ -528,9 +576,9 @@ public class AuthServiceImpl implements AuthService {
 		if (ObjectUtils.isEmpty(rolesDTO.getId())) {
 
 			// Validate if role already exists
-			if (rolesRepo.existsByRoleAndOrgId(rolesDTO.getRole(), rolesDTO.getOrgId())) {
-				throw new ApplicationException("Role already exists");
-			}
+//			if (rolesRepo.existsByRoleAndOrgId(rolesDTO.getRole(), rolesDTO.getOrgId())) {
+//				throw new ApplicationException("Role already exists");
+//			}
 
 			rolesVO.setCreatedBy(rolesDTO.getCreatedBy());
 			rolesVO.setUpdatedBy(rolesDTO.getCreatedBy());
@@ -546,9 +594,9 @@ public class AuthServiceImpl implements AuthService {
 
 			// Validate and update unique fields if changed
 			if (!rolesVO.getRole().equalsIgnoreCase(rolesDTO.getRole())) {
-				if (rolesRepo.existsByRoleAndOrgId(rolesDTO.getRole(), rolesDTO.getOrgId())) {
-					throw new ApplicationException("Role already exists");
-				}
+//				if (rolesRepo.existsByRoleAndOrgId(rolesDTO.getRole(), rolesDTO.getOrgId())) {
+//					throw new ApplicationException("Role already exists");
+//				}
 				rolesVO.setRole(rolesDTO.getRole().toUpperCase());
 			}
 
@@ -579,7 +627,7 @@ public class AuthServiceImpl implements AuthService {
 				RolesResponsibilityVO rolesResponsibilityVO = new RolesResponsibilityVO();
 				rolesResponsibilityVO.setResponsibility(rolesResponsibilityDTO.getResponsibility().toUpperCase());
 				rolesResponsibilityVO.setResponsibilityId(rolesResponsibilityDTO.getResponsibilityId());
-				rolesResponsibilityVO.setOrgId(rolesDTO.getOrgId());
+//				rolesResponsibilityVO.setOrgId(rolesDTO.getOrgId());
 				rolesResponsibilityVO.setRolesVO(rolesVO);
 				rolesResponsibilityVOList.add(rolesResponsibilityVO);
 			}
@@ -590,13 +638,13 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public List<RolesVO> getAllRoles(Long orgId) {
 
-		return rolesRepo.findAllRolesByOrgId(orgId);
+		return rolesRepo.findAllByOrgId(orgId);
 	}
 
 	@Override
 	public List<RolesVO> getAllActiveRoles(Long orgId) {
 
-		return rolesRepo.findAllActiveRolesByOrgId(orgId);
+		return rolesRepo.findAllActiveRoles(orgId);
 	}
 
 	@Override
@@ -628,16 +676,15 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public List<ResponsibilityVO> getAllResponsibility(Long orgId) {
 
-		return responsibilityRepo.findAllResponsibilityByOrgId(orgId);
+		return responsibilityRepo.findAllByOrgId(orgId);
 	}
 
 	@Override
 	public List<ResponsibilityVO> getAllActiveResponsibility(Long orgId) {
 		// TODO Auto-generated method stub
-		return responsibilityRepo.findAllActiveResponsibilityByOrgId(orgId);
+		return responsibilityRepo.findAllActiveResponsibility(orgId);
 	}
 
-	@Override
 	public List<UserVO> getAllUsersByOrgId(Long orgId) {
 		// TODO Auto-generated method stub
 		return userRepo.findAllByOrgId(orgId);

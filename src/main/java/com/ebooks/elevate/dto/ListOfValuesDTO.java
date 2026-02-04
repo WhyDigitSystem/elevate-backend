@@ -10,13 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ListOfValuesDTO {
+	
 	private Long id;
-	private String listCode;
-	private String listDescription;
-	private Long orgId;
+	private String name;
 	private String createdBy;
-	private boolean active;
-		
-	private List<ListOfValues1DTO> ListOfValues1DTO;
+	private Long orgId;
+	
+	private List<ListOfValuesDetailsDTO> listOfValuesDetailsDTO;
 
 }
